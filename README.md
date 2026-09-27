@@ -39,6 +39,7 @@ The Vercel functions send mail over SMTP with [nodemailer](https://nodemailer.co
 
 - `api/contact.js`: the Contact Us form (`contact.html`) posts here, and the enquiry is emailed to sales with Reply-To set to the visitor. If the function fails or is unavailable, the form falls back to opening the visitor's email app.
 - `api/send-whitepaper.js`: case-study PDFs live in `assets/case-studies/pdf/`. When a visitor asks for one on `case-studies.html`, the PDF is emailed to them as an attachment and sales gets a lead notification.
+- `api/apply.js`: job applications from `careers.html`, emailed with the CV attached (see Careers).
 
 Set these in Vercel → Project → Settings → Environment Variables, then redeploy:
 
@@ -56,7 +57,7 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 
 **Google Workspace / Gmail:** `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` = the full mailbox address, and `SMTP_PASS` = a 16-character [app password](https://myaccount.google.com/apppasswords) (the account needs 2-Step Verification on; Google rejects the normal password over SMTP). Gmail sends as `SMTP_USER`; a different `MAIL_FROM` address only works if it is added under Gmail → Settings → Accounts → "Send mail as". Workspace allows about 2,000 messages a day per mailbox.
 
-Both functions only accept JSON posts from the site's own origin, have a hidden bot trap field, and rate-limit by IP (the PDF function also by recipient). These limits live in memory per instance; add a CAPTCHA (e.g. Cloudflare Turnstile) or a shared store before heavy public use.
+All three functions only accept JSON posts from the site's own origin, have a hidden bot trap field, and rate-limit by IP (the PDF function also by recipient). These limits live in memory per instance; add a CAPTCHA (e.g. Cloudflare Turnstile) or a shared store before heavy public use.
 
 
 ## News page
@@ -77,30 +78,65 @@ Posts live in `content/news.json`. To publish an update, add an entry at the top
 
 `youtube` is the id after `watch?v=` and shows the video thumbnail; use `image` instead for a local picture. `link` and `linkLabel` are optional.
 
-## Careers: live jobs and applications from Odoo
+## Careers
 
-`careers.html` lists the jobs published in Odoo Recruitment and lets people apply on this site. Applications create a candidate (`hr.applicant`) in Odoo with the CV attached, exactly like applying on the Odoo careers site, so HR sees them in the same pipeline.
+Open roles live in `data/jobs.json` (`id`, `title`, `department`, `location`, `positions`, `summary`, `isActive`) and are managed from the management console (below). `careers.html` ships a static copy of the list for visitors without JavaScript and replaces it with the live list from the API.
 
 | Endpoint | What it does |
 |---|---|
-| `GET /api/jobs` | Roles being recruited from `hr.job` (active, with at least one expected employee), cached for 10 minutes. Falls back to the static list in the page if Odoo is unreachable. Does not need Odoo's website module, so the Odoo website can be switched off. |
-| `POST /api/apply` | Creates `hr.applicant` and attaches the CV as an `ir.attachment` on that record. |
+| `GET /api/jobs` | The roles in `data/jobs.json` with `isActive: true`, cached for 5 minutes. |
+| `POST /api/apply` | Emails the application to `HR_EMAIL` (default `SALES_EMAIL`) with the CV attached and Reply-To set to the candidate, and files it for the console. |
 
-Set these in Vercel → Project → Settings → Environment Variables:
+Protections on `/api/apply`: same-origin JSON only, a hidden bot-trap field, 5 applications per hour per IP and 3 per day per email address, CVs limited to PDF or Word and 3 MB.
+
+## Stored submissions and published content
+
+SMTP is the only delivery channel; nothing else receives the site's form data. In addition to the emails, the functions keep records for the management console in GitHub through the Contents API (`api/_store.js`), so there is no database to pay for:
+
+| Data | Where | Written by |
+|---|---|---|
+| Client requirements, case-study leads, job applications, CVs | `requirements.json`, `leads.json`, `applicants.json`, `cvs/` in a **separate private repository** | `api/contact.js`, `api/send-whitepaper.js`, `api/apply.js` |
+| Open roles, case studies | `data/jobs.json`, `data/case-studies.json` in this repository | the management console |
+
+**Never store submissions in this repository.** It is public, and Vercel serves the repository root as the website, so anything committed here can be read by anyone and stays in the git history. `api/_store.js` refuses to use this repository for submissions.
+
+Setup:
+
+1. Create a private repository, e.g. `dtech-portal-data`, with an initial commit on `main`.
+2. Create two [fine-grained personal access tokens](https://github.com/settings/personal-access-tokens), each limited to one repository with **Contents: Read and write**: one for this site repository, one for the private repository.
+3. Add the variables below in Vercel and redeploy.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `ODOO_URL` | yes | e.g. `https://d-tech-live-database.odoo.com` |
-| `ODOO_DB` | yes | database name, e.g. `odoo-ps-psin-dtech-master-6996813` |
-| `ODOO_USERNAME` | yes | login of the website user |
-| `ODOO_API_KEY` | yes | API key for that user (Preferences → Account Security → New API Key) |
-| `ODOO_JOB_DOMAIN` | no | JSON Odoo domain overriding which jobs are listed, e.g. `[["active","=",true]]` |
+| `GITHUB_TOKEN` | for the console to save changes | Token for this site repository |
+| `GITHUB_REPO` | no | `owner/name` of this repository (default `underratedgitter/dtech-website`) |
+| `GITHUB_BRANCH` | no | Branch Vercel deploys from (default `main`) |
+| `GITHUB_DATA_REPO` | to store submissions | `owner/name` of the private repository |
+| `GITHUB_DATA_TOKEN` | to store submissions | Token for the private repository (falls back to `GITHUB_TOKEN`) |
+| `GITHUB_DATA_BRANCH` | no | Default `main` |
+| `HR_EMAIL` | no | Receives job applications (default `SALES_EMAIL`) |
 
-**Posting a job:** in Odoo open Recruitment → the job position → set Expected New Employees to 1 or more and keep it active ("Start Recruitment"). It appears on the careers page within 10 minutes. Stop recruitment or archive it to take it down.
+Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job or case study commits to `data/`, which redeploys the site, so the public pages show the change about a minute later.
 
-Use a dedicated Odoo user with recruitment access only, never an administrator: the key can do anything that user can do. The key is read server-side and never reaches the browser.
+Locally (no `VERCEL` variable and no tokens), `data/` is edited in place and submissions go to `.portal-data/`, which is git-ignored.
 
-Protections on `/api/apply`: same-origin JSON only, a hidden bot-trap field, 5 applications per hour per IP and 3 per day per email address, CVs limited to PDF or Word and 3 MB.
+## Management console
+
+A private dashboard for non-technical staff: client requirements (with CSV export for Excel), job applicants (with CV download), case-study leads, opening and closing jobs, and publishing or hiding case studies.
+
+- **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random passkey (at least 16 characters). Without it every admin endpoint answers 404. Changing it signs everyone out.
+- **Sign in** on the home page with **Ctrl + Shift + Alt + D**, enter the passkey, and you are taken to `/portal.html`. Opening `/portal.html#key=PASSKEY` also works; `?key=` is accepted too but puts the passkey in server logs, so prefer the shortcut.
+- `portal.html` is a copy of `404.html`. Without a valid session it shows the 404 page; the console script is only served (`/api/admin/console`) to a signed-in session. It is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
+- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The passkey check is timing-safe and limited to 5 attempts per 15 minutes per IP (per instance).
+
+| Endpoint | What it does |
+|---|---|
+| `GET/POST/DELETE /api/admin/auth` | Session check / sign in with `{ key }` / sign out |
+| `GET /api/admin/data` | All console data; `?cv=<applicant id>` downloads that CV |
+| `POST /api/admin/update` | Add, edit, delete or switch jobs and case studies |
+| `GET /api/admin/console` | The console app script |
+
+Built-in case studies can be hidden but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards without a PDF, and their button invites the visitor to get in touch.
 
 ## Security headers
 

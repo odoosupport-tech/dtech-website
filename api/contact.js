@@ -1,14 +1,17 @@
 // POST /api/contact
 // Emails a contact.html enquiry to D-TECH sales over SMTP, with Reply-To set to
-// the visitor so sales can answer straight from their inbox.
+// the visitor so sales can answer straight from their inbox, and files it in
+// requirements.json in the private data repository for the management console.
 //
 // Body (JSON):
 //   { name, email, phone, company, subject, topic, message, website }
 //   "website" is a hidden bot-trap field and must stay empty.
 //
-// Needs SMTP_HOST, SMTP_USER and SMTP_PASS (see _mail.js).
+// Needs SMTP_HOST, SMTP_USER and SMTP_PASS (see _mail.js). Filing the enquiry
+// needs GITHUB_DATA_REPO and a token (see _store.js); without them it is only emailed.
 
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
+const store = require('./_store');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
 
 const overLimit = createRateLimiter();
@@ -73,17 +76,25 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
   }
 
-  try {
-    const sent = await sendMail({
+  const record = { id: store.newId(), ...enquiry, date: new Date().toISOString() };
+  const [mailed, filed] = await Promise.allSettled([
+    sendMail({
       to: salesEmail(),
       replyTo: enquiry.email,
       subject: `Website enquiry: ${enquiry.topic || 'General'} — ${enquiry.name}`,
       html: enquiryEmail({ enquiry, ip }),
       text: enquiryText({ enquiry, ip }),
-    });
-    return res.status(200).json({ ok: true, id: sent.id });
-  } catch (err) {
-    console.error('Contact email failed:', err.message);
-    return res.status(502).json({ ok: false, error: 'We could not send your request right now. Please try again or email sales@dtechindia.com.' });
+    }),
+    store.isConfigured('private')
+      ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
+      : Promise.reject(new Error('private storage is not configured')),
+  ]);
+  if (mailed.status === 'rejected') console.error('Contact email failed:', mailed.reason.message);
+  if (filed.status === 'rejected') console.error('Filing requirement failed:', filed.reason.message);
+
+  // Either copy reaching sales is enough; only fail when both were lost.
+  if (mailed.status === 'fulfilled' || filed.status === 'fulfilled') {
+    return res.status(200).json({ ok: true, id: record.id });
   }
+  return res.status(502).json({ ok: false, error: 'We could not send your request right now. Please try again or email sales@dtechindia.com.' });
 };

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "l2-engineer-fms-dahej",
+    "title": "L2 Engineer - FMS",
+    "department": "Facility Management Services",
+    "location": "Dahej",
+    "positions": 1,
+    "summary": "Assist clients with hardware and software issues, on site or remotely, across all IT-related requests. Needs basic experience with L1/L2 switch and router configuration, P2P devices, hardware, network and software troubleshooting, plus a working knowledge of servers and firewalls.",
+    "isActive": true
+  },
+  {
+    "id": "l1-fms-engineer-for-cctv-support-jhagadia",
+    "title": "L1 FMS Engineer for CCTV Support",
+    "department": "Facility Management Services",
+    "location": "Jhagadia",
+    "positions": 1,
+    "summary": "Keep the CCTV system running day to day and report daily to the client. Involves switch, router and P2P device configuration and troubleshooting, and staying available on site for uninterrupted CCTV services.",
+    "isActive": true
+  },
+  {
+    "id": "l1-fms-engineer-adama-agricultural-solutions-dahej",
+    "title": "L1 FMS Engineer",
+    "department": "Facility Management Services",
+    "location": "ADAMA Agricultural Solutions, Dahej",
+    "positions": 1,
+    "summary": "Onsite IT support: desktops, laptops, printers and basic network connectivity, installing and configuring operating systems and applications, with prompt ticket management.",
+    "isActive": true
+  },
+  {
+    "id": "l1-fms-engineer-gacl-dahej",
+    "title": "L1-FMS Engineer",
+    "department": "Facility Management Services",
+    "location": "GACL, Dahej",
+    "positions": 1,
+    "summary": "First-level IT support at the client location: troubleshooting hardware and software, supporting end users and keeping IT operations running. Basic knowledge of computer hardware, networking and peripherals.",
+    "isActive": true
+  },
+  {
+    "id": "fms-engineer-gacl-dahej",
+    "title": "FMS Engineer",
+    "department": "Facility Management Services",
+    "location": "GACL, Dahej",
+    "positions": 1,
+    "summary": "Work alongside every department at a growing company, with benefits and the chance to learn from accomplished leaders. Creative and rigorous by nature, for someone proactive with strong problem-solving skills.",
+    "isActive": true
+  },
+  {
+    "id": "fms-engineer-alkyl-amines-chemicals-limited-dahej",
+    "title": "FMS Engineer",
+    "department": "Facility Management Services",
+    "location": "Alkyl Amines Chemicals Limited, Dahej",
+    "positions": 1,
+    "summary": "Manage day-to-day IT operations and deliver reliable technical support on site, handling end-user issues while keeping system uptime and performance.",
+    "isActive": true
+  },
+  {
+    "id": "fms-engineer-vadodara-gnal",
+    "title": "FMS Engineer",
+    "department": "Facility Management Services",
+    "location": "Vadodara (GNAL)",
+    "positions": 1,
+    "summary": "Field Management Services engineer with strong desktop support, networking and IT infrastructure skills, responsible for smooth IT operations, troubleshooting and reliable on-site support.",
+    "isActive": true
+  },
+  {
+    "id": "l-1-network-and-desktop-engineer-bharuch",
+    "title": "L-1 Network and Desktop Engineer",
+    "department": "IT Infrastructure",
+    "location": "Bharuch",
+    "positions": 1,
+    "summary": "Technical support for end users across desktops, laptops, network connectivity and peripherals: diagnosing hardware and software issues and helping maintain the network infrastructure.",
+    "isActive": true
+  },
+  {
+    "id": "server-engineer-bharuch",
+    "title": "Server Engineer",
+    "department": "IT Infrastructure",
+    "location": "Bharuch",
+    "positions": 1,
+    "summary": "For freshers and candidates with up to two years of experience who want to build a career in server and IT infrastructure management.",
+    "isActive": true
+  },
+  {
+    "id": "workshop-engineer-bharuch",
+    "title": "Workshop Engineer",
+    "department": "IT Infrastructure",
+    "location": "Bharuch",
+    "positions": 1,
+    "summary": "For motivated candidates keen to build a career in hardware and networking, based at our Bharuch workshop.",
+    "isActive": true
+  },
+  {
+    "id": "digital-marketing-executive-bharuch",
+    "title": "Digital Marketing Executive",
+    "department": "Marketing",
+    "location": "Bharuch",
+    "positions": 1,
+    "summary": "Work with every department to create and deploy new products at a growing company. Creative and rigorous by nature, for someone proactive with strong problem-solving skills.",
+    "isActive": true
+  },
+  {
+    "id": "work-assistant-bharuch",
+    "title": "Work Assistant",
+    "department": "Operations",
+    "location": "Bharuch",
+    "positions": 1,
+    "summary": "Support delivery coordination, store operations, basic documentation and inventory management. Basic accounting knowledge and MS Excel skills preferred; freshers are welcome, with training and guidance provided.",
+    "isActive": true
+  }
+]

@@ -1,17 +1,23 @@
 // POST /api/apply
-// Creates a candidate in Odoo Recruitment (hr.applicant) from the careers page
-// form, with the CV stored as an attachment on that record, so HR sees the
-// application in the same pipeline as applications made on the Odoo site.
+// Emails a careers-page application to HR over SMTP with the CV attached and
+// Reply-To set to the candidate, and files it (details in applicants.json, the
+// CV as its own file under cvs/) in the private data repository so it shows up
+// in the management console.
 //
 // Body (JSON):
 //   { jobId, jobTitle, name, email, phone, message, cv: { filename, type, dataBase64 }, website }
 //   jobId is optional: without it the application is filed as a speculative
-//   application, with any role the person named kept in the description.
+//   application, with any role the person named kept as the role.
 //   "website" is a hidden bot-trap field and must stay empty.
 //
-// Needs ODOO_URL, ODOO_DB, ODOO_USERNAME and ODOO_API_KEY (see _odoo.js).
+// Needs SMTP_HOST, SMTP_USER and SMTP_PASS (see _mail.js); HR_EMAIL optionally
+// overrides where applications go (default SALES_EMAIL). Filing needs
+// GITHUB_DATA_REPO and a token (see _store.js).
 
-const { call, isConfigured } = require('./_odoo');
+const fs = require('fs');
+const path = require('path');
+const { isConfigured, sendMail, salesEmail } = require('./_mail');
+const store = require('./_store');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
 
 const MAX_CV_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
@@ -29,6 +35,42 @@ function safeFilename(name, mime) {
   return `${base}.${ext}`;
 }
 
+// null: no such open role; undefined: the job list could not be read.
+function findJob(id) {
+  let jobs;
+  try {
+    jobs = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'jobs.json'), 'utf8'));
+  } catch (err) {
+    console.error('Reading data/jobs.json failed:', err.message);
+    return undefined;
+  }
+  return (Array.isArray(jobs) ? jobs : []).find(j => j && j.id === id && j.isActive === true) || null;
+}
+
+function applicationEmail({ applicant, role, job, ip }) {
+  const rows = [
+    ['Candidate name', applicant.name], ['Phone', applicant.phone], ['Email', applicant.email],
+    ['Role applied for', role], ['Location', job && job.location], ['Received at', new Date().toISOString()], ['IP', ip],
+  ].map(([k, v]) => `<tr><td style="padding:6px 12px;color:#64748b">${esc(k)}</td><td style="padding:6px 12px"><strong>${esc(v || '—')}</strong></td></tr>`).join('');
+  return `<p style="font-family:Arial,sans-serif">New job application from the careers page. The CV, if provided, is attached. Reply to this email to answer the candidate directly.</p>
+  <table style="font-family:Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows}</table>
+  <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-top:16px;padding:14px 16px;background:#f8fafc;border-radius:8px">${esc(applicant.message || 'No cover message provided.')}</div>`;
+}
+
+function applicationText({ applicant, role, ip }) {
+  return [
+    `Candidate: ${applicant.name}`, `Phone: ${applicant.phone || '—'}`, `Email: ${applicant.email}`,
+    `Role: ${role}`, `IP: ${ip}`, '', applicant.message || 'No cover message provided.',
+  ].join('\n');
+}
+
+// The CV is committed first so the record never points at a missing file.
+async function fileApplication(record, cv) {
+  if (!store.isConfigured('private')) throw new Error('private storage is not configured');
+  if (cv) await store.putFile('private', record.cv.path, cv.buffer, `Add CV for ${record.name}`);
+  await store.appendJson('private', 'applicants.json', record, `Add application from ${record.name} for ${record.role}`);
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') {
@@ -40,7 +82,7 @@ module.exports = async function handler(req, res) {
     return res.status(415).json({ ok: false, error: 'Unsupported content type' });
   }
   if (!isConfigured()) {
-    console.error('Odoo environment variables are missing');
+    console.error('SMTP environment variables are missing');
     return res.status(503).json({ ok: false, error: 'Applications are temporarily unavailable. Please email sales@dtechindia.com.' });
   }
 
@@ -55,12 +97,11 @@ module.exports = async function handler(req, res) {
     phone: clean(body.phone, 40),
     message: String(body.message == null ? '' : body.message).trim().slice(0, 3000),
   };
-  const jobId = Number(body.jobId);
+  const jobId = clean(body.jobId, 80);
 
   if (!applicant.name) return res.status(400).json({ ok: false, error: 'Please enter your name.' });
   if (!EMAIL_RE.test(applicant.email)) return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
   const wantedRole = clean(body.jobTitle, 120);
-  const hasJob = Number.isInteger(jobId) && jobId > 0;
 
   const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (overLimit('ip:' + ip, 5, 60 * 60 * 1000) || overLimit('mail:' + applicant.email.toLowerCase(), 3, 24 * 60 * 60 * 1000)) {
@@ -76,47 +117,40 @@ module.exports = async function handler(req, res) {
     if (!/^[A-Za-z0-9+/=\s]+$/.test(base64)) return res.status(400).json({ ok: false, error: 'The attached file could not be read.' });
     const bytes = Math.floor(base64.replace(/\s/g, '').length * 3 / 4);
     if (bytes > MAX_CV_BYTES) return res.status(413).json({ ok: false, error: 'Your CV is larger than 3 MB. Please attach a smaller file.' });
-    cv = { base64: base64.replace(/\s/g, ''), mime, filename: safeFilename(body.cv.filename, mime) };
+    cv = { buffer: Buffer.from(base64.replace(/\s/g, ''), 'base64'), mime, filename: safeFilename(body.cv.filename, mime) };
   }
 
-  try {
-    let job = null;
-    if (hasJob) {
-      [job] = await call('hr.job', 'read', [[jobId]], { fields: ['name', 'department_id'] });
-      if (!job) return res.status(400).json({ ok: false, error: 'That role is no longer open.' });
-    }
-
-    const roleLine = job ? job.name : (wantedRole || 'Speculative application');
-    const values = {
-      partner_name: applicant.name,
-      email_from: applicant.email,
-      description: `<p><strong>Applied through dtechindia.com</strong><br/>Role: ${esc(roleLine)}</p><p>${esc(applicant.message) || 'No message provided.'}</p>`,
-    };
-    if (job) {
-      values.job_id = jobId;
-      if (Array.isArray(job.department_id) && job.department_id[0]) values.department_id = job.department_id[0];
-    }
-    if (applicant.phone) values.partner_phone = applicant.phone;
-
-    const applicantId = await call('hr.applicant', 'create', [values]);
-
-    if (cv) {
-      try {
-        await call('ir.attachment', 'create', [{
-          name: cv.filename,
-          datas: cv.base64,
-          mimetype: cv.mime,
-          res_model: 'hr.applicant',
-          res_id: applicantId,
-        }]);
-      } catch (err) {
-        console.error('CV attachment failed for applicant', applicantId, err.message);
-      }
-    }
-
-    return res.status(200).json({ ok: true, reference: applicantId, job: roleLine });
-  } catch (err) {
-    console.error('Odoo application failed:', err.message);
-    return res.status(502).json({ ok: false, error: 'We could not submit your application right now. Please try again or email sales@dtechindia.com.' });
+  let job = null;
+  if (jobId) {
+    job = findJob(jobId);
+    if (job === null) return res.status(400).json({ ok: false, error: 'That role is no longer open.' });
   }
+  const role = job ? job.title : (wantedRole || 'Speculative application');
+
+  const id = store.newId();
+  const record = {
+    id, ...applicant, role, jobId: job ? job.id : '', department: job ? job.department || '' : '',
+    location: job ? job.location || '' : '', date: new Date().toISOString(),
+    cv: cv ? { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, path: `cvs/${id}-${cv.filename.replace(/[^A-Za-z0-9._-]+/g, '-')}` } : null,
+  };
+
+  const [mailed, filed] = await Promise.allSettled([
+    sendMail({
+      to: process.env.HR_EMAIL || salesEmail(),
+      replyTo: applicant.email,
+      subject: `Job application: ${role} — ${applicant.name}`,
+      html: applicationEmail({ applicant, role, job, ip }),
+      text: applicationText({ applicant, role, ip }),
+      attachments: cv ? [{ filename: cv.filename, content: cv.buffer, contentType: cv.mime }] : [],
+    }),
+    fileApplication(record, cv),
+  ]);
+  if (mailed.status === 'rejected') console.error('Application email failed:', mailed.reason.message);
+  if (filed.status === 'rejected') console.error('Filing application failed:', filed.reason.message);
+
+  // Either copy reaching HR is enough; only fail when both were lost.
+  if (mailed.status === 'fulfilled' || filed.status === 'fulfilled') {
+    return res.status(200).json({ ok: true, reference: id, job: role });
+  }
+  return res.status(502).json({ ok: false, error: 'We could not submit your application right now. Please try again or email sales@dtechindia.com.' });
 };

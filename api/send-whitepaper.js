@@ -1,5 +1,6 @@
 // Vercel serverless function: emails a case-study PDF to the visitor who
-// requested it and notifies D-TECH sales about the lead.
+// requested it, notifies D-TECH sales about the lead and files the lead in
+// leads.json in the private data repository (see _store.js) when configured.
 //
 // Sends over SMTP via _mail.js; set SMTP_HOST, SMTP_USER and SMTP_PASS (and
 // optionally MAIL_FROM, SALES_EMAIL) as described there. Also reads:
@@ -13,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
+const store = require('./_store');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
 
 const overLimit = createRateLimiter();
@@ -122,14 +124,21 @@ module.exports = async function handler(req, res) {
       attachments: [{ filename: path.basename(paper.file), content: pdf, contentType: 'application/pdf' }],
     });
 
-    // The visitor already has their PDF; a failed sales notice must not undo that.
-    // Awaited, because Vercel may freeze the function once the response is sent.
-    await sendMail({
-      to: sales,
-      replyTo: lead.email,
-      subject: `Website lead: ${paper.title} PDF requested by ${lead.name || lead.email}`,
-      html: leadEmail({ lead, paper, ip }),
-    }).catch(err => console.error('Sales notification failed:', err.message));
+    // The visitor already has their PDF; a failed sales notice or filing must not
+    // undo that. Awaited, because Vercel may freeze the function once the response is sent.
+    const record = { id: store.newId(), ...lead, caseId, caseTitle: `${paper.title} — ${paper.topic}`, date: new Date().toISOString() };
+    await Promise.all([
+      sendMail({
+        to: sales,
+        replyTo: lead.email,
+        subject: `Website lead: ${paper.title} PDF requested by ${lead.name || lead.email}`,
+        html: leadEmail({ lead, paper, ip }),
+      }).catch(err => console.error('Sales notification failed:', err.message)),
+      store.isConfigured('private')
+        ? store.appendJson('private', 'leads.json', record, `Add case-study lead from ${lead.name || lead.email}`)
+          .catch(err => console.error('Filing lead failed:', err.message))
+        : Promise.resolve(console.error('Lead not filed: private storage is not configured')),
+    ]);
 
     return res.status(200).json({ ok: true, id: sent.id });
   } catch (err) {

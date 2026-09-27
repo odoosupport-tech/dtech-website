@@ -8,6 +8,23 @@
     },
     "api/contact.js": {
       "maxDuration": 15
+    },
+    "api/apply.js": {
+      "includeFiles": "data/jobs.json",
+      "maxDuration": 20
+    },
+    "api/jobs.js": {
+      "includeFiles": "data/jobs.json"
+    },
+    "api/admin/data.js": {
+      "includeFiles": "data/*.json",
+      "maxDuration": 15
+    },
+    "api/admin/update.js": {
+      "maxDuration": 15
+    },
+    "api/admin/console.js": {
+      "includeFiles": "api/admin/_console-app.js"
     }
   },
   "redirects": [
@@ -83,11 +100,33 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/((?!jobs$).*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/portal.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     }

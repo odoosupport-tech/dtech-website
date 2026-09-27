@@ -1,3 +1,5 @@
 # Build sources for assets/tailwind.css, assets/lucide.js and assets/og-image.png;
 # the site only needs their outputs.
 tools/
+# Local-only copies of submissions (see api/_store.js); never deploy them.
+.portal-data/

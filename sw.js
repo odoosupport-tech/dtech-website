@@ -38,6 +38,8 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(req.url);
   if (url.origin !== location.origin) return;
   if (url.pathname.indexOf('/_vercel/') === 0) return;
+  // Live data (open roles, console records) must never come from the cache.
+  if (url.pathname.indexOf('/api/') === 0 || url.pathname.indexOf('/data/') === 0) return;
   event.respondWith(
     // Navigations go network-first so returning visitors always get the
     // newest HTML (which points at the newest assets); offline falls back
