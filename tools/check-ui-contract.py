@@ -72,6 +72,10 @@ def check_marquee_contract(problems):
     bundle = (ROOT / "assets/bundle.min.css").read_text(encoding="utf-8")
     if not re.search(r'src="assets/brand-marquee\.js(?:\?v=[0-9a-f]+)?"', home):
         problems.append("index.html does not use shared brand marquee")
+    # The marquee runs three endless animations, so only the home page loads it.
+    for page in sorted(ROOT.glob("*.html")):
+        if page.name != "index.html" and "brand-marquee.js" in page.read_text(encoding="utf-8"):
+            problems.append(f"{page.name} loads the brand marquee; it belongs on the home page only")
     if '<section class="brand-marquee"' in home:
         problems.append("index.html still duplicates marquee markup")
     if "overflow-x:auto" not in skin.replace(" ", ""):
