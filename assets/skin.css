@@ -551,7 +551,7 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 
 .brand-mark { flex-shrink:0; display:flex; align-items:center; }
 .brand-mark img {
-  width:112px; height:40px; object-fit:contain;
+  width:100px; height:36px; object-fit:contain;
   background:transparent; padding:0;
 }
 
@@ -1551,7 +1551,7 @@ html.is-scrolling body { pointer-events:none; }
   .utility-bar a span.utility-lead { display:none; }
   .header-inner { min-height:62px; }
   .header-cta { display:none; }
-  .brand-mark img { width:96px; height:35px; }
+  .brand-mark img { width:86px; height:31px; }
 
   .home-hero { padding:44px 0 40px; }
   .hero-layout { grid-template-columns:1fr; gap:32px; }
