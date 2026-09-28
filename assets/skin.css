@@ -551,7 +551,7 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 
 .brand-mark { flex-shrink:0; display:flex; align-items:center; }
 .brand-mark img {
-  width:128px; height:46px; object-fit:contain;
+  width:112px; height:40px; object-fit:contain;
   background:transparent; padding:0;
 }
 
@@ -1237,6 +1237,54 @@ body[data-page="home"] main>section:nth-of-type(3) h2 { font-size:clamp(28px,2.6
 .industry-links b { font-weight:700; color:var(--signal-deep); }
 .industry-links a:hover b { color:var(--signal); }
 
+/* ==================== 13b · HOME · CASE STUDY HIGHLIGHT ====================
+   A navy panel pointing to the case studies: intro on the left, three
+   featured deployments on the right, each linking to its card.            */
+
+.case-highlight { background:var(--paper); }
+.case-highlight-panel {
+  display:grid; grid-template-columns:minmax(260px,.85fr) 2.15fr; gap:40px; align-items:center;
+  padding:44px; border-radius:var(--r-panel);
+  background-color:var(--invert);
+  background-image:
+    radial-gradient(60% 90% at 0% 0%,rgba(39,182,218,.18) 0%,transparent 62%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 76px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 76px);
+  color:#fff;
+}
+.case-highlight .eyebrow { color:var(--signal); }
+.case-highlight h2 { color:#fff; font-size:clamp(28px,2.6vw,42px); margin:12px 0 14px; }
+.case-highlight-intro p { color:rgba(255,255,255,.68); font-size:15px; line-height:1.65; margin:0 0 26px; max-width:44ch; }
+.case-highlight .button-primary { background:var(--signal); border-color:var(--signal); color:#071d34!important; box-shadow:none; }
+.case-highlight .button-primary:hover { background:#fff; border-color:#fff; color:var(--invert)!important; }
+.case-highlight-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.case-highlight-card {
+  display:flex; flex-direction:column; gap:6px; padding:20px; color:#fff;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:var(--r-plate);
+  transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+}
+.case-highlight-card:hover { background:rgba(255,255,255,.11); border-color:rgba(39,182,218,.55); transform:translateY(-2px); }
+.case-highlight-logo {
+  display:flex; align-items:center; justify-content:center; height:56px; margin-bottom:10px;
+  padding:8px 14px; background:#fff; border-radius:var(--r-control);
+}
+.case-highlight-logo img { width:auto; height:auto; max-width:62%; max-height:100%; object-fit:contain; } /* wide wordmarks no louder than square marks */
+.case-highlight-sector,.case-highlight-metric small {
+  font:500 11px/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.58);
+}
+.case-highlight-card h3 { margin:0; font-size:18px; color:#fff; }
+.case-highlight-card h3 span { color:var(--signal); }
+.case-highlight-card p { margin:0; font-size:14px; line-height:1.5; color:rgba(255,255,255,.74); }
+.case-highlight-metric { display:flex; flex-direction:column; gap:2px; margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,.12); }
+.case-highlight-metric b { font:700 20px/1.2 var(--display); letter-spacing:-.02em; color:var(--signal); }
+@media (max-width:1150px) {
+  .case-highlight-panel { grid-template-columns:1fr; gap:28px; }
+}
+@media (max-width:800px) {
+  .case-highlight-panel { padding:28px 20px; }
+  .case-highlight-cards { grid-template-columns:1fr; gap:12px; }
+}
+
 /* ==================== 14 · CLOSING CTA ====================
    The deck's full-bleed navy panel with a cyan eyebrow.                   */
 
@@ -1551,7 +1599,7 @@ html.is-scrolling body { pointer-events:none; }
   .utility-bar a span.utility-lead { display:none; }
   .header-inner { min-height:62px; }
   .header-cta { display:none; }
-  .brand-mark img { width:110px; height:40px; }
+  .brand-mark img { width:96px; height:35px; }
 
   .home-hero { padding:44px 0 40px; }
   .hero-layout { grid-template-columns:1fr; gap:32px; }
@@ -1634,18 +1682,20 @@ html.is-scrolling body { pointer-events:none; }
   .a-pre .visual-capabilities>*,
   .a-pre .confidence-points>*,
   .a-pre .industry-links>*,
+  .a-pre .case-highlight-cards>*,
   .a-pre .home-hero+section .grid>*,
   .a-pre .home-hero+div+section .grid>* { opacity:0; }
   .a-in .visual-capabilities>*,
   .a-in .confidence-points>*,
   .a-in .industry-links>*,
+  .a-in .case-highlight-cards>*,
   .a-in .grid>* {
     opacity:1;
     transition:opacity .4s var(--ease);
   }
-  .a-in :is(.visual-capabilities,.confidence-points,.industry-links)>*:nth-child(2) { transition-delay:.06s; }
-  .a-in :is(.visual-capabilities,.confidence-points,.industry-links)>*:nth-child(3) { transition-delay:.12s; }
-  .a-in :is(.visual-capabilities,.confidence-points,.industry-links)>*:nth-child(4) { transition-delay:.18s; }
+  .a-in :is(.visual-capabilities,.confidence-points,.industry-links,.case-highlight-cards)>*:nth-child(2) { transition-delay:.06s; }
+  .a-in :is(.visual-capabilities,.confidence-points,.industry-links,.case-highlight-cards)>*:nth-child(3) { transition-delay:.12s; }
+  .a-in :is(.visual-capabilities,.confidence-points,.industry-links,.case-highlight-cards)>*:nth-child(4) { transition-delay:.18s; }
 }
 
 /* ---- Closing CTA: clean architectural boundary ------------------------ */
