@@ -56,10 +56,10 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
-  <script src="assets/refined.min.js?v=a0926bc7fa" defer></script>
+  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=dc3965b930">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-400.woff2" crossorigin>
@@ -112,6 +112,10 @@
     .partner-embed-page { padding:0; }
     .partner-embed { width:100%; background:#fff; }
     .partner-embed iframe { display:block; width:100%; height:calc(100vh - 73px); height:calc(100dvh - 73px); min-height:600px; border:0; }
+    .partner-fallback { max-width:640px; margin:0 auto; padding:clamp(48px, 10vh, 112px) 16px; text-align:center; }
+    .partner-fallback img { width:min(320px, 80%); height:auto; margin:0 auto 28px; }
+    .partner-fallback p { font-size:1.05rem; line-height:1.7; margin:0 0 28px; }
+    .partner-fallback-actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
     .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
   </style>
 </head>
@@ -125,7 +129,7 @@
   </div></header>
   <!-- Mobile Drawer Menu -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
-    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
+    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" tabindex="-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
     <div class="fixed right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-2xl p-6 flex flex-col overflow-y-auto z-10">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <img decoding="async" width="324" height="142" src="assets/dtech-logo-blue.webp" alt="D-TECH" class="h-8 w-auto">
@@ -145,8 +149,14 @@
 
   <main id="main-content" class="flex-1 partner-embed-page" tabindex="-1">
     <h1 class="visually-hidden">Motorola Solutions</h1>
-    <div class="partner-embed">
-      <iframe src="https://www.motorolasolutions.com/en_xp.html" title="Motorola Solutions website" allowfullscreen></iframe>
+    <!-- motorolasolutions.com sends X-Frame-Options: SAMEORIGIN, so it cannot be embedded like the HP and Dell pages. -->
+    <div class="partner-fallback">
+      <img src="assets/partners/motorola-solutions.svg" alt="Motorola Solutions" width="634" height="73">
+      <p>D-TECH is a Motorola Solutions partner for mission-critical voice and plant communications. Motorola's own site opens in a new tab.</p>
+      <div class="partner-fallback-actions">
+        <a class="button button-primary" href="https://www.motorolasolutions.com/en_xp.html" target="_blank" rel="noopener">Visit Motorola Solutions <span>&#8599;</span></a>
+        <a class="button" href="contact.html">Talk to our team</a>
+      </div>
     </div>
   </main>
 

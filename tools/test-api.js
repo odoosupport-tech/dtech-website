@@ -212,20 +212,28 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
   ]);
 
-  // 7 (reported after 6). GitHub store retry rules, against a scripted fake GitHub.
+  // 7 (reported after 6). GitHub store retry and privacy rules, against a scripted fake GitHub.
+  // The store caches "repo is private" per instance, so each privacy check uses its own repo name.
   const store = api('_store.js');
-  async function withFakeGitHub(putResponses, fn) {
+  async function withFakeGitHub(putResponses, fn, { repo = 'test-owner/test-data', isPrivate = true } = {}) {
     const saved = { fetch: globalThis.fetch, repo: process.env.GITHUB_DATA_REPO, token: process.env.GITHUB_DATA_TOKEN };
     const puts = [];
-    Object.assign(process.env, { GITHUB_DATA_REPO: 'test-owner/test-data', GITHUB_DATA_TOKEN: 'test-token' });
+    const calls = { visibility: 0 };
+    const base = `https://api.github.com/repos/${repo}`;
+    Object.assign(process.env, { GITHUB_DATA_REPO: repo, GITHUB_DATA_TOKEN: 'test-token' });
     globalThis.fetch = async (url, opts) => {
-      assert(String(url).startsWith('https://api.github.com/repos/test-owner/test-data/'), `unexpected url ${url}`);
+      url = String(url);
+      if (url === base && opts.method === 'GET') {
+        calls.visibility++;
+        return { ok: true, status: 200, json: async () => ({ full_name: repo, private: isPrivate }), text: async () => '' };
+      }
+      assert(url.startsWith(`${base}/contents/`), `unexpected url ${url}`);
       if (opts.method === 'GET') return { ok: false, status: 404, text: async () => '' };
       const [status, text] = putResponses[Math.min(puts.length, putResponses.length - 1)];
       puts.push(status);
       return { ok: status < 300, status, text: async () => text };
     };
-    try { return await fn(puts); } finally {
+    try { return await fn(puts, calls); } finally {
       globalThis.fetch = saved.fetch;
       if (saved.repo === undefined) delete process.env.GITHUB_DATA_REPO; else process.env.GITHUB_DATA_REPO = saved.repo;
       if (saved.token === undefined) delete process.env.GITHUB_DATA_TOKEN; else process.env.GITHUB_DATA_TOKEN = saved.token;
@@ -248,6 +256,33 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await assert.rejects(store.appendJson('private', 'leads.json', { id: 'x' }, 'm'), /HTTP 422 .*too large/);
       eq(puts.length, 1);
     })],
+    ['public data repo → write refused, nothing sent', () => withFakeGitHub([[201, '{}']], async (puts) => {
+      await assert.rejects(store.putFile('private', 'cvs/a.pdf', Buffer.from('%PDF'), 'm'), /not private; refusing/);
+      await assert.rejects(store.appendJson('private', 'applicants.json', { id: 'x' }, 'm'), /not private; refusing/);
+      eq(puts.length, 0);
+    }, { repo: 'test-owner/public-data', isPrivate: false })],
+    ['private data repo → visibility checked once, then cached', () => withFakeGitHub([[201, '{}']], async (puts, calls) => {
+      await store.appendJson('private', 'leads.json', { id: 'a' }, 'm');
+      await store.appendJson('private', 'leads.json', { id: 'b' }, 'm');
+      eq(puts.length, 2); eq(calls.visibility, 1);
+    }, { repo: 'test-owner/fresh-data' })],
+    ['site store (public by design) → no visibility check', async () => {
+      const saved = { fetch: globalThis.fetch, token: process.env.GITHUB_TOKEN };
+      let visibility = 0, puts = 0;
+      process.env.GITHUB_TOKEN = 'test-token';
+      globalThis.fetch = async (url, opts) => {
+        if (!String(url).includes('/contents/')) visibility++;
+        else if (opts.method === 'PUT') { puts++; return { ok: true, status: 200, text: async () => '' }; }
+        return { ok: false, status: 404, text: async () => '' };
+      };
+      try {
+        await store.updateJson('site', 'jobs.json', [], list => list, 'm');
+        eq(visibility, 0); eq(puts, 1);
+      } finally {
+        globalThis.fetch = saved.fetch;
+        if (saved.token === undefined) delete process.env.GITHUB_TOKEN; else process.env.GITHUB_TOKEN = saved.token;
+      }
+    }],
   ];
 
   console.error = errLog;
@@ -262,7 +297,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['check-ui-contract.py', run('python3', ['tools/check-ui-contract.py'], 'OK')],
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],
   ]);
-  await area('7. GitHub store retry rules (api/_store.js)', storeChecks);
+  await area('7. GitHub store retry & privacy (api/_store.js)', storeChecks);
 
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });
