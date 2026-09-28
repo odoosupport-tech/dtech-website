@@ -1,11 +1,14 @@
 // JSON/file storage for the Vercel functions, kept in GitHub repositories
 // through the Contents API, so no database (and no card on file) is needed.
 //
-// Two stores:
+// Three stores:
 //
-//   site     data/*.json in THIS (public) repository: jobs and case studies.
-//            A write is a commit, and the commit redeploys the site, so the
-//            public pages pick the change up about a minute later.
+//   site     data/*.json in THIS (public) repository: jobs, case studies and
+//            site banners. A write is a commit, and the commit redeploys the
+//            site, so the public pages pick the change up about a minute later.
+//   uploads  assets/case-studies/pdf/custom/ in the same repository: case-study
+//            PDFs uploaded from the management console (public by design, like
+//            the built-in PDFs next to them).
 //   private  a SEPARATE PRIVATE repository for anything personal: client
 //            requirements, case-study leads, job applications and their CVs.
 //            Never point this at the public site repository. Writes are
@@ -20,21 +23,24 @@
 //   GITHUB_DATA_BRANCH  optional  (default main)
 //
 // Outside Vercel (local development) a store without a token falls back to the
-// local disk: data/ for the site store, .portal-data/ (git-ignored) for the
-// private one.
+// local disk: data/ for the site store, assets/case-studies/pdf/custom/ for
+// uploads, .portal-data/ (git-ignored) for the private one.
 
 const fs = require('fs');
 const path = require('path');
 
 const API = 'https://api.github.com';
 const TIMEOUT_MS = 6000;
+const UPLOAD_TIMEOUT_MS = 20000; // a 3 MB PDF is a 4 MB request body
 const MAX_ATTEMPTS = 2;
+const UPLOADS_DIR = 'assets/case-studies/pdf/custom';
 
 function storeConfig(name) {
-  if (name !== 'site' && name !== 'private') throw new Error(`Unknown store "${name}"`);
+  if (name !== 'site' && name !== 'uploads' && name !== 'private') throw new Error(`Unknown store "${name}"`);
   const env = process.env;
-  const cfg = name === 'site'
-    ? { name, repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main', localDir: 'data', prefix: 'data/' }
+  const siteRepo = { repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main' };
+  const cfg = name === 'site' ? { name, ...siteRepo, localDir: 'data', prefix: 'data/' }
+    : name === 'uploads' ? { name, ...siteRepo, localDir: UPLOADS_DIR, prefix: `${UPLOADS_DIR}/` }
     : { name, repo: env.GITHUB_DATA_REPO, token: env.GITHUB_DATA_TOKEN || env.GITHUB_TOKEN, branch: env.GITHUB_DATA_BRANCH || 'main', localDir: '.portal-data', prefix: '' };
   if (name === 'private' && cfg.repo && cfg.repo.toLowerCase() === (env.GITHUB_REPO || 'odoosupport-tech/dtech-website').toLowerCase()) {
     throw new Error('GITHUB_DATA_REPO must be a private repository, not the public site repository');
@@ -45,11 +51,17 @@ function storeConfig(name) {
 }
 
 function isConfigured(name) {
+  return mode(name) !== null;
+}
+
+// 'github', 'local' (disk, outside Vercel) or null when the store is not set up.
+function mode(name) {
   try {
-    return storeConfig(name) !== null;
+    const cfg = storeConfig(name);
+    return cfg ? cfg.mode : null;
   } catch (err) {
     console.error(err.message);
-    return false;
+    return null;
   }
 }
 
@@ -75,9 +87,9 @@ function gh(cfg, method, file, options) {
   return ghRequest(cfg, method, url, options);
 }
 
-async function ghRequest(cfg, method, url, { body, raw } = {}) {
+async function ghRequest(cfg, method, url, { body, raw, timeoutMs = TIMEOUT_MS } = {}) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, {
       method,
@@ -148,6 +160,7 @@ async function writeRaw(cfg, file, buffer, sha, message) {
   if (cfg.name === 'private') await assertPrivateRepo(cfg);
   const res = await gh(cfg, 'PUT', file, {
     body: { message, content: buffer.toString('base64'), branch: cfg.branch, ...(sha ? { sha } : {}) },
+    timeoutMs: buffer.length > 512 * 1024 ? UPLOAD_TIMEOUT_MS : TIMEOUT_MS,
   });
   if (res.ok) return true;
   if (res.status === 409) return false; // someone else wrote first
@@ -203,4 +216,4 @@ function newId() {
   return `${Date.now().toString(36)}-${require('crypto').randomBytes(4).toString('hex')}`;
 }
 
-module.exports = { isConfigured, readJson, updateJson, appendJson, putFile, readFile, newId };
+module.exports = { UPLOADS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, readFile, newId };

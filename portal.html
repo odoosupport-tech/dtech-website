@@ -55,7 +55,7 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
-  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
+  <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
@@ -292,17 +292,259 @@
 <script>
   (function () {
     // Renders as the 404 page above unless a management session is (or becomes) active.
-    var match = /[?#&]key=([^&#]+)/.exec(location.search + location.hash);
-    if (match) history.replaceState(null, '', location.pathname);
-    var check = match
-      ? fetch('/api/admin/auth', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: decodeURIComponent(match[1]) }) })
-      : fetch('/api/admin/auth', { credentials: 'same-origin' });
-    check.then(function (r) {
-      if (!r.ok) return;
+    // Staff open the sign-in dialog by typing "admin" anywhere on this page or pressing
+    // Ctrl+Shift+A; /portal.html#signin opens it directly. The passkey is only ever
+    // posted to /api/admin/auth, never put in a URL or stored in the browser.
+    var AUTH = '/api/admin/auth';
+    var PAUSE_MS = 15 * 60 * 1000; // matches the server's limit: 5 tries per 15 minutes
+    var MAX_TRIES = 5;
+    var MEMORY = 'dt-signin';
+    var NOTES = {
+      signin: ['', ''],
+      'signed-out': ['You have signed out. See you next time.', 'ok'],
+      'session-ended': ['Your session has ended. Please sign in again.', 'info']
+    };
+    var started = false, typed = '', dialog, form, input, msg, submitBtn, countdown;
+
+    var CSS = [
+      '.dt-si{--si-bg:#fff;--si-ink:#0f253b;--si-muted:#5b6f82;--si-line:#ccdee8;--si-field:#f7fafc;--si-accent:#0075ae;--si-accent-ink:#fff;--si-bad:#b42318;--si-bad-bg:#fef3f2;--si-ok:#067647;--si-ok-bg:#ecfdf3;--si-info:#0b4a6f;--si-info-bg:#eaf6fb;',
+      'border:0;border-radius:18px;padding:0;width:min(420px,calc(100vw - 32px));background:var(--si-bg);color:var(--si-ink);box-shadow:0 30px 70px -20px rgba(7,29,52,.55);font-family:Inter,system-ui,sans-serif}',
+      'html[data-theme="dark"] .dt-si{--si-bg:#0b2238;--si-ink:#eef5fb;--si-muted:#a3b8ca;--si-line:#24445f;--si-field:#081a2c;--si-accent:#27b6da;--si-accent-ink:#071d34;--si-bad:#fda29b;--si-bad-bg:rgba(180,35,24,.18);--si-ok:#75e0a7;--si-ok-bg:rgba(6,118,71,.2);--si-info:#9bd8ef;--si-info-bg:rgba(39,182,218,.14)}',
+      '.dt-si::backdrop{background:rgba(7,29,52,.62);backdrop-filter:blur(3px)}',
+      '.dt-si form{padding:26px 24px 20px;margin:0}',
+      '.dt-si-head{display:flex;align-items:center;gap:14px;margin-bottom:22px}',
+      '.dt-si-badge{flex:none;width:44px;height:44px;border-radius:12px;background:#071d34;color:#27b6da;display:grid;place-items:center}',
+      '.dt-si-badge svg{width:22px;height:22px}',
+      '.dt-si h2{margin:0;font-size:19px;line-height:1.25;font-weight:800;letter-spacing:-.01em;color:var(--si-ink)}',
+      '.dt-si-head p{margin:2px 0 0;font-size:13px;color:var(--si-muted)}',
+      '.dt-si label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--si-ink)}',
+      '.dt-si-field{display:flex;align-items:stretch;border:1px solid var(--si-line);border-radius:10px;background:var(--si-field);transition:border-color .15s,box-shadow .15s}',
+      '.dt-si-field:focus-within{border-color:var(--si-accent);box-shadow:0 0 0 3px rgba(39,182,218,.25)}',
+      '.dt-si-field.is-bad{border-color:var(--si-bad)}',
+      '.dt-si input{flex:1;min-width:0;border:0;background:transparent;color:var(--si-ink);font:500 16px/1.4 Inter,system-ui,sans-serif;padding:11px 12px;outline:0;letter-spacing:.02em}',
+      '.dt-si input:disabled{opacity:.6}',
+      '.dt-si-peek{border:0;border-left:1px solid var(--si-line);background:transparent;color:var(--si-muted);font:600 12px/1 Inter,system-ui,sans-serif;padding:0 14px;cursor:pointer;border-radius:0 10px 10px 0}',
+      '.dt-si-peek:hover{color:var(--si-ink)}',
+      '.dt-si-msg{min-height:20px;margin:10px 0 0;font-size:13px;line-height:1.45;border-radius:8px}',
+      '.dt-si-msg:not(:empty){padding:9px 11px}',
+      '.dt-si-msg[data-tone="bad"]{background:var(--si-bad-bg);color:var(--si-bad)}',
+      '.dt-si-msg[data-tone="ok"]{background:var(--si-ok-bg);color:var(--si-ok)}',
+      '.dt-si-msg[data-tone="info"]{background:var(--si-info-bg);color:var(--si-info)}',
+      '.dt-si-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}',
+      '.dt-si-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--si-line);background:transparent;color:var(--si-ink);border-radius:10px;padding:10px 16px;font:700 14px/1 Inter,system-ui,sans-serif;cursor:pointer}',
+      '.dt-si-btn:hover{border-color:var(--si-muted)}',
+      '.dt-si-primary{background:var(--si-accent);border-color:var(--si-accent);color:var(--si-accent-ink)}',
+      '.dt-si-primary:hover{filter:brightness(1.08);border-color:var(--si-accent)}',
+      '.dt-si-btn:disabled{opacity:.55;cursor:not-allowed;filter:none}',
+      '.dt-si-btn:focus-visible,.dt-si-peek:focus-visible{outline:2px solid var(--si-accent);outline-offset:2px}',
+      '.dt-si-spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:dt-si-spin .7s linear infinite}',
+      '.dt-si-help{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--si-line);font-size:12px;line-height:1.5;color:var(--si-muted)}',
+      '@keyframes dt-si-spin{to{transform:rotate(360deg)}}',
+      '@keyframes dt-si-shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}',
+      '@media (prefers-reduced-motion:no-preference){.dt-si.is-shake{animation:dt-si-shake .35s ease}}',
+      '@media (prefers-reduced-motion:reduce){.dt-si-spin{animation-duration:2s}}'
+    ].join('\n');
+
+    function start() {
+      if (started) return;
+      started = true;
+      document.removeEventListener('keydown', onKey);
       var app = document.createElement('script');
       app.src = '/api/admin/console';
+      app.onerror = function () {
+        started = false;
+        document.addEventListener('keydown', onKey);
+        openSignIn('You are signed in, but the console could not load. Check your connection and reload the page.', 'bad');
+      };
       document.body.appendChild(app);
-    }, function (err) { console.warn(err.message); });
+    }
+
+    // Wrong tries are remembered for 15 minutes so the pause survives a reload; the
+    // server enforces the real limit either way.
+    function memory() {
+      try {
+        var m = JSON.parse(localStorage.getItem(MEMORY) || '{}');
+        var now = Date.now();
+        return { tries: (m.tries || []).filter(function (t) { return now - t < PAUSE_MS; }), until: m.until > now ? m.until : 0 };
+      } catch (e) {
+        return { tries: [], until: 0 }; // storage blocked: rely on the server's limit
+      }
+    }
+    function remember(m) {
+      try { localStorage.setItem(MEMORY, JSON.stringify(m)); } catch (e) { console.warn('Sign-in attempts not remembered:', e.message); }
+    }
+
+    function say(text, tone) {
+      msg.textContent = text || '';
+      if (tone) msg.setAttribute('data-tone', tone); else msg.removeAttribute('data-tone');
+      input.parentNode.classList.toggle('is-bad', tone === 'bad');
+      input.setAttribute('aria-invalid', tone === 'bad' ? 'true' : 'false');
+    }
+
+    function busy(on) {
+      input.disabled = on;
+      submitBtn.disabled = on;
+      submitBtn.innerHTML = on ? '<span class="dt-si-spin" aria-hidden="true"></span>Checking…' : 'Sign in';
+    }
+
+    function paused() {
+      clearInterval(countdown);
+      var until = memory().until;
+      if (!until) return false;
+      input.disabled = true;
+      submitBtn.disabled = true;
+      function tick() {
+        var left = until - Date.now();
+        if (left <= 0) {
+          clearInterval(countdown);
+          input.disabled = false;
+          submitBtn.disabled = false;
+          say('You can try again now.', 'info');
+          input.focus();
+          return;
+        }
+        var s = Math.ceil(left / 1000);
+        say('Too many wrong passkeys, so sign-in is paused for security. Try again in ' + Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2) + '.', 'bad');
+      }
+      tick();
+      countdown = setInterval(tick, 1000);
+      return true;
+    }
+
+    function wrongKey() {
+      var m = memory();
+      m.tries.push(Date.now());
+      if (m.tries.length >= MAX_TRIES) m.until = Date.now() + PAUSE_MS;
+      remember(m);
+      if (paused()) return;
+      var left = MAX_TRIES - m.tries.length;
+      say('That passkey was not recognised. Check for typos or extra spaces and try again.' +
+        (left <= 2 ? ' ' + left + (left === 1 ? ' try' : ' tries') + ' left before sign-in pauses for 15 minutes.' : ''), 'bad');
+      dialog.classList.remove('is-shake');
+      void dialog.offsetWidth;
+      dialog.classList.add('is-shake');
+      input.select();
+    }
+
+    function submit(event) {
+      event.preventDefault();
+      if (paused()) return;
+      var key = input.value;
+      if (!key) { say('Please enter the passkey.', 'bad'); input.focus(); return; }
+      busy(true);
+      say('', '');
+      fetch(AUTH, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: key }) })
+        .then(function (r) {
+          if (r.ok) {
+            remember({ tries: [], until: 0 });
+            input.value = '';
+            submitBtn.innerHTML = '<span class="dt-si-spin" aria-hidden="true"></span>Opening…';
+            say('Signed in. Opening the console…', 'ok');
+            start();
+            return;
+          }
+          busy(false);
+          if (r.status === 429) {
+            var m = memory();
+            m.until = Date.now() + PAUSE_MS;
+            remember(m);
+            paused();
+          } else if (r.status === 404) {
+            wrongKey();
+          } else {
+            say('Sign-in is not available right now. Please try again in a minute.', 'bad');
+          }
+        }, function () {
+          busy(false);
+          say('Cannot reach the server. Check your internet connection and try again.', 'bad');
+        });
+    }
+
+    function build() {
+      var style = document.createElement('style');
+      style.textContent = CSS;
+      document.head.appendChild(style);
+      dialog = document.createElement('dialog');
+      dialog.className = 'dt-si';
+      dialog.setAttribute('aria-labelledby', 'dt-si-title');
+      dialog.innerHTML =
+        '<form novalidate>' +
+          '<div class="dt-si-head"><span class="dt-si-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>' +
+          '<div><h2 id="dt-si-title">Staff sign-in</h2><p>D-TECH management console</p></div></div>' +
+          '<label for="dt-si-key">Passkey</label>' +
+          '<div class="dt-si-field"><input id="dt-si-key" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" aria-describedby="dt-si-msg dt-si-help">' +
+          '<button type="button" class="dt-si-peek" aria-controls="dt-si-key" aria-pressed="false">Show</button></div>' +
+          '<p id="dt-si-msg" class="dt-si-msg" role="status" aria-live="polite"></p>' +
+          '<div class="dt-si-actions"><button type="button" class="dt-si-btn" data-cancel>Cancel</button><button type="submit" class="dt-si-btn dt-si-primary">Sign in</button></div>' +
+          '<p id="dt-si-help" class="dt-si-help">You stay signed in on this device for 8 hours. Forgotten the passkey? Ask your website administrator.</p>' +
+        '</form>';
+      document.body.appendChild(dialog);
+      form = dialog.querySelector('form');
+      input = dialog.querySelector('input');
+      msg = dialog.querySelector('.dt-si-msg');
+      submitBtn = dialog.querySelector('[type="submit"]');
+      var peek = dialog.querySelector('.dt-si-peek');
+      form.addEventListener('submit', submit);
+      dialog.querySelector('[data-cancel]').addEventListener('click', function () { dialog.close(); });
+      peek.addEventListener('click', function () {
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        peek.textContent = show ? 'Hide' : 'Show';
+        peek.setAttribute('aria-pressed', String(show));
+        input.focus();
+      });
+      dialog.addEventListener('click', function (e) { if (e.target === dialog && !submitBtn.disabled) dialog.close(); });
+      dialog.addEventListener('close', function () {
+        clearInterval(countdown);
+        input.value = '';
+        input.type = 'password';
+        peek.textContent = 'Show';
+        peek.setAttribute('aria-pressed', 'false');
+      });
+    }
+
+    function openSignIn(text, tone) {
+      if (started && !text) return;
+      if (!dialog) build();
+      if (!dialog.open) dialog.showModal();
+      busy(false);
+      say(text, tone);
+      if (!paused()) input.focus();
+    }
+
+    function onKey(e) {
+      if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && e.code === 'KeyA') {
+        e.preventDefault();
+        openSignIn();
+        return;
+      }
+      var t = e.target;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1 || (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))) return;
+      typed = (typed + e.key.toLowerCase()).slice(-5);
+      if (typed === 'admin') {
+        e.preventDefault(); // keep the final "n" out of the passkey field that is about to take focus
+        typed = '';
+        openSignIn();
+      }
+    }
+
+    // Older bookmarks may still carry the passkey as #key= / ?key=; it is posted once and removed.
+    var match = /[?#&]key=([^&#]+)/.exec(location.search + location.hash);
+    var hash = location.hash.slice(1);
+    var note = Object.prototype.hasOwnProperty.call(NOTES, hash) ? NOTES[hash] : null;
+    if (match || note) history.replaceState(null, '', location.pathname);
+    document.addEventListener('keydown', onKey);
+    var check = match
+      ? fetch(AUTH, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: decodeURIComponent(match[1]) }) })
+      : fetch(AUTH, { credentials: 'same-origin' });
+    check.then(function (r) {
+      if (r.ok) return start();
+      if (match) openSignIn('That passkey was not recognised. Please type it in below.', 'bad');
+      else if (note) openSignIn(note[0], note[1]);
+    }, function (err) {
+      console.warn(err.message);
+      if (match || note) openSignIn('Cannot reach the server. Check your internet connection and try again.', 'bad');
+    });
   })();
 </script>
 </body>

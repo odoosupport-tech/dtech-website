@@ -92,3 +92,108 @@ window.addEventListener('load', () => {
   ready.then(alignHashTarget);
 });
 window.addEventListener('hashchange', alignHashTarget);
+
+// Site banner from the management console (data/banners.json): the first active
+// banner whose dates include today shows above the utility bar until the visitor
+// closes it. The banner is remembered for the session, so later pages show it at
+// once instead of shifting the layout when the fetch returns.
+(() => {
+  const CACHE = 'dtech-banner';
+  const DISMISSED = 'dtech-banner-dismissed';
+  const ICONS = {
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    highlight: '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    warning: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  };
+  const CSS = `
+.site-banner{font:500 13px/1.45 var(--text-face,Inter,system-ui,sans-serif)}
+.site-banner[data-tone="info"]{background:#0075ae;color:#fff}
+.site-banner[data-tone="highlight"]{background:#c2410c;color:#fff}
+.site-banner[data-tone="warning"]{background:#fbbf24;color:#1f1300}
+.site-banner-in{display:flex;align-items:center;gap:10px;max-width:100%;margin:0 auto;padding:8px 1rem}
+@media (min-width:640px){.site-banner-in{padding-left:2rem;padding-right:2rem}}
+@media (min-width:1280px){.site-banner-in{padding-left:3.5rem;padding-right:3.5rem}}
+@media (min-width:1800px){.site-banner-in{max-width:1720px}}
+.site-banner-in>svg{flex:none;width:18px;height:18px}
+.site-banner-text{margin:0;flex:1;min-width:0;overflow-wrap:anywhere;color:inherit}
+.site-banner-text a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;margin-left:4px;white-space:nowrap}
+.site-banner-close{flex:none;display:grid;place-items:center;width:32px;height:32px;margin:-4px -6px -4px 0;border:0;border-radius:8px;background:transparent;color:inherit;font-size:20px;line-height:1;cursor:pointer;opacity:.85}
+.site-banner-close:hover{opacity:1;background:rgba(255,255,255,.16)}
+.site-banner[data-tone="warning"] .site-banner-close:hover{background:rgba(0,0,0,.08)}
+.site-banner-close:focus-visible,.site-banner-text a:focus-visible{outline:2px solid currentColor;outline-offset:2px}`;
+
+  const get = (area, key) => { try { return window[area].getItem(key); } catch (_) { return null; } };
+  const set = (area, key, value) => {
+    try {
+      if (value == null) window[area].removeItem(key); else window[area].setItem(key, value);
+    } catch (_) { /* storage blocked: the banner still shows, it just is not remembered */ }
+  };
+  const today = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  const pick = list => {
+    if (!Array.isArray(list)) return null;
+    const day = today();
+    return list.find(b => b && b.isActive === true && typeof b.message === 'string' && b.message &&
+      (!b.startsOn || b.startsOn <= day) && (!b.endsOn || day <= b.endsOn)) || null;
+  };
+  // Pages on this site, https links, tel: and mailto: only (the console allows no others).
+  const safeHref = url => {
+    const value = String(url || '');
+    const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(value);
+    if (value.startsWith('//')) return '';
+    return !scheme || ['https', 'tel', 'mailto'].includes(scheme[1].toLowerCase()) ? value : '';
+  };
+
+  const show = banner => {
+    const anchor = document.querySelector('.utility-bar');
+    const current = document.querySelector('.site-banner');
+    const id = banner ? JSON.stringify(banner) : '';
+    if (current && current.dataset.banner === id) return;
+    current?.remove();
+    if (!banner || !anchor || get('localStorage', DISMISSED) === `${banner.id}|${banner.message}`) return;
+    if (!document.getElementById('site-banner-css')) {
+      const style = document.createElement('style');
+      style.id = 'site-banner-css';
+      style.textContent = CSS;
+      document.head.appendChild(style);
+    }
+    const tone = ICONS[banner.tone] ? banner.tone : 'info';
+    const bar = document.createElement('div');
+    bar.className = 'site-banner';
+    bar.dataset.tone = tone;
+    bar.dataset.banner = id;
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', 'Announcement');
+    bar.innerHTML = `<div class="site-banner-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[tone]}</svg><p class="site-banner-text"></p><button type="button" class="site-banner-close" aria-label="Close announcement">&times;</button></div>`;
+    const text = bar.querySelector('p');
+    text.textContent = banner.message;
+    const href = safeHref(banner.linkUrl);
+    if (href && banner.linkLabel) {
+      const link = document.createElement('a');
+      link.href = href;
+      link.textContent = `${banner.linkLabel} →`;
+      if (link.origin !== location.origin && link.protocol === 'https:') { link.target = '_blank'; link.rel = 'noopener'; }
+      text.append(' ', link);
+    }
+    bar.querySelector('button').addEventListener('click', () => {
+      set('localStorage', DISMISSED, `${banner.id}|${banner.message}`);
+      bar.remove();
+    });
+    anchor.before(bar);
+  };
+
+  const cached = get('sessionStorage', CACHE);
+  if (cached) {
+    try { show(pick([JSON.parse(cached)])); } catch (_) { set('sessionStorage', CACHE, null); }
+  }
+  fetch('/data/banners.json', { cache: 'no-cache', headers: { Accept: 'application/json' } })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    .then(list => {
+      const banner = pick(list);
+      set('sessionStorage', CACHE, banner ? JSON.stringify(banner) : null);
+      show(banner);
+    })
+    .catch(err => console.warn('Site banner not loaded:', err.message));
+})();

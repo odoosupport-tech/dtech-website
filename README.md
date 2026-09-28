@@ -80,11 +80,11 @@ Posts live in `content/news.json`. To publish an update, add an entry at the top
 
 ## Careers
 
-Open roles live in `data/jobs.json` (`id`, `title`, `department`, `location`, `positions`, `summary`, `isActive`) and are managed from the management console (below). `careers.html` ships a static copy of the list for visitors without JavaScript and replaces it with the live list from the API.
+Open roles live in `data/jobs.json` (`id`, `title`, `department`, `location`, `positions`, `summary`, `isActive`) and are managed from the management console (below). `careers.html` ships a static copy of the list for visitors without JavaScript and replaces it with the live list from the API. In a summary, lines starting with `- ` become a bulleted list and an empty line starts a new paragraph.
 
 | Endpoint | What it does |
 |---|---|
-| `GET /api/jobs` | The roles in `data/jobs.json` with `isActive: true`, cached for 5 minutes. |
+| `GET /api/jobs` | The roles in `data/jobs.json` with `isActive: true`, cached by browsers for 1 minute. |
 | `POST /api/apply` | Emails the application to `HR_EMAIL` (default `SALES_EMAIL`) with the CV attached and Reply-To set to the candidate, and files it for the console. |
 
 Protections on `/api/apply`: same-origin JSON only, a hidden bot-trap field, 5 applications per hour per IP and 3 per day per email address, CVs limited to PDF or Word and 3 MB.
@@ -96,7 +96,8 @@ SMTP is the only delivery channel; nothing else receives the site's form data. I
 | Data | Where | Written by |
 |---|---|---|
 | Client requirements, case-study leads, job applications, CVs | `requirements.json`, `leads.json`, `applicants.json`, `cvs/` in a **separate private repository** | `api/contact.js`, `api/send-whitepaper.js`, `api/apply.js` |
-| Open roles, case studies | `data/jobs.json`, `data/case-studies.json` in this repository | the management console |
+| Open roles, case studies, site banners | `data/jobs.json`, `data/case-studies.json`, `data/banners.json` in this repository | the management console |
+| Case-study PDFs uploaded from the console | `assets/case-studies/pdf/custom/` in this repository (public, like the built-in PDFs) | the management console |
 
 **Never store submissions in this repository.** It is public, and Vercel serves the repository root as the website, so anything committed here can be read by anyone and stays in the git history. `api/_store.js` refuses to use this repository for submissions.
 
@@ -116,30 +117,39 @@ Setup:
 | `GITHUB_DATA_BRANCH` | no | Default `main` |
 | `HR_EMAIL` | no | Receives job applications (default `SALES_EMAIL`) |
 
-Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job or case study commits to `data/`, which redeploys the site, so the public pages show the change about a minute later.
+Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job, case study or banner commits to `data/`, which redeploys the site, so the public pages show the change 1–2 minutes later.
 
-Locally (no `VERCEL` variable and no tokens), `data/` is edited in place and submissions go to `.portal-data/`, which is git-ignored.
+Locally (no `VERCEL` variable and no tokens), `data/` is edited in place, uploaded PDFs go to `assets/case-studies/pdf/custom/`, and submissions go to `.portal-data/`, which is git-ignored.
 
 ## Management console
 
-A private dashboard for non-technical staff: client requirements (with CSV export for Excel), job applicants (with CV download), case-study leads, opening and closing jobs, and publishing or hiding case studies.
+A private dashboard for non-technical staff:
+
+- **Inbox:** client requirements (with CSV export for Excel), job applicants (with CV download) and case-study leads.
+- **Careers:** add, edit, close or delete openings, with a live preview of the careers-page card.
+- **Case studies:** add, edit, publish (or keep as a draft) and delete case studies, each with an optional PDF whitepaper, either uploaded (up to 3 MB) or linked (`https://`). Built-in case studies can be published or unpublished.
+- **Site banners:** a notice across the top of every page (holiday closures, hiring drives, urgent updates) in one of three styles, with an optional link and optional start and end dates. One banner shows at a time: the first active one in the list whose dates include today. Visitors can close it.
+
+Every form is checked in the browser and again on the server. While a change saves, the console shows “Committing to GitHub and deploying to Vercel…”, then watches the deployed file and shows **Live on the website** once Vercel has published it (usually 1–2 minutes).
 
 - **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random passkey (at least 16 characters). Without it every admin endpoint answers 404. Changing it signs everyone out.
-- **Sign in** on the home page with **Ctrl + Shift + Alt + D**, enter the passkey, and you are taken to `/portal.html`. Opening `/portal.html#key=PASSKEY` also works; `?key=` is accepted too but puts the passkey in server logs, so prefer the shortcut.
-- `portal.html` is a copy of `404.html`. Without a valid session it shows the 404 page; the console script is only served (`/api/admin/console`) to a signed-in session. It is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
-- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The passkey check is timing-safe and limited to 5 attempts per 15 minutes per IP (per instance).
+- **Sign in** by opening `/portal.html` and typing `admin` anywhere on the page (or pressing **Ctrl + Shift + A**; in Chrome on Windows that key is taken by tab search, so typing `admin` always works). A sign-in dialog asks for the passkey. **Ctrl + Shift + Alt + D** on the home page, or `/portal.html#signin`, opens the same dialog. Old `#key=` / `?key=` links still work but are no longer needed (`?key=` puts the passkey in server logs).
+- After 5 wrong passkeys, sign-in pauses for 15 minutes. The dialog shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance).
+- **Sign Out** in the console header ends the session and returns to the sign-in dialog.
+- `portal.html` is a copy of `404.html`. Without a valid session it shows the 404 page; the sign-in dialog is built by script only when asked for, and the console script is only served (`/api/admin/console`) to a signed-in session. It is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
+- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The passkey check is timing-safe.
 
 | Endpoint | What it does |
 |---|---|
 | `GET/POST/DELETE /api/admin/auth` | Session check / sign in with `{ key }` / sign out |
 | `GET /api/admin/data` | All console data; `?cv=<applicant id>` downloads that CV |
-| `POST /api/admin/update` | Add, edit, delete or switch jobs and case studies |
+| `POST /api/admin/update` | Add, edit, delete or switch jobs, case studies and banners (`type`: `job`, `caseStudy`, `banner`); errors name the field to fix |
 | `GET /api/admin/console` | The console app script |
 
-Built-in case studies can be hidden but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards without a PDF, and their button invites the visitor to get in touch.
+Built-in case studies can be published or unpublished but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards. If one has a PDF, visitors who open its summary can request it: `api/send-whitepaper.js` attaches an uploaded PDF, or emails the link, and files the lead as usual. Replacing or removing a PDF leaves the old uploaded file in the repository, so delete it by hand if it must go.
 
 ## Security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a referrer policy and a permissions policy for every page. If you add a new external script, font, image host or embed, allow its host in the CSP or the browser will block it.
 
-The allowed case studies and their PDF files are listed in `api/_whitepapers.json`. Keep it in sync when adding a case study. The function only runs on Vercel (or `vercel dev`), not under `python3 -m http.server`.
+The built-in case studies and their PDF files are listed in `api/_whitepapers.json`. Keep it in sync when adding a built-in case study; console case studies carry their PDF in `data/case-studies.json`. The function only runs on Vercel (or `vercel dev`), not under `python3 -m http.server`.

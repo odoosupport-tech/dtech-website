@@ -21,7 +21,18 @@ require(path.join(REPO, 'node_modules/nodemailer')).createTransport = () => { th
 
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'dtech-suite-'));
 fs.cpSync(path.join(REPO, 'data'), path.join(sandbox, 'data'), { recursive: true });
-fs.symlinkSync(path.join(REPO, 'assets'), path.join(sandbox, 'assets'));
+// assets/ is linked entry by entry, with real directories down to the console's
+// PDF upload folder, so uploads made in the tests land in the sandbox.
+const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', 'assets/case-studies/pdf/custom'].map(d => path.join(REPO, d));
+(function mirror(src, dst) {
+  fs.mkdirSync(dst);
+  for (const name of fs.readdirSync(src)) {
+    const from = path.join(src, name);
+    if (REAL_DIRS.includes(from)) mirror(from, path.join(dst, name)); else fs.symlinkSync(from, path.join(dst, name));
+  }
+})(path.join(REPO, 'assets'), path.join(sandbox, 'assets'));
+const repoUploads = path.join(REPO, 'assets/case-studies/pdf/custom');
+const repoUploadsBefore = fs.existsSync(repoUploads) ? fs.readdirSync(repoUploads).length : -1;
 process.chdir(sandbox);
 
 const sent = [];
@@ -30,7 +41,7 @@ mail.sendMail = async (msg) => { sent.push(msg); return { id: `mock-${sent.lengt
 
 const api = (p) => require(path.join(REPO, 'api', p));
 const jobs = api('jobs.js'), contact = api('contact.js'), apply = api('apply.js'), whitepaper = api('send-whitepaper.js');
-const auth = api('admin/auth.js'), data = api('admin/data.js'), update = api('admin/update.js');
+const auth = api('admin/auth.js'), data = api('admin/data.js'), update = api('admin/update.js'), consoleApp = api('admin/console.js');
 
 // ---- tiny req/res mocks ----------------------------------------------------
 let ipSeq = 0;
@@ -210,9 +221,137 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.body.items.find(j => j.id === openJob.id).isActive, false);
       eq((await call(jobs, req('GET'))).body.jobs.length, 11, 'public list reflects toggle');
     }],
+    ['portal sign-in dialog: "admin" / Ctrl+Shift+A, posted passkey, 429 pause, no key in storage', () => {
+      const portal = fs.readFileSync(path.join(REPO, 'portal.html'), 'utf8');
+      const script = portal.match(/<script>\s*\(function \(\) \{\s*\/\/ Renders as the 404 page[\s\S]*?<\/script>/)[0];
+      new Function(script.replace(/^<script>|<\/script>$/g, '')); // parses
+      for (const needle of ["typed === 'admin'", "e.code === 'KeyA'", 'r.status === 429', "method: 'POST'", 'autocomplete="current-password"', "'signed-out'", "'session-ended'"]) {
+        assert(script.includes(needle), `sign-in script missing ${needle}`);
+      }
+      assert(!/setItem\([^)]*key\b/.test(script), 'passkey must never be stored');
+    }],
+    ['console app script: served to a session only, parses', async () => {
+      eq((await call(consoleApp, req('GET'))).statusCode, 404);
+      const r = await call(consoleApp, req('GET', null, { headers: { cookie } }));
+      eq(r.statusCode, 200);
+      assert.match(r.headers['content-type'], /javascript/);
+      new Function(r.body);
+    }],
   ]);
 
-  // 7 (reported after 6). GitHub store retry and privacy rules, against a scripted fake GitHub.
+  // 6. Console publishing: jobs, case studies (with PDFs) and banners
+  const post = (body) => call(update, req('POST', body, { headers: { cookie } }));
+  const fieldError = async (body, field, status = 400) => {
+    const r = await post(body);
+    eq(r.statusCode, status, JSON.stringify(r.body)); eq(r.body.ok, false); eq(r.body.field, field, r.body.error);
+  };
+  const job = { title: 'Industrial Network Engineer', department: 'Engineering', location: 'Bharuch', positions: 2, summary: 'Keep plant networks running.\n\n- Configure switches\n- Support CCTV links', isActive: true };
+  const cs = { client: 'Test Chemicals Ltd', industry: 'Chemicals', category: 'network', arch_tag: 'Plant-wide Network', summary: 'A short summary.', outcomes: ['45% reduction in cycle time'], metrics: [['Uptime', '99.8%']] };
+  const banner = { message: 'Offices closed 20–24 Oct for Diwali.', tone: 'warning', linkLabel: 'Contact us', linkUrl: 'contact.html', startsOn: '2026-10-18', endsOn: '2026-10-25', isActive: true };
+  const pdf = (bytes) => Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(bytes)]).toString('base64');
+  const uploads = () => fs.existsSync('assets/case-studies/pdf/custom') ? fs.readdirSync('assets/case-studies/pdf/custom') : [];
+  let uploadedCase, linkedCase, bannerId;
+  await area('6. Console publishing (api/admin/update.js)', [
+    ['job: add with bullets, closed → saved, hidden from /api/jobs', async () => {
+      const r = await post({ type: 'job', action: 'save', item: { ...job, isActive: false } });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      const saved = r.body.items[0];
+      eq(saved.id, 'industrial-network-engineer-bharuch'); eq(saved.isActive, false); eq(saved.positions, 2);
+      assert(saved.summary.includes('\n- Configure switches'), 'summary line breaks kept');
+      assert(!(await call(jobs, req('GET'))).body.jobs.some(j => j.id === saved.id), 'closed job listed publicly');
+    }],
+    ['job: positions 0 / 100 / 1.5 → 400 positions', async () => {
+      for (const positions of [0, 100, 1.5]) await fieldError({ type: 'job', action: 'save', item: { ...job, positions } }, 'positions');
+    }],
+    ['job: missing title, 1001-char summary, non-boolean status → 400 naming the field', async () => {
+      await fieldError({ type: 'job', action: 'save', item: { ...job, title: '  ' } }, 'title');
+      await fieldError({ type: 'job', action: 'save', item: { ...job, summary: 'x'.repeat(1001) } }, 'summary');
+      await fieldError({ type: 'job', action: 'save', item: { ...job, isActive: 'yes' } }, 'isActive');
+    }],
+    ['unknown action / section → 400', async () => {
+      eq((await post({ type: 'job', action: 'publish', id: 'x' })).statusCode, 400);
+      eq((await post({ type: 'page', action: 'save', item: {} })).statusCode, 400);
+    }],
+    ['case study: half-filled metric, 7 results, http link → 400 naming the field', async () => {
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, metrics: [['Uptime', '99.8%'], ['Sites', '']] } }, 'metric1');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, outcomes: Array(7).fill('Result') } }, 'outcomes');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'link', url: 'http://example.com/a.pdf' } } }, 'pdfUrl');
+    }],
+    ['case study: non-PDF upload → 400, over 3 MB → 413, nothing written', async () => {
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', dataBase64: Buffer.from('MZ fake').toString('base64') } } }, 'pdfFile');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', dataBase64: pdf(3 * 1024 * 1024) } } }, 'pdfFile', 413);
+      eq(uploads().length, 0);
+    }],
+    ['case study: bad text is refused before the PDF is uploaded', async () => {
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, client: '', pdf: { mode: 'upload', dataBase64: pdf(10) } } }, 'client');
+      eq(uploads().length, 0);
+    }],
+    ['case study: PDF upload → committed under custom/, pdf_file set, published', async () => {
+      const r = await post({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', filename: 'x.pdf', dataBase64: pdf(64) } } });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      uploadedCase = r.body.items[0];
+      eq(uploadedCase.custom, true); eq(uploadedCase.published, true);
+      assert.match(uploadedCase.pdf_file, /^assets\/case-studies\/pdf\/custom\/test-chemicals-ltd-[0-9a-f]{6}\.pdf$/);
+      assert(fs.readFileSync(uploadedCase.pdf_file).subarray(0, 5).toString() === '%PDF-', 'uploaded file');
+      const repoNow = fs.existsSync(repoUploads) ? fs.readdirSync(repoUploads).length : -1;
+      eq(repoNow, repoUploadsBefore, 'upload leaked into the repository');
+    }],
+    ['case study: edit with "keep" leaves the PDF; draft + link saved', async () => {
+      const kept = await post({ type: 'caseStudy', action: 'save', id: uploadedCase.id, item: { ...cs, summary: 'Edited.', pdf: { mode: 'keep' } } });
+      eq(kept.statusCode, 200); eq(kept.body.items.find(c => c.id === uploadedCase.id).pdf_file, uploadedCase.pdf_file);
+      const r = await post({ type: 'caseStudy', action: 'save', item: { ...cs, client: 'Linked Pharma', published: false, pdf: { mode: 'link', url: 'https://files.example.com/case.pdf' } } });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      linkedCase = r.body.items[0];
+      eq(linkedCase.published, false); eq(linkedCase.pdf_file, 'https://files.example.com/case.pdf');
+    }],
+    ['case study: built-in cannot be edited or deleted, can be unpublished', async () => {
+      eq((await post({ type: 'caseStudy', action: 'save', id: 'mrf', item: cs })).statusCode, 400);
+      eq((await post({ type: 'caseStudy', action: 'delete', id: 'mrf' })).statusCode, 400);
+      const r = await post({ type: 'caseStudy', action: 'toggle', id: 'mrf', value: false });
+      eq(r.statusCode, 200); eq(r.body.items.find(c => c.id === 'mrf').published, false);
+      await post({ type: 'caseStudy', action: 'toggle', id: 'mrf', value: true });
+    }],
+    ['banner: bad link, dates, tone, half link → 400 naming the field', async () => {
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, linkUrl: 'javascript:alert(1)' } }, 'linkUrl');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, linkUrl: '//evil.example' } }, 'linkUrl');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, endsOn: '2026-10-01' } }, 'endsOn');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, startsOn: '2026-02-30' } }, 'startsOn');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, tone: 'purple' } }, 'tone');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, linkUrl: '' } }, 'linkUrl');
+      await fieldError({ type: 'banner', action: 'save', item: { ...banner, message: 'x'.repeat(201) } }, 'message');
+    }],
+    ['banner: add → data/banners.json; tel: link ok; toggle; delete', async () => {
+      const r = await post({ type: 'banner', action: 'save', item: banner });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      bannerId = r.body.items[0].id;
+      assert.deepStrictEqual(JSON.parse(fs.readFileSync('data/banners.json', 'utf8'))[0], { id: bannerId, ...banner });
+      eq((await post({ type: 'banner', action: 'save', id: bannerId, item: { ...banner, linkUrl: 'tel:+91 99980 26089' } })).statusCode, 200);
+      eq((await post({ type: 'banner', action: 'toggle', id: bannerId, value: false })).body.items[0].isActive, false);
+      eq((await post({ type: 'banner', action: 'delete', id: bannerId })).body.items.length, 0);
+    }],
+    ['data: banners list and publishing mode', async () => {
+      const r = await call(data, req('GET', null, { headers: { cookie } }));
+      eq(r.statusCode, 200); assert(Array.isArray(r.body.banners)); eq(r.body.publishing, 'local');
+    }],
+    ['whitepaper: console case study → uploaded PDF attached; link emailed; draft refused', async () => {
+      delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))]; // fresh list cache
+      const fresh = api('send-whitepaper.js');
+      let before = sent.length;
+      let r = await call(fresh, req('POST', { email: 'lead2@example.com', caseId: uploadedCase.id }));
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(sent[before].attachments[0].filename, path.basename(uploadedCase.pdf_file));
+      eq((await call(fresh, req('POST', { email: 'lead3@example.com', caseId: linkedCase.id }))).statusCode, 400, 'draft sent');
+      await post({ type: 'caseStudy', action: 'toggle', id: linkedCase.id, value: true });
+      delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))];
+      before = sent.length;
+      r = await call(api('send-whitepaper.js'), req('POST', { email: 'lead4@example.com', caseId: linkedCase.id }));
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(sent[before].attachments.length, 0);
+      assert(sent[before].html.includes('href="https://files.example.com/case.pdf"'), 'link in email');
+    }],
+  ]);
+
+  // 8 (reported after 7). GitHub store retry and privacy rules, against a scripted fake GitHub.
   // The store caches "repo is private" per instance, so each privacy check uses its own repo name.
   const store = api('_store.js');
   async function withFakeGitHub(putResponses, fn, { repo = 'test-owner/test-data', isPrivate = true } = {}) {
@@ -287,17 +426,17 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
 
   console.error = errLog;
 
-  // 6. Build & contracts
+  // 7. Build & contracts
   const run = (cmd, args, expect) => () => {
     const out = execFileSync(cmd, args, { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 << 20 });
     assert(out.includes(expect), `missing "${expect}"`);
   };
-  await area('6. Build & contract integrity', [
+  await area('7. Build & contract integrity', [
     ['check-links.py', run('python3', ['tools/check-links.py'], 'OK')],
     ['check-ui-contract.py', run('python3', ['tools/check-ui-contract.py'], 'OK')],
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],
   ]);
-  await area('7. GitHub store retry & privacy (api/_store.js)', storeChecks);
+  await area('8. GitHub store retry & privacy (api/_store.js)', storeChecks);
 
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });

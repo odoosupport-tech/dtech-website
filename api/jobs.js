@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
   }
   try {
     const jobs = activeJobs();
-    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.setHeader('Cache-Control', 'public, max-age=60'); // console changes should show within 1–2 minutes
     return res.status(200).json({ ok: true, source: 'site', jobs });
   } catch (err) {
     console.error('Reading data/jobs.json failed:', err.message);
