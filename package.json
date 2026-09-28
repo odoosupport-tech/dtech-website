@@ -5,7 +5,7 @@
   "description": "D-TECH Solution Integrators static website — build tooling (minify CSS/JS). nodemailer is the only runtime dependency (SMTP for the api/ functions).",
   "scripts": {
     "build:tailwind": "tailwindcss -c tools/tailwind/tailwind.config.js -i tools/tailwind/input.css -o assets/tailwind.css --minify",
-    "build:css": "npm run build:tailwind && for f in assets/skin.css assets/tailwind.css assets/polish.css assets/jiva.css assets/color.css assets/skin-dark.css assets/prezi.css assets/fonts.css assets/case-studies.css assets/refresh.css; do npx -y clean-css-cli -o \"${f%.css}.min.css\" \"$f\"; done && for f in assets/skin.min.css assets/color.min.css assets/polish.min.css assets/tailwind.min.css; do cat \"$f\"; echo; done > assets/bundle.min.css && npx -y purgecss --config purgecss.config.js && cp /tmp/purged/bundle.min.css assets/bundle.min.css",
+    "build:css": "npm run build:tailwind && for f in assets/skin.css assets/tailwind.css assets/polish.css assets/jiva.css assets/color.css assets/skin-dark.css assets/prezi.css assets/fonts.css assets/case-studies.css assets/refresh.css assets/home.css; do npx -y clean-css-cli -o \"${f%.css}.min.css\" \"$f\"; done && for f in assets/skin.min.css assets/color.min.css assets/polish.min.css assets/tailwind.min.css; do cat \"$f\"; echo; done > assets/bundle.min.css && npx -y purgecss --config purgecss.config.js && cp /tmp/purged/bundle.min.css assets/bundle.min.css",
     "build:js": "for f in assets/lucide.js assets/agent-a.js assets/refined.js assets/analytics.js; do npx -y terser \"$f\" -c -m -o \"${f%.js}.min.js\"; done",
     "build": "npm run build:css && npm run build:js && npm run stamp",
     "serve": "python3 -m http.server 8000",
