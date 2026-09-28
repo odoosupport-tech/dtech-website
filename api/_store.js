@@ -12,7 +12,7 @@
 //
 //   GITHUB_TOKEN        token with Contents read/write on the site repository
 //   GITHUB_REPO         optional  owner/name of the site repository
-//                                 (default underratedgitter/dtech-website)
+//                                 (default odoosupport-tech/dtech-website)
 //   GITHUB_BRANCH       optional  branch Vercel deploys from (default main)
 //   GITHUB_DATA_REPO    owner/name of the private repository for submissions
 //   GITHUB_DATA_TOKEN   optional  token for that repository (default GITHUB_TOKEN)
@@ -33,9 +33,9 @@ function storeConfig(name) {
   if (name !== 'site' && name !== 'private') throw new Error(`Unknown store "${name}"`);
   const env = process.env;
   const cfg = name === 'site'
-    ? { repo: env.GITHUB_REPO || 'underratedgitter/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main', localDir: 'data', prefix: 'data/' }
+    ? { repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main', localDir: 'data', prefix: 'data/' }
     : { repo: env.GITHUB_DATA_REPO, token: env.GITHUB_DATA_TOKEN || env.GITHUB_TOKEN, branch: env.GITHUB_DATA_BRANCH || 'main', localDir: '.portal-data', prefix: '' };
-  if (name === 'private' && cfg.repo && cfg.repo.toLowerCase() === (env.GITHUB_REPO || 'underratedgitter/dtech-website').toLowerCase()) {
+  if (name === 'private' && cfg.repo && cfg.repo.toLowerCase() === (env.GITHUB_REPO || 'odoosupport-tech/dtech-website').toLowerCase()) {
     throw new Error('GITHUB_DATA_REPO must be a private repository, not the public site repository');
   }
   if (cfg.repo && cfg.token) return { ...cfg, mode: 'github' };

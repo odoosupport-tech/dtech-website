@@ -109,7 +109,7 @@ Setup:
 | Variable | Required | Purpose |
 |---|---|---|
 | `GITHUB_TOKEN` | for the console to save changes | Token for this site repository |
-| `GITHUB_REPO` | no | `owner/name` of this repository (default `underratedgitter/dtech-website`) |
+| `GITHUB_REPO` | no | `owner/name` of this repository (default `odoosupport-tech/dtech-website`) |
 | `GITHUB_BRANCH` | no | Branch Vercel deploys from (default `main`) |
 | `GITHUB_DATA_REPO` | to store submissions | `owner/name` of the private repository |
 | `GITHUB_DATA_TOKEN` | to store submissions | Token for the private repository (falls back to `GITHUB_TOKEN`) |
