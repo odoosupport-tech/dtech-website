@@ -954,7 +954,6 @@ body[data-page="contact"] main>section:nth-of-type(2) { background:var(--paper)!
 body[data-page="about"] #intro+section,
 body[data-page="about"] #partners,
 body[data-page="solutions"] #systems-catalog,
-body[data-page="solutions"] #estimator,
 body[data-page="case-studies"] main>section:nth-of-type(2) { background:var(--surface)!important; }
 
 body[data-page="about"] #intro+section+section { background:var(--paper)!important; }
@@ -1025,34 +1024,6 @@ body[data-page="solutions"] #systems-catalog+section .grid>div { border-left:5px
 body[data-page="solutions"] #systems-catalog+section .grid>div:nth-child(2) { border-left-color:var(--c-green)!important; }
 body[data-page="solutions"] #systems-catalog+section .grid>div:nth-child(3) { border-left-color:var(--c-orange)!important; }
 body[data-page="solutions"] #systems-catalog+section .grid>div:nth-child(4) { border-left-color:var(--c-red)!important; }
-
-body[data-page="solutions"] #estimator>div>div:last-child,
-body[data-page="solutions"] #estimator .rounded-3xl {
-  background:var(--invert)!important; border:1px solid var(--invert)!important;
-  border-radius:var(--r-panel)!important;
-  box-shadow:0 30px 60px -32px rgba(7,29,52,.5)!important;
-}
-body[data-page="solutions"] #estimator .rounded-3xl :is(h3,.text-slate-900) { color:#fff!important; }
-body[data-page="solutions"] #estimator .rounded-3xl :is(p,label,span:not(.font-mono)) { color:rgba(255,255,255,.66)!important; }
-body[data-page="solutions"] #estimator .bg-white { background:rgba(255,255,255,.07)!important; }
-body[data-page="solutions"] #estimator select,
-body[data-page="solutions"] #estimator input {
-  background:rgba(255,255,255,.08)!important; border-color:rgba(255,255,255,.2)!important; color:#fff!important;
-}
-body[data-page="solutions"] #estimator select option { background:var(--invert); color:#fff; }
-body[data-page="solutions"] input[type="range"] {
-  -webkit-appearance:none; appearance:none; height:5px; border-radius:999px;
-  background:linear-gradient(90deg,var(--signal) var(--a-fill,20%),rgba(255,255,255,.18) var(--a-fill,20%));
-  outline-offset:4px;
-}
-body[data-page="solutions"] input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance:none; width:18px; height:18px; border-radius:999px;
-  background:var(--signal); border:3px solid #fff; cursor:pointer;
-}
-body[data-page="solutions"] input[type="range"]::-moz-range-thumb {
-  width:18px; height:18px; border-radius:999px; background:var(--signal); border:3px solid #fff; cursor:pointer;
-}
-#calc-budget,#calc-payback { font-variant-numeric:tabular-nums; color:var(--signal)!important; }
 
 main img.object-contain { background-color:transparent!important; }
 

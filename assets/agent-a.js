@@ -1,7 +1,7 @@
 /* ==========================================================================
    D-TECH · Agent-A Motion Layer (Task #4)
-   Presentational only: scroll reveal, header elevation, estimator slider
-   fill. Touches nothing functional — no cart/shop/modal/form logic here.
+   Presentational only: scroll reveal, header elevation, count-up figures.
+   Touches nothing functional — no modal/form logic here.
    Loads with defer on all 7 pages, after assets/refined.js.
    ========================================================================== */
 (function () {
@@ -13,30 +13,6 @@
     } catch (e) {
       return false;
     }
-  }
-
-  function paintSliderFill(el) {
-    try {
-      if (!el || el.type !== 'range') return;
-      var min = parseFloat(el.min || '0');
-      var max = parseFloat(el.max || '100');
-      var val = parseFloat(el.value || '0');
-      if (!isFinite(max - min) || max <= min) return;
-      var pct = Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
-      el.style.setProperty('--a-fill', pct.toFixed(1) + '%');
-    } catch (e) {}
-  }
-
-  function initSliders() {
-    try {
-      var sliders = document.querySelectorAll('input[type="range"]');
-      for (var i = 0; i < sliders.length; i++) {
-        (function (el) {
-          paintSliderFill(el);
-          el.addEventListener('input', function () { paintSliderFill(el); });
-        })(sliders[i]);
-      }
-    } catch (e) {}
   }
 
   function initHeader() {
@@ -163,7 +139,6 @@
   function init() {
     initScrollState();
     initTheme();
-    initSliders();
     initHeader();
     initReveal();
     initCounters();

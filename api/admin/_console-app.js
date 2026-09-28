@@ -860,7 +860,7 @@
       '<dl class="dc-dl"><dt>Client</dt><dd>' + esc(r.name) + '</dd><dt>Company</dt><dd>' + esc(r.company || '—') + '</dd>' +
       '<dt>Topic</dt><dd>' + esc(r.topic || 'General') + '</dd><dt>Phone</dt><dd>' + tel(r.phone) + '</dd><dt>Email</dt><dd>' + mail(r.email) + '</dd>' +
       '<dt>Received</dt><dd>' + esc(fmtDate(r.date)) + '</dd></dl>' +
-      '<p class="dc-sub">Full scope, including any items the client added from the Cart or Estimator:</p><div class="dc-msg">' + esc(r.message || 'No details provided.') + '</div>' +
+      '<p class="dc-sub">Full scope, as the client described it:</p><div class="dc-msg">' + esc(r.message || 'No details provided.') + '</div>' +
       followUp('requirement', r),
       '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(r.email) + '?subject=' + encodeURIComponent('Re: ' + (r.topic || 'Your requirement')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>',
       { form: true });
