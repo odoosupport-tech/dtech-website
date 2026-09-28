@@ -132,16 +132,16 @@ A private dashboard for non-technical staff:
 
 Every form is checked in the browser and again on the server. While a change saves, the console shows “Committing to GitHub and deploying to Vercel…”, then watches the deployed file and shows **Live on the website** once Vercel has published it (usually 1–2 minutes).
 
-- **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random passkey (at least 16 characters). Without it every admin endpoint answers 404. Changing it signs everyone out.
-- **Sign in** by opening `/portal.html` and typing `admin` anywhere on the page (or pressing **Ctrl + Shift + A**; in Chrome on Windows that key is taken by tab search, so typing `admin` always works). A sign-in dialog asks for the passkey. **Ctrl + Shift + Alt + D** on the home page, or `/portal.html#signin`, opens the same dialog. Old `#key=` / `?key=` links still work but are no longer needed (`?key=` puts the passkey in server logs).
-- After 5 wrong passkeys, sign-in pauses for 15 minutes. The dialog shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance).
-- **Sign Out** in the console header ends the session and returns to the sign-in dialog.
-- `portal.html` is a copy of `404.html`. Without a valid session it shows the 404 page; the sign-in dialog is built by script only when asked for, and the console script is only served (`/api/admin/console`) to a signed-in session. It is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
-- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The passkey check is timing-safe.
+- **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random password (at least 16 characters), then redeploy. Without it every admin endpoint answers 404. Changing it signs everyone out. Optionally set `ADMIN_USER` to the admin ID staff type with it (default `admin`, not case-sensitive).
+- **Sign in** at `/admin-dtech` (the same page is also at `/portal.html`; **Ctrl + Shift + Alt + D** on the home page opens it) with the admin ID and password.
+- After 5 wrong attempts, sign-in pauses for 15 minutes. The page shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance).
+- **Sign Out** in the console header ends the session and returns to the sign-in page.
+- The console script is only served (`/api/admin/console`) to a signed-in session, so its markup never appears in a public file. The sign-in page is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
+- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The ID and password checks are timing-safe.
 
 | Endpoint | What it does |
 |---|---|
-| `GET/POST/DELETE /api/admin/auth` | Session check / sign in with `{ key }` / sign out |
+| `GET/POST/DELETE /api/admin/auth` | Session check / sign in with `{ id, key }` (401 when wrong) / sign out |
 | `GET /api/admin/data` | All console data; `?cv=<applicant id>` downloads that CV |
 | `POST /api/admin/update` | Add, edit, delete or switch jobs, case studies and banners (`type`: `job`, `caseStudy`, `banner`); errors name the field to fix |
 | `GET /api/admin/console` | The console app script |

@@ -1,6 +1,7 @@
 /* D-TECH Management Console. Served by api/admin/console.js to signed-in
- * sessions only, and injected into portal.html (which otherwise shows the 404
- * page). Styles are scoped under .dc so nothing leaks into the public bundle. */
+ * sessions only, and injected into portal.html (the staff sign-in page at
+ * /admin-dtech), replacing its content. Styles are scoped under .dc so nothing
+ * leaks into the public bundle. */
 (function () {
   'use strict';
 
@@ -328,7 +329,7 @@
     if (!sticky) toast.timer = setTimeout(function () { toastEl.classList.remove('is-on'); }, tone === 'bad' ? 7000 : 5000);
   }
 
-  // Reloads portal.html on its sign-in dialog, with a note (see portal.html).
+  // Reloads the sign-in page with a note (see portal.html).
   function backToSignIn(note) {
     state.leaving = true;
     history.replaceState(null, '', location.pathname + '#' + note);

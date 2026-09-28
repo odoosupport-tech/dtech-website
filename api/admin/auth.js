@@ -1,10 +1,13 @@
 // /api/admin/auth: management console sign-in (see api/_admin.js).
 //
 //   GET     200 when the caller has a valid session, otherwise 404
-//   POST    { key } — checks the passkey against ADMIN_SECRET and starts a session
+//   POST    { id, key } — checks the admin ID (ADMIN_USER) and password
+//           (ADMIN_SECRET) and starts a session; 401 when either is wrong
 //   DELETE  signs out
+//
+// Every method answers 404 while ADMIN_SECRET is unset (console switched off).
 
-const { secret, passkeyMatches, hasSession, startSession, endSession, notFound, jsonBody } = require('../_admin');
+const { secret, credentialsMatch, hasSession, startSession, endSession, notFound, jsonBody } = require('../_admin');
 const { createRateLimiter, allowedOrigin } = require('../_http');
 
 const overLimit = createRateLimiter();
@@ -29,8 +32,8 @@ module.exports = async function handler(req, res) {
   if (overLimit('ip:' + ip, 5, 15 * 60 * 1000)) {
     return res.status(429).json({ ok: false, error: 'Too many attempts. Please wait 15 minutes.' });
   }
-  const { key } = jsonBody(req);
-  if (!passkeyMatches(key)) return notFound(res);
+  const { id, key } = jsonBody(req);
+  if (!credentialsMatch(id, key)) return res.status(401).json({ ok: false, error: 'Incorrect admin ID or password.' });
   startSession(res);
   return res.status(200).json({ ok: true });
 };
