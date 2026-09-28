@@ -8,7 +8,8 @@
 //            public pages pick the change up about a minute later.
 //   private  a SEPARATE PRIVATE repository for anything personal: client
 //            requirements, case-study leads, job applications and their CVs.
-//            Never point this at the public site repository.
+//            Never point this at the public site repository. Writes are
+//            refused unless GitHub reports the repository as private.
 //
 //   GITHUB_TOKEN        token with Contents read/write on the site repository
 //   GITHUB_REPO         optional  owner/name of the site repository
@@ -33,8 +34,8 @@ function storeConfig(name) {
   if (name !== 'site' && name !== 'private') throw new Error(`Unknown store "${name}"`);
   const env = process.env;
   const cfg = name === 'site'
-    ? { repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main', localDir: 'data', prefix: 'data/' }
-    : { repo: env.GITHUB_DATA_REPO, token: env.GITHUB_DATA_TOKEN || env.GITHUB_TOKEN, branch: env.GITHUB_DATA_BRANCH || 'main', localDir: '.portal-data', prefix: '' };
+    ? { name, repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main', localDir: 'data', prefix: 'data/' }
+    : { name, repo: env.GITHUB_DATA_REPO, token: env.GITHUB_DATA_TOKEN || env.GITHUB_TOKEN, branch: env.GITHUB_DATA_BRANCH || 'main', localDir: '.portal-data', prefix: '' };
   if (name === 'private' && cfg.repo && cfg.repo.toLowerCase() === (env.GITHUB_REPO || 'odoosupport-tech/dtech-website').toLowerCase()) {
     throw new Error('GITHUB_DATA_REPO must be a private repository, not the public site repository');
   }
@@ -69,10 +70,14 @@ function safePath(file) {
   return file;
 }
 
-async function gh(cfg, method, file, { body, raw } = {}) {
+function gh(cfg, method, file, options) {
+  const url = `${API}/repos/${cfg.repo}/contents/${cfg.prefix}${safePath(file)}` + (method === 'GET' ? `?ref=${encodeURIComponent(cfg.branch)}` : '');
+  return ghRequest(cfg, method, url, options);
+}
+
+async function ghRequest(cfg, method, url, { body, raw } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const url = `${API}/repos/${cfg.repo}/contents/${cfg.prefix}${safePath(file)}` + (method === 'GET' ? `?ref=${encodeURIComponent(cfg.branch)}` : '');
   try {
     return await fetch(url, {
       method,
@@ -117,6 +122,21 @@ async function readRaw(cfg, file) {
   return { buffer: Buffer.from(await rawRes.arrayBuffer()), sha: meta.sha };
 }
 
+// Repositories confirmed private in this instance, so the check costs one request per cold start.
+const verifiedPrivate = new Set();
+
+// Personal data (CVs, phone numbers) must never land in a public repository,
+// even if someone flips the data repository's visibility by mistake.
+async function assertPrivateRepo(cfg) {
+  const key = cfg.repo.toLowerCase();
+  if (verifiedPrivate.has(key)) return;
+  const res = await ghRequest(cfg, 'GET', `${API}/repos/${cfg.repo}`);
+  if (!res.ok) throw await ghError(res, `visibility check of ${cfg.repo}`);
+  const meta = await res.json();
+  if (meta.private !== true) throw new Error(`${cfg.repo} is not private; refusing to store personal data in it`);
+  verifiedPrivate.add(key);
+}
+
 // Returns true on success, false when the write lost a race (retry), throws otherwise.
 async function writeRaw(cfg, file, buffer, sha, message) {
   if (cfg.mode === 'local') {
@@ -125,6 +145,7 @@ async function writeRaw(cfg, file, buffer, sha, message) {
     fs.writeFileSync(full, buffer);
     return true;
   }
+  if (cfg.name === 'private') await assertPrivateRepo(cfg);
   const res = await gh(cfg, 'PUT', file, {
     body: { message, content: buffer.toString('base64'), branch: cfg.branch, ...(sha ? { sha } : {}) },
   });

@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!menu || menu.classList.contains('hidden')) return;
     if (event.key === 'Escape') window.toggleMobileMenu();
     if (event.key === 'Tab') {
-      const items = [...menu.querySelectorAll('a[href],button,summary')].filter(el => el.getClientRects().length);
+      const items = [...menu.querySelectorAll('a[href],button,summary')].filter(el => el.tabIndex >= 0 && el.getClientRects().length);
       const first = items[0], last = items[items.length - 1];
       if (event.shiftKey && document.activeElement === first) {event.preventDefault();last.focus();}
       if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first.focus();}

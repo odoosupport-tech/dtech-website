@@ -79,10 +79,10 @@
       animation: dtRadarPulse 2s infinite cubic-bezier(0.25, 1, 0.5, 1);
     }
   </style>
-  <script src="assets/refined.min.js?v=a0926bc7fa" defer></script>
+  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=dc3965b930">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a3ff460385">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
@@ -139,7 +139,7 @@
   </div></header>
   <!-- Mobile Drawer Menu -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
-    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
+    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" tabindex="-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
     <div class="fixed right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-2xl p-6 flex flex-col overflow-y-auto z-10">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <img decoding="async" width="324" height="142" src="assets/dtech-logo-blue.webp" alt="D-TECH" class="h-8 w-auto">
@@ -466,7 +466,7 @@
            MODAL 1: CORPORATE EMAIL ACCESS GATE (REQUIRED FOR DETAILS & PDF)
            ========================================================================= -->
       <div id="email-gate-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" role="dialog" aria-modal="true" aria-label="Corporate Email Access Verification">
-        <button type="button" onclick="closeEmailGateModal()" aria-label="Close verification modal" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
+        <button type="button" onclick="closeEmailGateModal()" aria-label="Close verification modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
 
         <div class="relative bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 z-10 space-y-6">
 
@@ -574,7 +574,7 @@
            MODAL 2: DETAILED CASE STUDY VIEW ("MORE INFO") WITH REAL PHOTO HERO
            ========================================================================= -->
       <div id="case-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" role="dialog" aria-modal="true" aria-label="Detailed Case Study Information">
-        <button type="button" onclick="closeCaseModal()" aria-label="Close detailed case study modal" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
+        <button type="button" onclick="closeCaseModal()" aria-label="Close detailed case study modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
 
         <div class="relative bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-3xl w-full p-6 sm:p-10 z-10 space-y-6 max-h-[90vh] overflow-y-auto">
 
@@ -890,6 +890,44 @@
           }
         }
 
+        // Focus and scroll handling for the two dialogs on this page: focus moves in
+        // on open, Tab stays inside, the page behind stops scrolling, and focus goes
+        // back to whatever opened the dialog. Escape is handled site-wide in refined.js.
+        const DIALOG_IDS = ['case-detail-modal', 'email-gate-modal']; // topmost (later in DOM) first
+        const dialogOpener = new Map();
+        function dialogFocusables(el) {
+          return [...el.querySelectorAll('a[href], button, input, select, textarea, [tabindex]')]
+            .filter(n => n.tabIndex >= 0 && !n.disabled && n.getClientRects().length);
+        }
+        function showDialog(id) {
+          const el = document.getElementById(id);
+          if (!el.classList.contains('hidden')) return;
+          dialogOpener.set(id, document.activeElement);
+          el.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          (el.querySelector('input:not([tabindex="-1"])') || dialogFocusables(el)[0])?.focus();
+        }
+        function hideDialog(id) {
+          const el = document.getElementById(id);
+          if (el.classList.contains('hidden')) return;
+          el.classList.add('hidden');
+          if (!document.querySelector('[role="dialog"][aria-modal="true"]:not(.hidden)')) document.body.style.overflow = '';
+          const opener = dialogOpener.get(id);
+          dialogOpener.delete(id);
+          if (opener && document.contains(opener)) opener.focus();
+        }
+        document.addEventListener('keydown', e => {
+          if (e.key !== 'Tab') return;
+          const open = DIALOG_IDS.map(id => document.getElementById(id)).find(el => el && !el.classList.contains('hidden'));
+          if (!open) return;
+          const items = dialogFocusables(open);
+          if (!items.length) return;
+          const first = items[0], last = items[items.length - 1];
+          if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+          else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        });
+
         // Open the Corporate Email Gate Modal
         function openEmailGate(action, caseId) {
           pendingAction = action;
@@ -917,12 +955,12 @@
             iconEl.setAttribute('data-lucide', 'file-down');
           }
 
-          document.getElementById('email-gate-modal').classList.remove('hidden');
+          showDialog('email-gate-modal');
           window.lucide?.createIcons();
         }
 
         function closeEmailGateModal() {
-          document.getElementById('email-gate-modal').classList.add('hidden');
+          hideDialog('email-gate-modal');
         }
 
         // Case-study PDF email delivery (email ONLY — no direct downloads).
@@ -931,7 +969,9 @@
         // environment variables in Vercel (see api/_mail.js).
         const WHITEPAPER_MAIL_CONFIG = {
           endpoint: '/api/send-whitepaper',
-          timeoutMs: 20000
+          // Longer than the function's 30 s maxDuration (vercel.json), so a slow send
+          // is not reported as failed while the email is still on its way.
+          timeoutMs: 32000
         };
 
         // Resolves to { ok, error? }; never throws.
@@ -954,9 +994,20 @@
           }
         }
 
+        // Sends in progress, by case: a second click while one is on its way shares
+        // it instead of emailing the visitor the same PDF twice.
+        const whitepaperSends = new Map();
+
         // Email the case-study PDF to the STORED (verified) address. No downloads.
         // Falls back to the gate form if no verified address exists yet.
-        async function sendStoredWhitepaper(caseId) {
+        function sendStoredWhitepaper(caseId) {
+          if (whitepaperSends.has(caseId)) return whitepaperSends.get(caseId);
+          const send = sendStoredWhitepaperNow(caseId).finally(() => whitepaperSends.delete(caseId));
+          whitepaperSends.set(caseId, send);
+          return send;
+        }
+
+        async function sendStoredWhitepaperNow(caseId) {
           let email = '';
           let coords = {};
           try {
@@ -968,7 +1019,7 @@
             return { ok: false, error: 'No email address yet.' };
           }
           const c = allCases.find(x => x.id === caseId) || allCases[0];
-          showToast(`Sending the ${c.client} case study to ${email}…`, 20000);
+          showToast(`Sending the ${c.client} case study to ${email}…`, WHITEPAPER_MAIL_CONFIG.timeoutMs);
           const result = await sendWhitepaperEmail({
             toEmail: email,
             name: coords.name || '',
@@ -1081,15 +1132,16 @@
           const downloadBtn = document.getElementById('detail-modal-download-btn');
           downloadBtn.classList.toggle('hidden', !c.pdf_file);
           downloadBtn.onclick = () => {
-            sendStoredWhitepaper(caseId);
+            downloadBtn.disabled = true;
+            sendStoredWhitepaper(caseId).finally(() => { downloadBtn.disabled = false; });
           };
 
-          document.getElementById('case-detail-modal').classList.remove('hidden');
+          showDialog('case-detail-modal');
           window.lucide?.createIcons();
         }
 
         function closeCaseModal() {
-          document.getElementById('case-detail-modal').classList.add('hidden');
+          hideDialog('case-detail-modal');
         }
 
       </script>

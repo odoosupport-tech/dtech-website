@@ -56,10 +56,10 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
-  <script src="assets/refined.min.js?v=a0926bc7fa" defer></script>
+  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=dc3965b930">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-400.woff2" crossorigin>
@@ -116,7 +116,7 @@
   </div></header>
   <!-- Mobile Drawer Menu -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
-    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
+    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" tabindex="-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
     <div class="fixed right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-2xl p-6 flex flex-col overflow-y-auto z-10">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <img decoding="async" width="324" height="142" src="assets/dtech-logo-blue.webp" alt="D-TECH" class="h-8 w-auto">
