@@ -12,7 +12,8 @@
     "check:links": "python3 tools/check-links.py",
     "check:ui": "python3 tools/check-ui-contract.py",
     "verify": "npm ci && npm run build && npm run check:links && npm run check:ui && node --check sw.js && node --check assets/agent-a.min.js && node --check assets/brand-marquee.js && echo VERIFY-OK",
-    "stamp": "python3 tools/stamp-assets.py"
+    "stamp": "python3 tools/stamp-assets.py",
+    "test": "node tools/test-api.js"
   },
   "devDependencies": {
     "clean-css-cli": "^5.6.3",
