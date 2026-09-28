@@ -162,10 +162,6 @@ body[data-page="about"] main>section:last-child,
 body[data-page="case-studies"] main>section:last-child {
   background-color:var(--invert)!important;
 }
-body[data-page="solutions"] #estimator .rounded-3xl,
-body[data-page="solutions"] #estimator>div>div:last-child {
-  background:var(--invert)!important; border-color:var(--invert-2)!important;
-}
 footer,body footer.bg-slate-900 { background:var(--sunken)!important; }
 
 /* ---- Plates: navy cards on a deeper navy ground. ------------------------ */
