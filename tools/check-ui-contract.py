@@ -12,31 +12,32 @@ ROOT = Path(__file__).resolve().parents[1]
 def check_compiled_responsive_contract(problems):
     css = (ROOT / "assets/bundle.min.css").read_text(encoding="utf-8")
     required = {
-        r".sm\:grid-cols-3": "tablet leadership columns",
         r".sm\:py-32": "partner section responsive spacing",
     }
     for selector, behavior in required.items():
         if selector not in css:
             problems.append(f"bundle missing {selector} ({behavior})")
+    # Leadership columns now come from sections.css; the single-column
+    # fallback must survive minification.
+    sections = (ROOT / "assets/sections.min.css").read_text(encoding="utf-8").replace(" ", "")
+    if not re.search(r"@media\(max-width:900px\)\{[^@]*\.dt-leaders\{grid-template-columns:1fr", sections):
+        problems.append("sections.min.css lost the phone-width leadership column rule")
 
 
 def check_leadership_contract(problems):
     html = (ROOT / "about.html").read_text(encoding="utf-8")
     css = (ROOT / "assets/skin.css").read_text(encoding="utf-8")
-    for class_name in (
-        "leadership-spotlight",
-        "leadership-team-grid",
-        "leadership-card",
-    ):
-        if f'class="{class_name}' not in html and f" {class_name}" not in html:
+    sections = (ROOT / "assets/sections.css").read_text(encoding="utf-8")
+    leadership = html.split('<section id="leadership"', 1)[-1].split("</section>", 1)[0]
+    for class_name in ("dt-leaders", "dt-leader-lead", "dt-leader-list"):
+        if f'class="{class_name}' not in leadership:
             problems.append(f"About leadership missing .{class_name}")
-        if f".{class_name}" not in css:
-            problems.append(f"skin.css missing .{class_name}")
+        if f".{class_name}" not in sections:
+            problems.append(f"sections.css missing .{class_name}")
+    if not re.search(r'href="assets/sections\.min\.css(?:\?v=[0-9a-f]+)?"', html):
+        problems.append("about.html does not load assets/sections.min.css")
     if "--anchor-offset:104px" not in css.replace(" ", ""):
         problems.append("skin.css does not define the sticky-header anchor offset")
-    compact_css = css.replace(" ", "").replace("\n", "")
-    if "body.leadership-director-copyp{" not in compact_css:
-        problems.append("dark leadership panels do not own their paragraph contrast")
 
 
 def check_authored_style_policy(problems):
