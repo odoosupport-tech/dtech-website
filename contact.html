@@ -58,7 +58,7 @@
   </style>
   <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=5e91858b66" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=ba7de02b70">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=15ec7def56">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=8d554599fd">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
@@ -105,6 +105,7 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
     <link rel="stylesheet" href="assets/refresh.min.css?v=2dcef3706e">
+    <link rel="stylesheet" href="assets/sections.min.css?v=683b08aabe">
 </head>
 <body data-page="contact" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -159,112 +160,46 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
           <!-- Left Column: Official Contact Coordinates -->
-          <div class="lg:col-span-5 space-y-8">
-            
-            <div class="contact-intro space-y-3">
-              <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-600">Headquarters</span>
-              <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Corporate Office & Labs</h2>
-              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Centralized staging labs, optical testing facilities, and technical emergency dispatch located on the Golden Corridor.
-              </p>
-            </div>
+          <div class="lg:col-span-5 dt-contact">
+            <h2 class="dt-h2 dt-h2--sm">Corporate Office &amp; Labs</h2>
+            <p class="dt-intro">Centralized staging labs, optical testing facilities, and technical emergency dispatch located on the Golden Corridor.</p>
 
-            <!-- Address Card -->
-            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                  <i data-lucide="map-pin" class="w-5 h-5"></i>
-                </div>
-                <div class="space-y-1">
-                  <h4 class="text-sm font-bold text-slate-900">D-Tech Solution Integrators Private Limited</h4>
-                  <p class="text-xs text-slate-600 leading-relaxed">
-                    8, Shalimar Complex, Behind Shalimar Hotel, Station Road,<br>
-                    Bharuch - 392001, Gujarat, India
-                  </p>
-                  <a href="https://g.page/d-tech-solution-integrators--848?share" target="_blank" rel="noopener noreferrer" class="inline-block text-[11px] font-bold text-blue-700 hover:text-blue-900">View on Map ↗</a>
-                </div>
-              </div>
+            <address class="dt-address"><strong>D-Tech Solution Integrators Private Limited</strong>8, Shalimar Complex, Behind Shalimar Hotel, Station Road,<br>Bharuch 392001, Gujarat, India</address>
 
-              <a class="map-tile" href="https://g.page/d-tech-solution-integrators--848?share" target="_blank" rel="noopener noreferrer" aria-label="Open D-TECH headquarters, Bharuch, in Google Maps">
-                <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <path class="map-river" d="M-10 118 C 60 96, 110 132, 180 112 S 300 70, 410 92"/>
-                  <path class="map-road" d="M0 58 L400 44"/>
-                  <path class="map-road" d="M140 0 L176 150"/>
-                  <path class="map-road thin" d="M0 98 L400 128"/>
-                  <path class="map-road thin" d="M290 0 L262 150"/>
-                  <circle class="map-pulse" cx="162" cy="52" r="16"/>
-                  <circle class="map-dot" cx="162" cy="52" r="6"/>
-                </svg>
-                <span class="map-label"><b>Bharuch, Gujarat</b>Open in Google Maps ↗</span>
-              </a>
-
-              <div class="office-hours">
-                <i data-lucide="clock-3" class="w-4 h-4 shrink-0"></i>
-                <div><strong>Office hours</strong><span>Monday – Saturday, 9:00 AM – 6:00 PM IST</span></div>
-              </div>
-
-              <div class="pt-3 border-t border-slate-200/80 space-y-2.5 text-xs text-slate-700">
-                <div class="flex items-center gap-3">
-                  <i data-lucide="phone" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                  <a href="tel:+919998026089" class="hover:text-blue-600 font-mono font-bold">+91 99980 26089</a>
-                </div>
-                <div class="flex items-center gap-3">
-                  <i data-lucide="phone-call" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                  <a href="tel:+912642264596" class="hover:text-blue-600 font-mono font-medium">+91 2642 264596</a>
-                </div>
-                <div class="flex items-center gap-3">
-                  <i data-lucide="mail" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                  <a href="mailto:sales@dtechindia.com" class="hover:text-blue-600 font-medium">sales@dtechindia.com</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- WhatsApp Direct Button -->
-            <a 
-              href="https://wa.me/919998026089?text=Hello%20D-TECH%20SIPL,%20I%20would%20like%20to%20request%20an%20engineering%20consultation." 
-              target="_blank" 
-              rel="noopener noreferrer"
-              class="w-full p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            >
-              <i data-lucide="message-circle" class="w-5 h-5"></i>
-              <span>Connect Directly via WhatsApp Support</span>
+            <a class="map-tile" href="https://g.page/d-tech-solution-integrators--848?share" target="_blank" rel="noopener noreferrer" aria-label="Open D-TECH headquarters, Bharuch, in Google Maps">
+              <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path class="map-river" d="M-10 118 C 60 96, 110 132, 180 112 S 300 70, 410 92"/>
+                <path class="map-road" d="M0 58 L400 44"/>
+                <path class="map-road" d="M140 0 L176 150"/>
+                <path class="map-road thin" d="M0 98 L400 128"/>
+                <path class="map-road thin" d="M290 0 L262 150"/>
+                <circle class="map-pulse" cx="162" cy="52" r="16"/>
+                <circle class="map-dot" cx="162" cy="52" r="6"/>
+              </svg>
+              <span class="map-label"><b>Bharuch, Gujarat</b>Open in Google Maps</span>
             </a>
 
-            <!-- Service area -->
-            <div class="service-area">
-              <h3>Service area</h3>
-              <ul>
-                <li>Bharuch</li><li>Dahej PCPIR</li><li>Ankleshwar</li><li>Jhagadia GIDC</li><li>Vadodara</li><li>Ahmedabad</li><li>PAN-India projects</li>
-              </ul>
-            </div>
+            <dl class="dt-sheet">
+              <div><dt>Office hours</dt><dd>Monday to Saturday, 9:00 AM – 6:00 PM IST</dd></div>
+              <div><dt>Phone</dt><dd><a href="tel:+919998026089">+91 99980 26089</a><a href="tel:+912642264596">+91 2642 264596</a></dd></div>
+              <div><dt>Email</dt><dd><a href="mailto:sales@dtechindia.com">sales@dtechindia.com</a></dd></div>
+              <div><dt>Emergency response</dt><dd>On-site engineers within 4 hours for mission-critical plants across Dahej PCPIR, Ankleshwar and Jhagadia GIDC.</dd></div>
+              <div><dt>Service area</dt><dd>Bharuch, Dahej PCPIR, Ankleshwar, Jhagadia GIDC, Vadodara and Ahmedabad, with projects across India.</dd></div>
+            </dl>
 
-            <!-- Rapid SLA Badge -->
-            <div class="p-5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
-                <i data-lucide="clock" class="w-5 h-5"></i>
-              </div>
-              <div class="space-y-0.5">
-                <h4 class="text-xs font-bold text-slate-900 uppercase font-mono">4-Hour Emergency Response</h4>
-                <p class="text-[11px] text-slate-600">Guaranteed on-site engineers dispatched for mission-critical plants across Dahej PCPIR, Ankleshwar, and Jhagadia GIDC.</p>
-              </div>
-            </div>
-
+            <a class="dt-whatsapp" href="https://wa.me/919998026089?text=Hello%20D-TECH%20SIPL,%20I%20would%20like%20to%20request%20an%20engineering%20consultation." target="_blank" rel="noopener noreferrer"><i data-lucide="message-circle"></i><span>Chat with us on WhatsApp</span></a>
           </div>
 
           <!-- Right Column: Request for Proposal (RFP) Form -->
           <div class="lg:col-span-7">
-            <div class="p-8 sm:p-10 rounded-3xl bg-slate-50 border border-slate-200 shadow-sm space-y-6">
-              
-              <div>
-                <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-600">Send us your requirement</span>
-                <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1">Request a proposal</h2>
-                <p class="text-xs text-slate-600 mt-1">Tell us about your site and requirement. Our solutions team replies with a Bill of Materials (BOM) and a technical proposal.</p>
-              </div>
+            <div class="dt-form-panel">
+              <h2 class="dt-h2 dt-h2--sm">Request a proposal</h2>
+              <p class="dt-intro">Tell us about your site and requirement. Our solutions team replies with a Bill of Materials (BOM) and a technical proposal.</p>
 
-              <ol class="rfp-steps" aria-label="What happens next">
-                <li><b>1</b><span><strong>We review</strong>Your request reaches our solutions team.</span></li>
-                <li><b>2</b><span><strong>Site survey call</strong>An engineer calls to understand your site.</span></li>
-                <li><b>3</b><span><strong>BOM &amp; proposal</strong>You receive the bill of materials and a technical proposal.</span></li>
+              <ol class="dt-steps" aria-label="What happens next">
+                <li><span class="dt-tag" aria-hidden="true">1</span><strong>We review</strong><span>Your request reaches our solutions team.</span></li>
+                <li><span class="dt-tag" aria-hidden="true">2</span><strong>Site survey call</strong><span>An engineer calls to understand your site.</span></li>
+                <li><span class="dt-tag" aria-hidden="true">3</span><strong>BOM &amp; proposal</strong><span>You receive the bill of materials and a technical proposal.</span></li>
               </ol>
 
               <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4">
@@ -353,7 +288,7 @@
                     id="rfp-requirements-textarea" 
                     rows="5" 
                     required 
-                    class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors font-mono"
+                    class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                     placeholder="Describe plant location, estimated fiber distance, number of camera/telemetry nodes, or required hardware part numbers..."
                   ></textarea>
                 </div>

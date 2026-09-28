@@ -61,7 +61,7 @@
   </style>
   <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=5e91858b66" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=ba7de02b70">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=15ec7def56">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=8d554599fd">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
@@ -109,6 +109,7 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
     <link rel="stylesheet" href="assets/refresh.min.css?v=2dcef3706e">
+    <link rel="stylesheet" href="assets/sections.min.css?v=683b08aabe">
 </head>
 <body data-page="careers" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -150,29 +151,42 @@
       </div>
     </section>
 
-    <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
+    <section class="dt-section dt-section--surface" aria-labelledby="careers-story-title">
       <div class="executive-container">
-        <div class="max-w-3xl space-y-5">
-          <span class="eyebrow">Who we are and what we do</span>
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">A bridge between business needs and affordable, high-quality IT</h2>
-          <p class="lead">D-TECH Solution Integrators connects what businesses need with dependable, affordable IT: servers, workstations, storage, desktops, laptops, networks, automation and the people who keep them running.</p>
-          <p class="text-slate-600">Mr. Bhavik Barot started the business in 1999 with commercial sales of servers, workstations, storage, desktops and laptops. It was incorporated as D-TECH Solution Integrators Private Limited in 2003 and has grown into a turnkey systems integrator for industrial IT, automation and managed services.</p>
-          <blockquote class="career-quote">“D-TECH is an organization that builds entrepreneurs.”</blockquote>
+        <div class="dt-story-grid">
+          <div class="dt-story-text">
+            <h2 id="careers-story-title" class="dt-h2">A bridge between business needs and affordable, high-quality IT</h2>
+            <p class="lead">D-TECH Solution Integrators connects what businesses need with dependable, affordable IT: servers, workstations, storage, desktops, laptops, networks, automation and the people who keep them running.</p>
+            <p>Mr. Bhavik Barot started the business in 1999 with commercial sales of servers, workstations, storage, desktops and laptops. It was incorporated as D-TECH Solution Integrators Private Limited in 2003 and has grown into a turnkey systems integrator for industrial IT, automation and managed services.</p>
+          </div>
+          <blockquote class="dt-pullquote"><span class="dt-cut" aria-hidden="true"></span><p>&ldquo;D-TECH is an organization that builds entrepreneurs.&rdquo;</p></blockquote>
         </div>
-        <div class="career-facts"><div class="career-fact"><strong>4,500+</strong><span>Customers</span></div><div class="career-fact"><strong>200+</strong><span>Support locations</span></div><div class="career-fact"><strong>27+</strong><span>Years in business</span></div><div class="career-fact"><strong>1999</strong><span>Started trading</span></div></div>
+        <dl class="dt-figures">
+          <div><dt>Customers</dt><dd>4,500+</dd></div>
+          <div><dt>Support locations</dt><dd>200+</dd></div>
+          <div><dt>Years in business</dt><dd>27+</dd></div>
+          <div><dt>Started trading</dt><dd>1999</dd></div>
+        </dl>
       </div>
     </section>
 
-    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
+    <section class="dt-section dt-section--paper" aria-labelledby="careers-values-title">
       <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><span class="eyebrow">Values that define us</span><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">How we work together</h2></div>
-        <div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="flame"></i></span><span>Hunger</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="badge-check"></i></span><span>Authenticity</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="smile"></i></span><span>Fun</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="heart"></i></span><span>Love</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="handshake"></i></span><span>Respect</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="trophy"></i></span><span>Win and all!</span></div></div>
+        <h2 id="careers-values-title" class="dt-h2">How we work together</h2>
+        <ul class="dt-values-list">
+          <li><i data-lucide="flame"></i>Hunger</li>
+          <li><i data-lucide="badge-check"></i>Authenticity</li>
+          <li><i data-lucide="smile"></i>Fun</li>
+          <li><i data-lucide="heart"></i>Love</li>
+          <li><i data-lucide="handshake"></i>Respect</li>
+          <li><i data-lucide="trophy"></i>Win and all!</li>
+        </ul>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
       <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><span class="eyebrow">Current openings</span><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Roles open now</h2><p class="text-base text-slate-600 leading-relaxed">Most roles are on client sites across Bharuch, Dahej, Jhagadia and Vadodara. Apply below and your application goes straight to our recruitment team.</p></div>
+        <div class="max-w-3xl mb-10"><h2 class="dt-h2">Roles open now</h2><p class="dt-intro">Most roles are on client sites across Bharuch, Dahej, Jhagadia and Vadodara. Apply below and your application goes straight to our recruitment team.</p></div>
         <p id="job-status" class="text-sm text-slate-500 mb-6" role="status">Loading the latest openings…</p>
         <div class="news-list" id="job-list"><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Dahej</span></div><h3>L2 Engineer - FMS</h3><p>Assist clients with hardware and software issues, on site or remotely, across all IT-related requests. Needs basic experience with L1/L2 switch and router configuration, P2P devices, hardware, network and software troubleshooting, plus a working knowledge of servers and firewalls.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="l2-engineer-fms-dahej" data-job-title="L2 Engineer - FMS">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Jhagadia</span></div><h3>L1 FMS Engineer for CCTV Support</h3><p>Keep the CCTV system running day to day and report daily to the client. Involves switch, router and P2P device configuration and troubleshooting, and staying available on site for uninterrupted CCTV services.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="l1-fms-engineer-for-cctv-support-jhagadia" data-job-title="L1 FMS Engineer for CCTV Support">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>ADAMA Agricultural Solutions, Dahej</span></div><h3>L1 FMS Engineer</h3><p>Onsite IT support: desktops, laptops, printers and basic network connectivity, installing and configuring operating systems and applications, with prompt ticket management.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="l1-fms-engineer-adama-agricultural-solutions-dahej" data-job-title="L1 FMS Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>GACL, Dahej</span></div><h3>L1-FMS Engineer</h3><p>First-level IT support at the client location: troubleshooting hardware and software, supporting end users and keeping IT operations running. Basic knowledge of computer hardware, networking and peripherals.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="l1-fms-engineer-gacl-dahej" data-job-title="L1-FMS Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>GACL, Dahej</span></div><h3>FMS Engineer</h3><p>Work alongside every department at a growing company, with benefits and the chance to learn from accomplished leaders. Creative and rigorous by nature, for someone proactive with strong problem-solving skills.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="fms-engineer-gacl-dahej" data-job-title="FMS Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Alkyl Amines Chemicals Limited, Dahej</span></div><h3>FMS Engineer</h3><p>Manage day-to-day IT operations and deliver reliable technical support on site, handling end-user issues while keeping system uptime and performance.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="fms-engineer-alkyl-amines-chemicals-limited-dahej" data-job-title="FMS Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Vadodara (GNAL)</span></div><h3>FMS Engineer</h3><p>Field Management Services engineer with strong desktop support, networking and IT infrastructure skills, responsible for smooth IT operations, troubleshooting and reliable on-site support.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="fms-engineer-vadodara-gnal" data-job-title="FMS Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Bharuch</span></div><h3>L-1 Network and Desktop Engineer</h3><p>Technical support for end users across desktops, laptops, network connectivity and peripherals: diagnosing hardware and software issues and helping maintain the network infrastructure.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="l-1-network-and-desktop-engineer-bharuch" data-job-title="L-1 Network and Desktop Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Bharuch</span></div><h3>Server Engineer</h3><p>For freshers and candidates with up to two years of experience who want to build a career in server and IT infrastructure management.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="server-engineer-bharuch" data-job-title="Server Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Bharuch</span></div><h3>Workshop Engineer</h3><p>For motivated candidates keen to build a career in hardware and networking, based at our Bharuch workshop.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="workshop-engineer-bharuch" data-job-title="Workshop Engineer">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Bharuch</span></div><h3>Digital Marketing Executive</h3><p>Work with every department to create and deploy new products at a growing company. Creative and rigorous by nature, for someone proactive with strong problem-solving skills.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="digital-marketing-executive-bharuch" data-job-title="Digital Marketing Executive">Apply for this role <span>&#8599;</span></button></div></article><article class="news-item"><div class="news-meta"><span class="news-badge">Open</span><span><i data-lucide="map-pin"></i>Bharuch</span></div><h3>Work Assistant</h3><p>Support delivery coordination, store operations, basic documentation and inventory management. Basic accounting knowledge and MS Excel skills preferred; freshers are welcome, with training and guidance provided.</p><div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="work-assistant-bharuch" data-job-title="Work Assistant">Apply for this role <span>&#8599;</span></button></div></article></div>
         <p class="mt-8"><button type="button" class="button button-secondary apply-open" data-job-id="" data-job-title="Speculative application">Send a speculative application <span>&#8599;</span></button></p>

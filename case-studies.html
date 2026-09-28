@@ -81,9 +81,10 @@
   </style>
   <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=5e91858b66" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=ba7de02b70">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=15ec7def56">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=8d554599fd">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a3ff460385">
+  <link rel="stylesheet" href="assets/sections.min.css?v=683b08aabe">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-400.woff2" crossorigin>
@@ -415,47 +416,35 @@
         </section>
 
         <!-- OUR PARTNERS (mirrors deployed /case-studies partner carousel) -->
-        <section id="partners" class="py-14 bg-white border-t border-slate-200 scroll-mt-28">
+        <section id="partners" class="dt-section dt-section--surface scroll-mt-28" aria-labelledby="cs-partners-title">
           <div class="executive-container">
-            <div class="text-center max-w-2xl mx-auto mb-8 space-y-2">
-              <span class="text-xs font-mono font-bold uppercase tracking-widest text-slate-500">Our Partners</span>
-              <h2 class="text-2xl font-extrabold text-slate-900">Preferred Alliances Behind Every Deployment</h2>
-              <p class="text-xs text-slate-600">Preferred-partner status earned over associations of more than 10 years.</p>
+            <div class="dt-partners-head">
+              <h2 id="cs-partners-title" class="dt-h2 dt-h2--sm">Preferred Alliances Behind Every Deployment</h2>
+              <p class="dt-intro">Preferred-partner status earned over associations of more than 10 years.</p>
             </div>
-            <div class="cs-partner-logos" role="list" aria-label="Preferred partners">
-              <img role="listitem" src="assets/partners/intel.svg" alt="Intel" width="388" height="151" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/dell-technologies.svg" alt="Dell Technologies" width="72" height="9" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/cisco.svg" alt="Cisco" width="80" height="42" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/hp.svg" alt="HP" width="100" height="100" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/molex.svg" alt="Molex" width="546" height="135" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/lenovo.svg" alt="Lenovo" width="120" height="24" loading="lazy" decoding="async">
-              <img role="listitem" src="assets/partners/microsoft.svg" alt="Microsoft" width="118" height="25" loading="lazy" decoding="async">
-            </div>
-            <div class="mt-8 max-w-3xl mx-auto p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-3">
-              <i data-lucide="quote" class="w-6 h-6 text-blue-600 mx-auto"></i>
-              <blockquote class="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">“D-TECH is an organization that builds entrepreneurs.”</blockquote>
-              <p class="text-[11px] font-mono text-slate-500">Featured endorsement</p>
-              <a href="contact.html" class="inline-block text-xs font-bold text-blue-700 hover:text-blue-900">Contact us to start your deployment →</a>
-            </div>
+            <ul class="dt-partner-grid" aria-label="Preferred partners">
+              <li><img src="assets/partners/intel.svg" alt="Intel" width="388" height="151" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/dell-technologies.svg" alt="Dell Technologies" width="72" height="9" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/cisco.svg" alt="Cisco" width="80" height="42" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/hp.svg" alt="HP" width="100" height="100" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/molex.svg" alt="Molex" width="546" height="135" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/lenovo.svg" alt="Lenovo" width="120" height="24" loading="lazy" decoding="async"></li>
+              <li><img src="assets/partners/microsoft.svg" alt="Microsoft" width="118" height="25" loading="lazy" decoding="async"></li>
+            </ul>
           </div>
         </section>
 
         <!-- CALL TO ACTION BANNER -->
-        <section class="py-16 bg-blue-600 text-white">
-          <div class="executive-container">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div class="space-y-1">
-                <h3 class="text-2xl font-bold">Have a Similar Industrial Challenge at Your Plant?</h3>
-                <p class="text-sm text-blue-100">Our senior engineering architects are available for on-site plant assessments.</p>
-              </div>
-              <div class="flex items-center gap-3 shrink-0">
-                <a href="contact.html" class="px-6 py-3 rounded-xl bg-white text-blue-700 font-bold text-xs hover:bg-blue-50 transition-colors shadow-xs">
-                  Request On-Site Assessment
-                </a>
-                <a href="solutions.html" class="px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs border border-blue-500 transition-colors">
-                  Inspect IP Solutions
-                </a>
-              </div>
+        <section class="dt-cta" aria-labelledby="cs-cta-title">
+          <div class="executive-container dt-cta-inner">
+            <div>
+              <span class="dt-cut" aria-hidden="true"></span>
+              <h2 id="cs-cta-title">Have a Similar Industrial Challenge at Your Plant?</h2>
+              <p>Our senior engineering architects are available for on-site plant assessments.</p>
+            </div>
+            <div class="dt-cta-actions">
+              <a class="button button-primary" href="contact.html">Request On-Site Assessment</a>
+              <a class="dt-cta-ghost" href="solutions.html">Inspect IP Solutions</a>
             </div>
           </div>
         </section>
