@@ -36,7 +36,7 @@ main p { text-wrap:pretty; }
 .button:hover { transform:translateY(-1px); }
 .button:active { transform:translateY(0) scale(.985); transition-duration:.06s; }
 .button:focus-visible,.text-link:focus-visible,
-.industry-links a:focus-visible,.capability-card:focus-visible,.delivery-strip a:focus-visible {
+.industry-links a:focus-visible,.delivery-strip a:focus-visible {
   outline:2px solid var(--signal)!important; outline-offset:3px;
 }
 .button-secondary { box-shadow:var(--p-edge); }
@@ -46,8 +46,7 @@ html[data-theme="dark"] .text-link:hover { color:#fff; border-bottom-color:#fff;
 
 /* ==================== 2 · METRIC RIBBON ==================== */
 
-.home-hero+section .grid>div,
-.home-hero+div+section .grid>div {
+.home-hero+section .grid>div {
   position:relative;
   overflow:hidden;
   background-color:var(--surface)!important;
@@ -56,12 +55,10 @@ html[data-theme="dark"] .text-link:hover { color:#fff; border-bottom-color:#fff;
   padding:26px 24px 24px 28px!important;
   border-radius:var(--r-plate);
 }
-.home-hero+section .grid>div:hover,
-.home-hero+div+section .grid>div:hover {
+.home-hero+section .grid>div:hover {
   box-shadow:inset 0 0 0 1px var(--line-strong),var(--p-lift);
 }
-.home-hero+section .text-2xl,
-.home-hero+div+section .text-2xl {
+.home-hero+section .text-2xl {
   font-family:var(--display)!important;
   font-size:clamp(26px,2.4vw,36px)!important;
   line-height:1.1;
@@ -71,46 +68,6 @@ html[data-theme="dark"] .text-link:hover { color:#fff; border-bottom-color:#fff;
 }
 
 /* ==================== 3 · CAPABILITY CARDS ==================== */
-
-.capability-card {
-  background-image:var(--p-sheen);
-  border-color:var(--p-hair);
-  box-shadow:var(--p-drop);
-  transition:border-color .2s ease,box-shadow .24s var(--ease),transform .24s var(--ease);
-}
-.capability-card:hover {
-  transform:translateY(-3px);
-  border-color:var(--line-strong);
-  box-shadow:var(--p-lift);
-}
-
-.capability-art {
-  isolation:isolate;
-  background-color:#0a1a2c!important;
-}
-.capability-art>svg {
-  filter:none;
-}
-.capability-art>b { display:none; }
-.capability-art>span {
-  z-index:1;
-  font-weight:700;
-  letter-spacing:.12em;
-  font-size:10px;
-}
-.capability-art:before {
-  background:radial-gradient(closest-side,rgba(255,255,255,.05),transparent);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
-}
-.capability-card:hover .capability-art>svg {
-  transform:translateY(-2px);
-}
-
-.capability-copy { padding:24px 24px 26px; }
-.capability-copy h3 { font-size:18px; font-weight:700; letter-spacing:-.02em; }
-.capability-copy h3 span { transition:transform .2s var(--ease); }
-.capability-card:hover .capability-copy h3 span { transform:translate(2px,-2px); }
-.capability-copy p { font-size:14px; line-height:1.6; color:var(--ink-soft); }
 
 /* ==================== 4 · DELIVERY STRIP ==================== */
 
@@ -244,28 +201,24 @@ html { scrollbar-color:var(--line-strong) var(--paper); }
   .project-cta::before { width:90%; right:-40%; }
 }
 @media (max-width:767px) {
-  .home-hero+section .text-2xl,
-  .home-hero+div+section .text-2xl { font-size:clamp(15px,5vw,26px)!important; }
-  .home-hero+section .grid>div,
-  .home-hero+div+section .grid>div { padding:16px 12px 16px 14px!important; }
+  .home-hero+section .text-2xl { font-size:clamp(15px,5vw,26px)!important; }
+  .home-hero+section .grid>div { padding:16px 12px 16px 14px!important; }
   .project-cta { padding:72px 0!important; }
   .delivery-strip a::before { padding:4px 6px; }
 }
 @media (hover:none) {
-  .capability-card:hover,.confidence-points>div:hover,.industry-links a:hover,
-  .home-hero+section .grid>div:hover,.home-hero+div+section .grid>div:hover { transform:none; }
+  .confidence-points>div:hover,.industry-links a:hover,
+  .home-hero+section .grid>div:hover { transform:none; }
 }
 @media (prefers-reduced-motion:reduce) {
-  .button,.capability-card,.confidence-points>div,.industry-links a,
+  .button,.confidence-points>div,.industry-links a,
   .confidence-points>div::after,.delivery-strip a b { transition:none!important; }
-  .button:hover,.capability-card:hover,.confidence-points>div:hover,.industry-links a:hover { transform:none; }
+  .button:hover,.confidence-points>div:hover,.industry-links a:hover { transform:none; }
 }
 
 /* ==================== 12 · HERO SWASH ==================== */
 /* skin.css parks the swash at the baseline, where it cuts the "g" of
    "integrated". Drop it clear of the descenders. */
-.hero-copy h1 em::after { bottom:-.16em; height:.06em; }
-.hero-copy h1 { margin-bottom:24px; }
 
 /* ==================== 14 · CONTRAST (WCAG AA) ====================
    Fixes from a site-wide contrast audit. Same hues, only the shade moves:
@@ -301,7 +254,6 @@ html:not([data-theme="dark"]) .jiva-accent>*:nth-child(5n+4) .jiva-num,
 html:not([data-theme="dark"]) .jiva-accent>*:nth-child(5n+5) .jiva-num { color:var(--c-orange-solid); }
 
 /* Home: the gate panel's caption. */
-.image-topline>span:first-child { color:rgba(255,255,255,.62)!important; }
 
 /* ==================== 15 · 404 PAGE ==================== */
 /* The 404 inherits the navy inner-page header, which left its light-page

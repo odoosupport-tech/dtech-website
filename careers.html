@@ -61,14 +61,14 @@
   </style>
   <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=f960dced20">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=c2e3fd22a3">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=40856e21da">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-400.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-700.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InterTight-var.woff2" crossorigin>
-  <link rel="stylesheet" href="assets/jiva.min.css?v=db0ab40d4e">
+  <link rel="stylesheet" href="assets/jiva.min.css?v=34624e4290">
   <script>try{var __dt=localStorage.getItem('dtech-theme');if(__dt!=='light'&&__dt!=='dark'){try{__dt=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){__dt='light';}}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
   <script type="application/ld+json">
   {
@@ -108,7 +108,7 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
-    <link rel="stylesheet" href="assets/refresh.min.css?v=ea02ccd2aa">
+    <link rel="stylesheet" href="assets/refresh.min.css?v=2dcef3706e">
 </head>
 <body data-page="careers" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -262,7 +262,6 @@
   </footer>
 
 
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
       window.lucide?.createIcons();
@@ -271,34 +270,6 @@
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       if (menu) menu.classList.toggle('hidden');
-    }
-
-
-
-
-
-
-
-
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-    }
-
-    function showToast(msg, duration = 3000) {
-      let toast = document.getElementById('app-toast');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'app-toast';
-        toast.setAttribute('role', 'status');
-        toast.setAttribute('aria-live', 'polite');
-        toast.className = 'fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 text-xs font-medium flex items-center gap-2 transition-opacity duration-300';
-        document.body.appendChild(toast);
-      }
-      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>${escapeHtml(msg)}</span>`;
-      toast.style.opacity = '1';
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
     }
   </script>
 
