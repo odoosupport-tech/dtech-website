@@ -67,7 +67,7 @@ main .eyebrow {
 }
 
 /* ---- 4 · Cards: 18px plates, full-width accent bar, lift on hover ------ */
-:is(.capability-card,.jiva-card,.jiva-feature,.partner-card,.leadership-card,.news-item,.career-fact) {
+:is(.jiva-card,.jiva-feature,.partner-card,.leadership-card,.news-item,.career-fact) {
   border-radius:var(--r-panel)!important;
   overflow:hidden;
 }
@@ -77,7 +77,7 @@ main .eyebrow {
 }
 .jiva-card,.jiva-feature { border-top-width:4px!important; }
 .career-fact { border-top-width:4px!important; }
-:is(.capability-card,.jiva-card,.jiva-feature,.partner-card,.leadership-card,.news-item,.career-fact) {
+:is(.jiva-card,.jiva-feature,.partner-card,.leadership-card,.news-item,.career-fact) {
   transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .2s ease!important;
 }
 :is(.jiva-card,.jiva-feature,.news-item,.career-fact,.partner-card):hover {

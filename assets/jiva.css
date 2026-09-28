@@ -253,7 +253,6 @@ body[data-page="cafeteria"] main h2 { letter-spacing:-.03em; }
 }
 .jiva-gallery.is-pair { grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
 .jiva-gallery.is-pair .jiva-figure img { aspect-ratio:16/9; }
-.jiva-figure.is-contain img { object-fit:contain; background:var(--invert-2); }
 body[data-page="forklift"] main h2 { letter-spacing:-.03em; }
 .cafe-card .jiva-icon { width:44px; height:44px; }
 .cafe-card .jiva-icon { display:grid; place-items:center; border-radius:10px; background:color-mix(in srgb, var(--jiva-c) 14%, transparent); color:var(--jiva-c); }

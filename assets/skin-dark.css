@@ -162,10 +162,6 @@ body[data-page="about"] main>section:last-child,
 body[data-page="case-studies"] main>section:last-child {
   background-color:var(--invert)!important;
 }
-.hero-visual,.system-visual,.capability-art {
-  background-color:var(--invert)!important; border-color:var(--invert-2);
-}
-.map-node { background:var(--invert-2); }
 body[data-page="solutions"] #estimator .rounded-3xl,
 body[data-page="solutions"] #estimator>div>div:last-child {
   background:var(--invert)!important; border-color:var(--invert-2)!important;
