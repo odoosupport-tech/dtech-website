@@ -46,6 +46,161 @@
       "source": "/admin-dtech/",
       "destination": "/admin-dtech",
       "permanent": false
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/home-1",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us-2",
+      "destination": "/about.html",
+      "permanent": true
+    },
+    {
+      "source": "/compliance",
+      "destination": "/about.html",
+      "permanent": true
+    },
+    {
+      "source": "/ai-supervisor",
+      "destination": "/ai-supervisor.html",
+      "permanent": true
+    },
+    {
+      "source": "/ai-video-analytics",
+      "destination": "/ai-video-analytics.html",
+      "permanent": true
+    },
+    {
+      "source": "/cafeteria",
+      "destination": "/cafeteria.html",
+      "permanent": true
+    },
+    {
+      "source": "/kiosk",
+      "destination": "/kiosk.html",
+      "permanent": true
+    },
+    {
+      "source": "/tfms",
+      "destination": "/tfms.html",
+      "permanent": true
+    },
+    {
+      "source": "/forklift-ai-solution",
+      "destination": "/forklift-ai.html",
+      "permanent": true
+    },
+    {
+      "source": "/jiva",
+      "destination": "/jiva.html",
+      "permanent": true
+    },
+    {
+      "source": "/engineering-services",
+      "destination": "/jiva-engineering-services.html",
+      "permanent": true
+    },
+    {
+      "source": "/heavy-lifting",
+      "destination": "/jiva-heavy-lifting.html",
+      "permanent": true
+    },
+    {
+      "source": "/special-purpose-automation",
+      "destination": "/jiva-special-purpose-machines.html",
+      "permanent": true
+    },
+    {
+      "source": "/system-integration",
+      "destination": "/jiva-system-integration.html",
+      "permanent": true
+    },
+    {
+      "source": "/turnkey-solutions",
+      "destination": "/jiva-turnkey-solutions.html",
+      "permanent": true
+    },
+    {
+      "source": "/dell",
+      "destination": "/dell.html",
+      "permanent": true
+    },
+    {
+      "source": "/hp",
+      "destination": "/hp.html",
+      "permanent": true
+    },
+    {
+      "source": "/motorola",
+      "destination": "/motorola.html",
+      "permanent": true
+    },
+    {
+      "source": "/dtech-intro",
+      "destination": "/presentation.html",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies",
+      "destination": "/case-studies.html",
+      "permanent": true
+    },
+    {
+      "source": "/showcase",
+      "destination": "/case-studies.html",
+      "permanent": true
+    },
+    {
+      "source": "/career",
+      "destination": "/careers.html",
+      "permanent": true
+    },
+    {
+      "source": "/jobs",
+      "destination": "/careers.html",
+      "permanent": true
+    },
+    {
+      "source": "/jobs/:path*",
+      "destination": "/careers.html",
+      "permanent": true
+    },
+    {
+      "source": "/contactus",
+      "destination": "/contact.html",
+      "permanent": true
+    },
+    {
+      "source": "/appointment",
+      "destination": "/contact.html",
+      "permanent": true
+    },
+    {
+      "source": "/shop",
+      "destination": "/solutions.html",
+      "permanent": true
+    },
+    {
+      "source": "/shop/:path*",
+      "destination": "/solutions.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy.html",
+      "permanent": true
+    },
+    {
+      "source": "/terms-conditions",
+      "destination": "/terms-of-service.html",
+      "permanent": true
     }
   ],
   "rewrites": [

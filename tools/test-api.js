@@ -201,6 +201,14 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         assert(keys.includes('X-Robots-Tag: noindex, nofollow') && keys.includes('Cache-Control: no-store'), `${p} headers: ${keys.join(' | ')}`);
       }
     }],
+    ['vercel.json: every redirect and rewrite lands on a page that exists', () => {
+      const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      for (const r of [...(cfg.redirects || []), ...(cfg.rewrites || [])]) {
+        const dest = r.destination.split(/[?#]/)[0];
+        if (dest === '/' || dest === '/admin-dtech') continue;
+        assert(fs.existsSync(path.join(REPO, dest.replace(/^\//, ''))), `${r.source} -> ${r.destination} is missing`);
+      }
+    }],
     ['no session: auth GET, data, update → 404', async () => {
       eq((await call(auth, req('GET'))).statusCode, 404);
       eq((await call(data, req('GET'))).statusCode, 404);
