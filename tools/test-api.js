@@ -119,7 +119,21 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(apply, req('POST', { ...applicant, email: 'big@example.com', cv: { filename: 'cv.pdf', type: 'application/pdf', dataBase64: big } }));
       eq(r.statusCode, 413);
     }],
-    ['closed/unknown role → 400', async () => eq((await call(apply, req('POST', { ...applicant, email: 'x@example.com', jobId: 'no-such-role' }))).statusCode, 400)],
+    ['executable declared as PDF → 400 (magic bytes)', async () => {
+      const exe = Buffer.from('MZ\x90\x00fake executable').toString('base64');
+      const r = await call(apply, req('POST', { ...applicant, email: 'mz@example.com', cv: { filename: 'cv.pdf', type: 'application/pdf', dataBase64: exe } }));
+      eq(r.statusCode, 400); eq(r.body.error, 'The attached file is not a valid PDF or Word document.');
+    }],
+    ['PDF bytes declared as DOCX → 400 (magic bytes)', async () => {
+      const r = await call(apply, req('POST', { ...applicant, email: 'mismatch@example.com', cv: { filename: 'cv.docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', dataBase64: pdfB64 } }));
+      eq(r.statusCode, 400);
+    }],
+    ['valid DOCX (PK header) → 200', async () => {
+      const docx = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00]).toString('base64');
+      const r = await call(apply, req('POST', { ...applicant, email: 'docx@example.com', cv: { filename: 'cv.docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', dataBase64: docx } }));
+      eq(r.statusCode, 200);
+    }],
+    ['closed/unknown role → 400',async () => eq((await call(apply, req('POST', { ...applicant, email: 'x@example.com', jobId: 'no-such-role' }))).statusCode, 400)],
     ['valid PDF application → 200, CV attached, filed', async () => {
       const before = sent.length;
       const r = await call(apply, req('POST', { ...applicant, cv: { filename: 'My CV.pdf', type: 'application/pdf', dataBase64: pdfB64 } }));
@@ -188,7 +202,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 1); eq(r.body.applicants.length, 1); eq(r.body.leads.length, 1);
+      eq(r.body.requirements.length, 1); eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3 eq(r.body.leads.length, 1);
     }],
     ['update toggles a role isActive (sandbox copy only)', async () => {
       const r = await call(update, req('POST', { type: 'job', action: 'toggle', id: openJob.id, value: false }, { headers: { cookie } }));
@@ -197,6 +211,44 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq((await call(jobs, req('GET'))).body.jobs.length, 11, 'public list reflects toggle');
     }],
   ]);
+
+  // 7 (reported after 6). GitHub store retry rules, against a scripted fake GitHub.
+  const store = api('_store.js');
+  async function withFakeGitHub(putResponses, fn) {
+    const saved = { fetch: globalThis.fetch, repo: process.env.GITHUB_DATA_REPO, token: process.env.GITHUB_DATA_TOKEN };
+    const puts = [];
+    Object.assign(process.env, { GITHUB_DATA_REPO: 'test-owner/test-data', GITHUB_DATA_TOKEN: 'test-token' });
+    globalThis.fetch = async (url, opts) => {
+      assert(String(url).startsWith('https://api.github.com/repos/test-owner/test-data/'), `unexpected url ${url}`);
+      if (opts.method === 'GET') return { ok: false, status: 404, text: async () => '' };
+      const [status, text] = putResponses[Math.min(puts.length, putResponses.length - 1)];
+      puts.push(status);
+      return { ok: status < 300, status, text: async () => text };
+    };
+    try { return await fn(puts); } finally {
+      globalThis.fetch = saved.fetch;
+      if (saved.repo === undefined) delete process.env.GITHUB_DATA_REPO; else process.env.GITHUB_DATA_REPO = saved.repo;
+      if (saved.token === undefined) delete process.env.GITHUB_DATA_TOKEN; else process.env.GITHUB_DATA_TOKEN = saved.token;
+    }
+  }
+  const storeChecks = [
+    ['409 conflict → retried, gives up after 2 attempts', () => withFakeGitHub([[409, 'conflict']], async (puts) => {
+      await assert.rejects(store.appendJson('private', 'leads.json', { id: 'x' }, 'm'), /changed too often/);
+      eq(puts.length, 2);
+    })],
+    ['422 sha mismatch → retried, then succeeds', () => withFakeGitHub([[422, '{"message":"sha does not match"}'], [201, '{}']], async (puts) => {
+      await store.appendJson('private', 'leads.json', { id: 'x' }, 'm');
+      eq(puts.length, 2);
+    })],
+    ['422 "sha wasn\'t supplied" on putFile → "already exists"', () => withFakeGitHub([[422, '{"message":"Invalid request.\\n\\n\\"sha\\" wasn\'t supplied."}']], async (puts) => {
+      await assert.rejects(store.putFile('private', 'cvs/a.pdf', Buffer.from('x'), 'm'), /already exists/);
+      eq(puts.length, 1);
+    })],
+    ['other 422 validation error → thrown at once with GitHub detail', () => withFakeGitHub([[422, '{"message":"content is too large"}']], async (puts) => {
+      await assert.rejects(store.appendJson('private', 'leads.json', { id: 'x' }, 'm'), /HTTP 422 .*too large/);
+      eq(puts.length, 1);
+    })],
+  ];
 
   console.error = errLog;
 
@@ -210,6 +262,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['check-ui-contract.py', run('python3', ['tools/check-ui-contract.py'], 'OK')],
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],
   ]);
+  await area('7. GitHub store retry rules (api/_store.js)', storeChecks);
 
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });

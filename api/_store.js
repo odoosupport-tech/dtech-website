@@ -26,8 +26,8 @@ const fs = require('fs');
 const path = require('path');
 
 const API = 'https://api.github.com';
-const TIMEOUT_MS = 8000;
-const MAX_ATTEMPTS = 3;
+const TIMEOUT_MS = 6000;
+const MAX_ATTEMPTS = 2;
 
 function storeConfig(name) {
   if (name !== 'site' && name !== 'private') throw new Error(`Unknown store "${name}"`);
@@ -129,8 +129,12 @@ async function writeRaw(cfg, file, buffer, sha, message) {
     body: { message, content: buffer.toString('base64'), branch: cfg.branch, ...(sha ? { sha } : {}) },
   });
   if (res.ok) return true;
-  if (res.status === 409 || res.status === 422) return false; // someone else wrote first
-  throw await ghError(res, `write of ${file}`);
+  if (res.status === 409) return false; // someone else wrote first
+  const detail = await res.text().catch(() => '');
+  // 422 is also GitHub's generic validation error; only a sha complaint
+  // ("sha wasn't supplied", "does not match") means the file moved under us.
+  if (res.status === 422 && /\bsha\b/i.test(detail)) return false;
+  throw new Error(`GitHub write of ${file} failed: HTTP ${res.status} ${detail.slice(0, 200)}`);
 }
 
 async function readJson(storeName, file, fallback) {

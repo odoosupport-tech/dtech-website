@@ -1,7 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /api/admin/
-Disallow: /portal.html
 
 Sitemap: https://www.dtechindia.com/sitemap.xml

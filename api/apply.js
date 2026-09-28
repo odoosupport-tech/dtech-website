@@ -27,7 +27,19 @@ const ALLOWED_CV = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
 
+// Leading bytes of each allowed type, so a renamed executable can't pass as a CV.
+const CV_SIGNATURES = {
+  'application/pdf': [0x25, 0x50, 0x44, 0x46], // %PDF
+  'application/msword': [0xd0, 0xcf, 0x11, 0xe0], // OLE compound file
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [0x50, 0x4b, 0x03, 0x04], // ZIP
+};
+
 const overLimit = createRateLimiter();
+
+function matchesSignature(buffer, mime) {
+  const sig = CV_SIGNATURES[mime];
+  return Boolean(sig) && buffer.length >= sig.length && sig.every((b, i) => buffer[i] === b);
+}
 
 function safeFilename(name, mime) {
   const ext = ALLOWED_CV[mime];
@@ -117,7 +129,9 @@ module.exports = async function handler(req, res) {
     if (!/^[A-Za-z0-9+/=\s]+$/.test(base64)) return res.status(400).json({ ok: false, error: 'The attached file could not be read.' });
     const bytes = Math.floor(base64.replace(/\s/g, '').length * 3 / 4);
     if (bytes > MAX_CV_BYTES) return res.status(413).json({ ok: false, error: 'Your CV is larger than 3 MB. Please attach a smaller file.' });
-    cv = { buffer: Buffer.from(base64.replace(/\s/g, ''), 'base64'), mime, filename: safeFilename(body.cv.filename, mime) };
+    const buffer = Buffer.from(base64.replace(/\s/g, ''), 'base64');
+    if (!matchesSignature(buffer, mime)) return res.status(400).json({ ok: false, error: 'The attached file is not a valid PDF or Word document.' });
+    cv = { buffer, mime, filename: safeFilename(body.cv.filename, mime) };
   }
 
   let job = null;

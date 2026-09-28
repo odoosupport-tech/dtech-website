@@ -32,9 +32,9 @@ function getTransport() {
     requireTLS: port === 587,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     // Leave room inside the function's maxDuration for the response.
-    connectionTimeout: 8000,
-    greetingTimeout: 8000,
-    socketTimeout: 10000,
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 7000,
   });
   return transport;
 }
