@@ -55,8 +55,11 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    /* Job summaries can hold paragraphs and bullet lists (see formatSummary below). */
+    .news-item ul { margin: 0; padding-left: 1.25em; list-style: disc; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
+    .news-item p + p, .news-item p + ul, .news-item ul + p, .news-item ul + ul { margin-top: 10px; }
   </style>
-  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
+  <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=fca799f512">
@@ -343,6 +346,32 @@
         });
       }
 
+      // Summaries from the management console: lines starting with "- ", "* " or "• "
+      // become a bulleted list and an empty line starts a new paragraph.
+      function formatSummary(text) {
+        var html = '', para = [], items = [];
+        function flush() {
+          if (para.length) html += '<p>' + para.join('<br>') + '</p>';
+          if (items.length) html += '<ul>' + items.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+          para = [];
+          items = [];
+        }
+        String(text || '').split('\n').forEach(function (raw) {
+          var line = raw.trim();
+          var bullet = /^[-*•]\s+(.*)$/.exec(line);
+          if (!line) return flush();
+          if (bullet) {
+            if (para.length) flush();
+            items.push(esc(bullet[1]));
+          } else {
+            if (items.length) flush();
+            para.push(esc(line));
+          }
+        });
+        flush();
+        return html;
+      }
+
       function render(jobs) {
         list.innerHTML = jobs.map(function (j) {
           var meta = ['<span class="news-badge">Open</span>'];
@@ -351,7 +380,7 @@
           if (j.positions > 1) meta.push('<span>' + j.positions + ' positions</span>');
           return '<article class="news-item"><div class="news-meta">' + meta.join('') + '</div>' +
             '<h3>' + esc(j.title) + '</h3>' +
-            '<p>' + esc(j.summary || '') + '</p>' +
+            formatSummary(j.summary) +
             '<div class="news-foot"><button type="button" class="button button-primary apply-open" data-job-id="' + esc(j.id) + '" data-job-title="' + esc(j.title) + '">Apply for this role <span>&#8599;</span></button></div></article>';
         }).join('');
         if (window.lucide) window.lucide.createIcons();

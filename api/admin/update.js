@@ -1,28 +1,54 @@
-// POST /api/admin/update: changes jobs or case studies from the management
-// console (session required). Each change is committed to data/*.json in the
-// site repository (see api/_store.js), which redeploys the public pages.
+// POST /api/admin/update: changes jobs, case studies or site banners from the
+// management console (session required). Each change is committed to
+// data/*.json in the site repository (see api/_store.js), which redeploys the
+// public pages.
 //
 // Body (JSON):
-//   { type: "job"|"caseStudy", action: "save", item: {...} }      create or edit
-//   { type: "job"|"caseStudy", action: "toggle", id, value }      open/close, publish/hide
-//   { type: "job"|"caseStudy", action: "delete", id }
-// Seeded case studies (not added from the console) can only be shown or hidden,
-// because their full pages and PDFs live in the site itself.
+//   { type: "job"|"caseStudy"|"banner", action: "save", id?, item: {...} }  create or edit
+//   { type, action: "toggle", id, value }        open/close, publish/draft, show/hide
+//   { type, action: "delete", id }
+//
+// A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it:
+//   { mode: "keep" }                           leave it as it is (the default)
+//   { mode: "none" }                           no PDF
+//   { mode: "link", url: "https://…" }         emailed as a link
+//   { mode: "upload", filename, dataBase64 }   a PDF of up to 3 MB, committed to
+//                                              assets/case-studies/pdf/custom/ and
+//                                              emailed as an attachment
+// Seeded case studies (not added from the console) can only be published or
+// unpublished, because their full pages and PDFs live in the site itself.
 //
 // Response: { ok: true, items: [...the whole updated list] }
+// Invalid input: 400 (413 for an oversized PDF) { ok: false, error, field? },
+// where field names the form field to fix.
 
+const crypto = require('crypto');
 const store = require('../_store');
 const { requireSession, jsonBody } = require('../_admin');
 const { allowedOrigin, clean } = require('../_http');
 
 const CATEGORIES = ['network', 'services', 'safety'];
+const TONES = ['info', 'highlight', 'warning'];
+const ACTIONS = ['save', 'toggle', 'delete'];
+const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// Pages on this site (careers.html, /contact.html?subject=x, #section); no schemes, no //host.
+const SITE_PATH_RE = /^(\/?[A-Za-z0-9][A-Za-z0-9._\/-]*)?(\?[A-Za-z0-9._~=&%+-]*)?(#[A-Za-z0-9._-]*)?$/;
+const CONTACT_LINK_RE = /^(tel:\+?[0-9 ()-]{3,20}|mailto:[^\s@<>"'()]+@[^\s@<>"'()]+\.[A-Za-z]{2,})$/i;
 
 const TYPES = {
   job: { file: 'jobs.json', flag: 'isActive', label: 'opening', name: item => item.title },
   caseStudy: { file: 'case-studies.json', flag: 'published', label: 'case study', name: item => item.client },
+  banner: { file: 'banners.json', flag: 'isActive', label: 'banner', name: item => item.message.slice(0, 50) },
 };
 
-class InputError extends Error {}
+class InputError extends Error {
+  constructor(message, field, status) {
+    super(message);
+    this.field = field;
+    this.status = status || 400;
+  }
+}
 
 function slug(text) {
   return String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'item';
@@ -38,57 +64,167 @@ function multiline(v, max) {
   return String(v == null ? '' : v).replace(/\r\n?/g, '\n').replace(/[\x00-\x08\x0b-\x1f\x7f]/g, '').trim().slice(0, max);
 }
 
-function required(value, label) {
-  if (!value) throw new InputError(`Please fill in ${label}.`);
+// Reads one text field; too long or (when required) empty is an error naming the field.
+function text(input, key, label, max, { required = false, lines = false } = {}) {
+  const value = (lines ? multiline : clean)(input[key], max + 1);
+  if (value.length > max) throw new InputError(`${label[0].toUpperCase()}${label.slice(1)} is too long: keep it to ${max} characters.`, key);
+  if (required && !value) throw new InputError(`Please fill in ${label}.`, key);
   return value;
 }
 
+function flag(input, key, fallback) {
+  if (input[key] === undefined) return fallback;
+  if (typeof input[key] !== 'boolean') throw new InputError('Invalid switch value.', key);
+  return input[key];
+}
+
 function jobFrom(input, existing) {
+  const title = text(input, 'title', 'the job title', 120, { required: true });
+  const department = text(input, 'department', 'the department', 80, { required: true });
+  const location = text(input, 'location', 'the location', 120, { required: true });
   const positions = Number(input.positions);
-  if (!Number.isInteger(positions) || positions < 1 || positions > 99) throw new InputError('Openings must be a whole number from 1 to 99.');
+  if (!Number.isInteger(positions) || positions < 1 || positions > 99) throw new InputError('Open positions must be a whole number from 1 to 99.', 'positions');
   return {
     id: existing ? existing.id : undefined,
-    title: required(clean(input.title, 120), 'the job title'),
-    department: required(clean(input.department, 80), 'the department'),
-    location: required(clean(input.location, 120), 'the location'),
+    title,
+    department,
+    location,
     positions,
-    summary: required(multiline(input.summary, 600), 'the summary'),
-    isActive: input.isActive === undefined ? (existing ? existing.isActive : true) : input.isActive === true,
+    summary: text(input, 'summary', 'the job summary', 1000, { required: true, lines: true }),
+    isActive: flag(input, 'isActive', existing ? existing.isActive : true),
   };
 }
 
-function caseStudyFrom(input, existing) {
+function caseStudyFrom(input, existing, pdfFile) {
+  const client = text(input, 'client', 'the client name', 120, { required: true });
+  const industry = text(input, 'industry', 'the industry sector', 80, { required: true });
   const category = clean(input.category, 20);
-  if (!CATEGORIES.includes(category)) throw new InputError('Please choose a category.');
+  if (!CATEGORIES.includes(category)) throw new InputError('Please choose a category.', 'category');
+  const arch_tag = text(input, 'arch_tag', 'the headline', 120, { required: true });
+
   const outcomes = (Array.isArray(input.outcomes) ? input.outcomes : String(input.outcomes || '').split('\n'))
-    .map(o => clean(o, 200)).filter(Boolean).slice(0, 6);
-  const metrics = (Array.isArray(input.metrics) ? input.metrics : [])
-    .map(m => [clean(m && m[0], 40), clean(m && m[1], 40)]).filter(([k, v]) => k && v).slice(0, 4);
+    .map(o => clean(o, 201)).filter(Boolean);
+  if (outcomes.length > 6) throw new InputError('Add up to 6 business results, one per line.', 'outcomes');
+  if (outcomes.some(o => o.length > 200)) throw new InputError('Keep each business result to 200 characters.', 'outcomes');
+
+  const metrics = [];
+  (Array.isArray(input.metrics) ? input.metrics : []).forEach((m, i) => {
+    const label = clean(m && m[0], 41);
+    const value = clean(m && m[1], 41);
+    if (!label && !value) return;
+    if (!label || !value) throw new InputError(`Metric ${i + 1} needs both a name and a value.`, `metric${i}`);
+    if (label.length > 40 || value.length > 40) throw new InputError(`Keep metric ${i + 1} to 40 characters per box.`, `metric${i}`);
+    metrics.push([label, value]);
+  });
+  if (metrics.length > 4) throw new InputError('Add up to 4 key metrics.', 'metric0');
+
   return {
     id: existing ? existing.id : undefined,
-    client: required(clean(input.client, 120), 'the client name'),
+    client,
     wordmark: null,
     logo: null,
     category,
-    industry: required(clean(input.industry, 80), 'the industry'),
-    location: clean(input.location, 120),
-    period: clean(input.period, 120),
-    arch_tag: required(clean(input.arch_tag, 120), 'the project scope'),
-    summary: required(multiline(input.summary, 600), 'the summary'),
-    challenge: multiline(input.challenge, 1500),
-    solution: multiline(input.solution, 1500),
+    industry,
+    location: text(input, 'location', 'the site / location', 120),
+    period: text(input, 'period', 'the period', 120),
+    arch_tag,
+    summary: text(input, 'summary', 'the card summary', 600, { required: true, lines: true }),
+    challenge: text(input, 'challenge', 'the core challenge', 1500, { lines: true }),
+    solution: text(input, 'solution', 'the engineering solution', 1500, { lines: true }),
     outcomes,
     metrics,
-    pdf_file: null,
-    published: input.published === undefined ? (existing ? existing.published : true) : input.published === true,
+    pdf_file: pdfFile !== undefined ? pdfFile : (existing ? existing.pdf_file || null : null),
+    published: flag(input, 'published', existing ? existing.published !== false : true),
     custom: true,
   };
 }
 
-function apply(type, body, list) {
+function siteLink(value) {
+  const raw = clean(value, 501);
+  if (!raw) return '';
+  if (raw.length > 500) throw new InputError('The link is too long.', 'linkUrl');
+  if (/^https:\/\//i.test(raw)) {
+    let url;
+    try { url = new URL(raw); } catch (e) { throw new InputError('That link is not a valid web address.', 'linkUrl'); }
+    if (url.username || url.password || /\s/.test(raw)) throw new InputError('That link is not a valid web address.', 'linkUrl');
+    return url.href;
+  }
+  if (SITE_PATH_RE.test(raw) || CONTACT_LINK_RE.test(raw)) return raw;
+  throw new InputError('Use a page on this site (e.g. careers.html), a full link starting with https://, or tel:/mailto:', 'linkUrl');
+}
+
+function day(input, key, label) {
+  const value = clean(input[key], 10);
+  if (!value) return '';
+  const date = new Date(`${value}T00:00:00Z`);
+  if (!DATE_RE.test(value) || isNaN(date) || date.toISOString().slice(0, 10) !== value) throw new InputError(`Please enter a valid ${label} date.`, key);
+  return value;
+}
+
+function bannerFrom(input, existing) {
+  const message = text(input, 'message', 'the banner message', 200, { required: true });
+  const tone = input.tone === undefined ? 'info' : clean(input.tone, 20);
+  if (!TONES.includes(tone)) throw new InputError('Please choose a banner style.', 'tone');
+  const linkLabel = text(input, 'linkLabel', 'the link text', 40);
+  const linkUrl = siteLink(input.linkUrl);
+  if (linkLabel && !linkUrl) throw new InputError('Add the page or web address the link should open.', 'linkUrl');
+  if (linkUrl && !linkLabel) throw new InputError('Add the link text visitors will click, e.g. “See open roles”.', 'linkLabel');
+  const startsOn = day(input, 'startsOn', 'start');
+  const endsOn = day(input, 'endsOn', 'end');
+  if (startsOn && endsOn && endsOn < startsOn) throw new InputError('The end date must be on or after the start date.', 'endsOn');
+  return {
+    id: existing ? existing.id : undefined,
+    message,
+    tone,
+    linkLabel,
+    linkUrl,
+    startsOn,
+    endsOn,
+    isActive: flag(input, 'isActive', existing ? existing.isActive : true),
+  };
+}
+
+function itemOf(body) {
+  return body.item && typeof body.item === 'object' && !Array.isArray(body.item) ? body.item : {};
+}
+
+// Resolves item.pdf to the new pdf_file value, uploading first when a PDF is attached.
+// undefined keeps the current value.
+async function resolvePdf(input) {
+  const pdf = input.pdf && typeof input.pdf === 'object' ? input.pdf : { mode: 'keep' };
+  if (pdf.mode === 'keep') return undefined;
+  if (pdf.mode === 'none') return null;
+  if (pdf.mode === 'link') {
+    const raw = clean(pdf.url, 501);
+    if (!/^https:\/\//i.test(raw)) throw new InputError('Paste the full PDF link, starting with https://', 'pdfUrl');
+    try { return siteLink(raw); } catch (err) { throw new InputError(err.message, 'pdfUrl'); }
+  }
+  if (pdf.mode !== 'upload') throw new InputError('Please choose a PDF option.', 'pdfMode');
+
+  const base64 = String(pdf.dataBase64 || '').replace(/^data:[^;]+;base64,/, '').replace(/\s/g, '');
+  if (!base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new InputError('The PDF could not be read. Please choose the file again.', 'pdfFile');
+  if (Math.floor(base64.length * 3 / 4) > MAX_PDF_BYTES) {
+    throw new InputError('The PDF is larger than 3 MB. Compress it, or upload it elsewhere and use “Link to a PDF”.', 'pdfFile', 413);
+  }
+  const buffer = Buffer.from(base64, 'base64');
+  if (buffer.subarray(0, 5).toString('latin1') !== '%PDF-') throw new InputError('That file is not a PDF.', 'pdfFile');
+  if (!store.isConfigured('uploads')) throw new Error('Upload storage is not configured');
+  const name = `${slug(input.client).slice(0, 40)}-${crypto.randomBytes(3).toString('hex')}.pdf`;
+  await store.putFile('uploads', name, buffer, `content: Upload case-study PDF for "${clean(input.client, 120)}" (management console)`);
+  return `${store.UPLOADS_DIR}/${name}`;
+}
+
+function newIdFor(type, item, items) {
+  const base = type === 'job' ? `${item.title} ${item.location}`
+    : type === 'caseStudy' ? `${item.client} ${item.arch_tag}`
+    : item.message.split(/\s+/).slice(0, 6).join(' ');
+  return uniqueId(slug(base), items);
+}
+
+function apply(type, body, list, pdfFile) {
   const cfg = TYPES[type];
   const items = Array.isArray(list) ? list : [];
-  const id = clean(body.id || (body.item && body.item.id), 80);
+  const id = clean(body.id || itemOf(body).id, 80);
   const index = id ? items.findIndex(x => x && x.id === id) : -1;
   const current = index > -1 ? items[index] : null;
 
@@ -102,25 +238,24 @@ function apply(type, body, list) {
 
   if (body.action === 'delete') {
     if (!current) throw new InputError(`That ${cfg.label} no longer exists.`);
-    if (type === 'caseStudy' && !current.custom) throw new InputError('Built-in case studies can be hidden but not deleted.');
+    if (type === 'caseStudy' && !current.custom) throw new InputError('Built-in case studies can be unpublished but not deleted.');
     return { next: items.filter((_, i) => i !== index), summary: `Delete ${cfg.label} "${cfg.name(current)}"` };
   }
 
-  if (body.action === 'save') {
-    const input = body.item && typeof body.item === 'object' ? body.item : {};
-    if (id && !current) throw new InputError(`That ${cfg.label} no longer exists.`);
-    if (type === 'caseStudy' && current && !current.custom) throw new InputError('Built-in case studies can be hidden but not edited here.');
-    const item = type === 'job' ? jobFrom(input, current) : caseStudyFrom(input, current);
-    if (!current) {
-      item.id = uniqueId(slug(type === 'job' ? `${item.title} ${item.location}` : `${item.client} ${item.arch_tag}`), items);
-      return { next: [item, ...items], summary: `Add ${cfg.label} "${cfg.name(item)}"` };
-    }
-    const next = items.slice();
-    next[index] = item;
-    return { next, summary: `Edit ${cfg.label} "${cfg.name(item)}"` };
+  // save
+  if (id && !current) throw new InputError(`That ${cfg.label} no longer exists.`);
+  if (type === 'caseStudy' && current && !current.custom) throw new InputError('Built-in case studies can be published or unpublished but not edited here.');
+  const input = itemOf(body);
+  const item = type === 'job' ? jobFrom(input, current)
+    : type === 'caseStudy' ? caseStudyFrom(input, current, pdfFile)
+    : bannerFrom(input, current);
+  if (!current) {
+    item.id = newIdFor(type, item, items);
+    return { next: [item, ...items], summary: `Add ${cfg.label} "${cfg.name(item)}"` };
   }
-
-  throw new InputError('Unknown action.');
+  const next = items.slice();
+  next[index] = item;
+  return { next, summary: `Edit ${cfg.label} "${cfg.name(item)}"` };
 }
 
 module.exports = async function handler(req, res) {
@@ -140,18 +275,25 @@ module.exports = async function handler(req, res) {
   const body = jsonBody(req);
   const cfg = TYPES[body.type];
   if (!cfg) return res.status(400).json({ ok: false, error: 'Unknown section.' });
+  if (!ACTIONS.includes(body.action)) return res.status(400).json({ ok: false, error: 'Unknown action.' });
 
   try {
+    let pdfFile;
+    if (body.type === 'caseStudy' && body.action === 'save') {
+      const input = itemOf(body);
+      caseStudyFrom(input, null, null); // reject bad text before anything is uploaded
+      pdfFile = await resolvePdf(input);
+    }
     let summary = '';
     const items = await store.updateJson('site', cfg.file, [], list => {
-      const result = apply(body.type, body, list);
+      const result = apply(body.type, body, list, pdfFile);
       summary = result.summary;
       return result.next;
     }, () => `content: ${summary} (management console)`);
     console.log('Console change:', summary);
     return res.status(200).json({ ok: true, items });
   } catch (err) {
-    if (err instanceof InputError) return res.status(400).json({ ok: false, error: err.message });
+    if (err instanceof InputError) return res.status(err.status).json({ ok: false, error: err.message, ...(err.field ? { field: err.field } : {}) });
     console.error('Console update failed:', err.message);
     return res.status(502).json({ ok: false, error: 'Your change could not be saved. Please try again in a minute.' });
   }

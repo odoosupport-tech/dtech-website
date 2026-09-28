@@ -1,6 +1,7 @@
 // GET /api/admin/data: everything the management console shows (session required).
 //
-//   GET                  { requirements, applicants, leads, jobs, caseStudies, canSave, hasInbox }
+//   GET                  { requirements, applicants, leads, jobs, caseStudies, banners,
+//                          canSave, publishing: "github"|"local"|null, hasInbox }
 //   GET ?cv=<applicant>  that applicant's CV file, as a download
 
 const fs = require('fs');
@@ -10,11 +11,17 @@ const { requireSession } = require('../_admin');
 
 const ID_RE = /^[a-z0-9-]{1,40}$/;
 
-// Jobs and case studies: the latest committed version when GitHub access is
-// set up (so changes show before the redeploy finishes), else the deployed file.
+// Jobs, case studies and banners: the latest committed version when GitHub
+// access is set up (so changes show before the redeploy finishes), else the
+// deployed file. A list that has never been saved (banners) starts empty.
 async function siteList(file) {
   if (store.isConfigured('site')) return store.readJson('site', file, []);
-  return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', file), 'utf8'));
+  try {
+    return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', file), 'utf8'));
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
 }
 
 async function privateList(file) {
@@ -43,17 +50,19 @@ module.exports = async function handler(req, res) {
   }
   try {
     if (req.query && req.query.cv) return await sendCv(req, res, String(req.query.cv));
-    const [requirements, applicants, leads, jobs, caseStudies] = await Promise.all([
+    const [requirements, applicants, leads, jobs, caseStudies, banners] = await Promise.all([
       privateList('requirements.json'),
       privateList('applicants.json'),
       privateList('leads.json'),
       siteList('jobs.json'),
       siteList('case-studies.json'),
+      siteList('banners.json'),
     ]);
     return res.status(200).json({
       ok: true,
-      requirements, applicants, leads, jobs, caseStudies,
+      requirements, applicants, leads, jobs, caseStudies, banners,
       canSave: store.isConfigured('site'),
+      publishing: store.mode('site'),
       hasInbox: store.isConfigured('private'),
     });
   } catch (err) {

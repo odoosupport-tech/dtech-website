@@ -2,6 +2,12 @@
 // requested it, notifies D-TECH sales about the lead and files the lead in
 // leads.json in the private data repository (see _store.js) when configured.
 //
+// Built-in case studies and their PDFs are listed in _whitepapers.json. Case
+// studies added from the management console carry their own PDF in
+// data/case-studies.json: an upload under assets/case-studies/pdf/custom/
+// (bundled with this function like the built-in PDFs, and attached) or an
+// https link (emailed as a link).
+//
 // Sends over SMTP via _mail.js; set SMTP_HOST, SMTP_USER and SMTP_PASS (and
 // optionally MAIL_FROM, SALES_EMAIL) as described there. Also reads:
 //
@@ -20,6 +26,35 @@ const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_h
 const overLimit = createRateLimiter();
 
 const HOST_RE = /^[a-z0-9.-]+(:\d{1,5})?$/i;
+const CASE_ID_RE = /^[a-z0-9-]{1,80}$/;
+const CUSTOM_PDF_RE = /^assets\/case-studies\/pdf\/custom\/[A-Za-z0-9-]+\.pdf$/;
+const CONSOLE_LIST_TTL_MS = 60 * 1000;
+const CONSOLE_LIST_RETRY_MS = 10 * 1000;
+
+// The console's list, cached per instance so a burst of requests cannot use up
+// the GitHub token's rate limit: kept for a minute, and re-read on a miss (a
+// case study published moments ago) at most every 10 seconds.
+let consoleList = { at: 0, items: [] };
+
+async function consoleCaseStudies(maxAgeMs) {
+  if (consoleList.at && Date.now() - consoleList.at < maxAgeMs) return consoleList.items;
+  const items = await store.readJson('site', 'case-studies.json', []);
+  consoleList = { at: Date.now(), items: Array.isArray(items) ? items : [] };
+  return consoleList.items;
+}
+
+// A published console case study with a PDF, as { title, topic, file } or
+// { title, topic, url }; null when there is no such case study or PDF.
+async function consolePaper(caseId) {
+  if (!CASE_ID_RE.test(caseId) || !store.isConfigured('site')) return null;
+  const match = list => list.find(x => x && x.id === caseId && x.custom === true && x.published !== false);
+  const c = match(await consoleCaseStudies(CONSOLE_LIST_TTL_MS)) || match(await consoleCaseStudies(CONSOLE_LIST_RETRY_MS));
+  if (!c || typeof c.pdf_file !== 'string') return null;
+  const paper = { title: clean(c.client, 120), topic: clean(c.arch_tag, 120) };
+  if (CUSTOM_PDF_RE.test(c.pdf_file)) return { ...paper, file: c.pdf_file };
+  if (/^https:\/\/[^\s"'<>]+$/.test(c.pdf_file)) return { ...paper, url: c.pdf_file };
+  return null;
+}
 
 // The visitor's name is echoed in an email we send to the address they typed,
 // so keep it to plain name characters — no links or markup for spammers to plant.
@@ -30,6 +65,10 @@ function safeGreetingName(name) {
 
 function visitorEmail({ name, paper, siteUrl }) {
   const greeting = name ? `Hello ${esc(name)},` : 'Hello,';
+  const delivery = paper.url
+    ? `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is ready to download as a PDF:</p>
+        <p style="margin:0 0 22px"><a href="${esc(paper.url)}" style="display:inline-block;background:#0b1a33;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Download the case study (PDF)</a></p>`
+    : `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is attached to this email as a PDF.</p>`;
   return `<!doctype html><html><body style="margin:0;background:#f4f3ef;font-family:Arial,Helvetica,sans-serif;color:#14181c">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3ef;padding:24px 12px"><tr><td align="center">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
@@ -41,7 +80,7 @@ function visitorEmail({ name, paper, siteUrl }) {
       <tr><td style="height:4px;background:linear-gradient(90deg,#f0561d,#fbbf24,#14b8a6,#3b82f6,#7c3aed);background-color:#f0561d"></td></tr>
       <tr><td style="padding:26px 28px;font-size:15px;line-height:1.6">
         <p style="margin:0 0 14px">${greeting}</p>
-        <p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is attached to this email as a PDF.</p>
+        ${delivery}
         <p style="margin:0 0 22px">If you would like to discuss a similar project at your plant, simply reply to this email and our team will get in touch.</p>
         <a href="${esc(siteUrl)}/case-studies.html" style="display:inline-block;background:#f0561d;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Explore more case studies</a>
       </td></tr>
@@ -57,7 +96,8 @@ function leadEmail({ lead, paper, ip }) {
     ['Name', lead.name], ['Email', lead.email], ['Phone', lead.phone], ['Company', lead.company],
     ['Case study', `${paper.title} — ${paper.topic}`], ['Requested at', new Date().toISOString()], ['IP', ip],
   ].map(([k, v]) => `<tr><td style="padding:6px 12px;color:#64748b">${esc(k)}</td><td style="padding:6px 12px"><strong>${esc(v || '—')}</strong></td></tr>`).join('');
-  return `<p style="font-family:Arial,sans-serif">New case-study PDF request from the website. The PDF was emailed to the visitor automatically.</p>
+  const how = paper.url ? 'A download link for the PDF was emailed to the visitor automatically.' : 'The PDF was emailed to the visitor automatically.';
+  return `<p style="font-family:Arial,sans-serif">New case-study PDF request from the website. ${how}</p>
   <table style="font-family:Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows}</table>`;
 }
 
@@ -91,24 +131,37 @@ module.exports = async function handler(req, res) {
     phone: clean(body.phone, 40),
     company: clean(body.company, 160),
   };
-  const caseId = clean(body.caseId, 60);
-  const paper = Object.prototype.hasOwnProperty.call(WHITEPAPERS, caseId) ? WHITEPAPERS[caseId] : null;
+  const caseId = clean(body.caseId, 80);
+  const builtIn = Object.prototype.hasOwnProperty.call(WHITEPAPERS, caseId) ? WHITEPAPERS[caseId] : null;
 
   if (!EMAIL_RE.test(lead.email)) return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
-  if (!paper) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
+  if (!builtIn && !CASE_ID_RE.test(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 
   const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   if (overLimit('ip:' + ip, 5, 10 * 60 * 1000) || overLimit('to:' + lead.email.toLowerCase(), 3, 60 * 60 * 1000)) {
     return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
   }
 
-  const pdfPath = path.join(process.cwd(), paper.file);
-  let pdf;
-  try {
-    pdf = fs.readFileSync(pdfPath);
-  } catch (e) {
-    console.error('PDF not found in function bundle:', pdfPath);
-    return res.status(500).json({ ok: false, error: 'Case study file is unavailable.' });
+  let paper = builtIn;
+  if (!paper) {
+    try {
+      paper = await consolePaper(caseId);
+    } catch (err) {
+      console.error('Reading console case studies failed:', err.message);
+      return res.status(502).json({ ok: false, error: 'We could not send the email right now. Please try again or contact sales@dtechindia.com.' });
+    }
+    if (!paper) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
+  }
+
+  let pdf = null;
+  if (paper.file) {
+    const pdfPath = path.join(process.cwd(), paper.file);
+    try {
+      pdf = fs.readFileSync(pdfPath);
+    } catch (e) {
+      console.error('PDF not found in function bundle:', pdfPath);
+      return res.status(500).json({ ok: false, error: 'Case study file is unavailable.' });
+    }
   }
 
   const sales = salesEmail();
@@ -121,7 +174,7 @@ module.exports = async function handler(req, res) {
       replyTo: sales,
       subject: `Your D-TECH case study: ${paper.title}`,
       html: visitorEmail({ name: safeGreetingName(lead.name), paper, siteUrl }),
-      attachments: [{ filename: path.basename(paper.file), content: pdf, contentType: 'application/pdf' }],
+      attachments: pdf ? [{ filename: path.basename(paper.file), content: pdf, contentType: 'application/pdf' }] : [],
     });
 
     // The visitor already has their PDF; a failed sales notice or filing must not

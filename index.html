@@ -56,7 +56,7 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
-  <script src="assets/refined.min.js?v=f0275bc67a" defer></script>
+  <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=9e48e37142" defer></script>
   <script src="assets/brand-marquee.js?v=c33c83d81a" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=9db570c144">
@@ -275,23 +275,11 @@
       if (menu) menu.classList.toggle('hidden');
     }
 
-    // Staff shortcut (Ctrl+Shift+Alt+D). The passkey is posted, never put in a URL.
-    document.addEventListener('keydown', async (event) => {
+    // Staff shortcut (Ctrl+Shift+Alt+D): opens the console's sign-in dialog.
+    document.addEventListener('keydown', (event) => {
       if (!(event.ctrlKey && event.shiftKey && event.altKey && event.code === 'KeyD')) return;
       event.preventDefault();
-      const key = window.prompt('Passkey');
-      if (!key) return;
-      try {
-        const r = await fetch('/api/admin/auth', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key })
-        });
-        if (r.ok) location.href = '/portal.html';
-      } catch (err) {
-        console.warn('Sign-in request failed:', err.message);
-      }
+      location.href = '/portal.html#signin';
     });
 
 
