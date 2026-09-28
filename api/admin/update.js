@@ -1,12 +1,21 @@
-// POST /api/admin/update: changes jobs, case studies or site banners from the
-// management console (session required). Each change is committed to
-// data/*.json in the site repository (see api/_store.js), which redeploys the
-// public pages.
+// POST /api/admin/update: changes made in the management console (session
+// required). Jobs, case studies and site banners are committed to data/*.json
+// in the site repository (see api/_store.js), which redeploys the public pages.
+// Follow-ups on requirements, applicants and leads are written to the private
+// data store and never reach the public site.
 //
-// Body (JSON):
+// Body (JSON), site lists:
 //   { type: "job"|"caseStudy"|"banner", action: "save", id?, item: {...} }  create or edit
 //   { type, action: "toggle", id, value }        open/close, publish/draft, show/hide
 //   { type, action: "delete", id }
+//   { type, action: "reorder", ids: [...] }      every id in the list, in the new
+//                                                display order
+//
+// Body (JSON), private inbox lists:
+//   { type: "requirement"|"applicant"|"lead", action: "status", id, value }
+//                                                value: new|contacted|review|archived
+//   { type, action: "note", id, note }           adds an internal note (up to 1000 characters)
+//   { type, action: "deleteNote", id, noteId }
 //
 // A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it:
 //   { mode: "keep" }                           leave it as it is (the default)
@@ -29,17 +38,25 @@ const { allowedOrigin, clean } = require('../_http');
 
 const CATEGORIES = ['network', 'services', 'safety'];
 const TONES = ['info', 'highlight', 'warning'];
-const ACTIONS = ['save', 'toggle', 'delete'];
+const STATUSES = ['new', 'contacted', 'review', 'archived'];
+const SITE_ACTIONS = ['save', 'toggle', 'delete', 'reorder'];
+const INBOX_ACTIONS = ['status', 'note', 'deleteNote'];
+const MAX_NOTES = 50;
 const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // Pages on this site (careers.html, /contact.html?subject=x, #section); no schemes, no //host.
 const SITE_PATH_RE = /^(\/?[A-Za-z0-9][A-Za-z0-9._\/-]*)?(\?[A-Za-z0-9._~=&%+-]*)?(#[A-Za-z0-9._-]*)?$/;
 const CONTACT_LINK_RE = /^(tel:\+?[0-9 ()-]{3,20}|mailto:[^\s@<>"'()]+@[^\s@<>"'()]+\.[A-Za-z]{2,})$/i;
 
+// Inbox records hold personal data, so their summaries (commit messages and
+// logs) name the record id, never the person.
 const TYPES = {
-  job: { file: 'jobs.json', flag: 'isActive', label: 'opening', name: item => item.title },
-  caseStudy: { file: 'case-studies.json', flag: 'published', label: 'case study', name: item => item.client },
-  banner: { file: 'banners.json', flag: 'isActive', label: 'banner', name: item => item.message.slice(0, 50) },
+  job: { store: 'site', actions: SITE_ACTIONS, file: 'jobs.json', flag: 'isActive', label: 'opening', plural: 'openings', name: item => item.title },
+  caseStudy: { store: 'site', actions: SITE_ACTIONS, file: 'case-studies.json', flag: 'published', label: 'case study', plural: 'case studies', name: item => item.client },
+  banner: { store: 'site', actions: SITE_ACTIONS, file: 'banners.json', flag: 'isActive', label: 'banner', plural: 'banners', name: item => item.message.slice(0, 50) },
+  requirement: { store: 'private', actions: INBOX_ACTIONS, file: 'requirements.json', label: 'requirement' },
+  applicant: { store: 'private', actions: INBOX_ACTIONS, file: 'applicants.json', label: 'application' },
+  lead: { store: 'private', actions: INBOX_ACTIONS, file: 'leads.json', label: 'lead' },
 };
 
 class InputError extends Error {
@@ -228,6 +245,16 @@ function apply(type, body, list, pdfFile) {
   const index = id ? items.findIndex(x => x && x.id === id) : -1;
   const current = index > -1 ? items[index] : null;
 
+  if (body.action === 'reorder') {
+    const ids = Array.isArray(body.ids) ? body.ids.map(v => clean(v, 80)) : [];
+    const known = items.map(x => x && x.id);
+    if (ids.length !== known.length || new Set(ids).size !== ids.length || !ids.every(v => known.includes(v))) {
+      throw new InputError(`The ${cfg.plural} changed while you were reordering. Press Refresh and set the order again.`);
+    }
+    const byId = new Map(items.map(x => [x.id, x]));
+    return { next: ids.map(v => byId.get(v)), summary: `Reorder ${cfg.plural}` };
+  }
+
   if (body.action === 'toggle') {
     if (!current) throw new InputError(`That ${cfg.label} no longer exists.`);
     if (typeof body.value !== 'boolean') throw new InputError('Invalid switch value.');
@@ -258,6 +285,38 @@ function apply(type, body, list, pdfFile) {
   return { next, summary: `Edit ${cfg.label} "${cfg.name(item)}"` };
 }
 
+// Status and internal notes on a requirement, application or lead.
+function followUp(type, body, list) {
+  const cfg = TYPES[type];
+  const items = Array.isArray(list) ? list : [];
+  const id = clean(body.id, 80);
+  const index = id ? items.findIndex(x => x && x.id === id) : -1;
+  if (index < 0) throw new InputError(`That ${cfg.label} no longer exists. Press Refresh to reload the list.`);
+  const current = items[index];
+  const notes = Array.isArray(current.notes) ? current.notes : [];
+  let record, summary;
+
+  if (body.action === 'status') {
+    const value = clean(body.value, 20);
+    if (!STATUSES.includes(value)) throw new InputError('Please choose a status.', 'status');
+    record = { ...current, status: value };
+    summary = `Mark ${cfg.label} ${id} as ${value}`;
+  } else if (body.action === 'note') {
+    const note = text(body, 'note', 'the note', 1000, { required: true, lines: true });
+    if (notes.length >= MAX_NOTES) throw new InputError(`A record can hold up to ${MAX_NOTES} notes. Remove an old one first.`, 'note');
+    record = { ...current, notes: [...notes, { id: crypto.randomBytes(4).toString('hex'), text: note, date: new Date().toISOString() }] };
+    summary = `Add a note to ${cfg.label} ${id}`;
+  } else {
+    const noteId = clean(body.noteId, 20);
+    if (!noteId || !notes.some(n => n && n.id === noteId)) throw new InputError('That note has already been removed.');
+    record = { ...current, notes: notes.filter(n => n && n.id !== noteId) };
+    summary = `Remove a note from ${cfg.label} ${id}`;
+  }
+  const next = items.slice();
+  next[index] = record;
+  return { next, summary };
+}
+
 module.exports = async function handler(req, res) {
   if (!requireSession(req, res)) return;
   if (req.method !== 'POST') {
@@ -268,14 +327,18 @@ module.exports = async function handler(req, res) {
   if (!/^application\/json\b/i.test(String(req.headers['content-type'] || ''))) {
     return res.status(415).json({ ok: false, error: 'Unsupported content type' });
   }
-  if (!store.isConfigured('site')) {
-    return res.status(503).json({ ok: false, error: 'Saving changes is not set up yet. Ask your website administrator to add the GITHUB_TOKEN setting.' });
-  }
-
   const body = jsonBody(req);
-  const cfg = TYPES[body.type];
+  const cfg = Object.prototype.hasOwnProperty.call(TYPES, body.type) ? TYPES[body.type] : null;
   if (!cfg) return res.status(400).json({ ok: false, error: 'Unknown section.' });
-  if (!ACTIONS.includes(body.action)) return res.status(400).json({ ok: false, error: 'Unknown action.' });
+  if (!cfg.actions.includes(body.action)) return res.status(400).json({ ok: false, error: 'Unknown action.' });
+  if (!store.isConfigured(cfg.store)) {
+    return res.status(503).json({
+      ok: false,
+      error: cfg.store === 'site'
+        ? 'Saving changes is not set up yet. Ask your website administrator to add the GITHUB_TOKEN setting.'
+        : 'Saving follow-ups is not set up yet. Ask your website administrator to finish the private storage setup (GITHUB_DATA_REPO).',
+    });
+  }
 
   try {
     let pdfFile;
@@ -285,11 +348,11 @@ module.exports = async function handler(req, res) {
       pdfFile = await resolvePdf(input);
     }
     let summary = '';
-    const items = await store.updateJson('site', cfg.file, [], list => {
-      const result = apply(body.type, body, list, pdfFile);
+    const items = await store.updateJson(cfg.store, cfg.file, [], list => {
+      const result = cfg.store === 'site' ? apply(body.type, body, list, pdfFile) : followUp(body.type, body, list);
       summary = result.summary;
       return result.next;
-    }, () => `content: ${summary} (management console)`);
+    }, () => `${cfg.store === 'site' ? 'content' : 'inbox'}: ${summary} (management console)`);
     console.log('Console change:', summary);
     return res.status(200).json({ ok: true, items });
   } catch (err) {

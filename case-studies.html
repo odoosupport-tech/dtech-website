@@ -1203,6 +1203,16 @@
                   allCases.push(c);
                 }
               });
+              // Display order set in the console: cards follow the file's order.
+              const cards = [...grid.querySelectorAll(':scope > .case-card')];
+              if (cards.length > 1) {
+                const rank = new Map(list.filter(c => c && c.id).map((c, i) => [c.id, i]));
+                const anchor = cards[cards.length - 1].nextSibling;
+                cards
+                  .map((el, i) => ({ el, key: rank.has(el.id) ? rank.get(el.id) : list.length + i }))
+                  .sort((a, b) => a.key - b.key)
+                  .forEach(({ el }) => grid.insertBefore(el, anchor));
+              }
               recount();
               const active = document.querySelector('.case-tab.active');
               filterCases(active ? active.dataset.filter : 'all');

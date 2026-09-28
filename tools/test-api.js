@@ -191,6 +191,15 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(strip(portal), strip(fs.readFileSync(path.join(REPO, '404.html'), 'utf8')), 'portal differs from 404 beyond robots meta + session script');
       assert(!/requirements|applicants|ADMIN_SECRET/i.test(portal), 'console strings leaked into portal.html');
     }],
+    ['vercel.json: /admin-dtech serves portal.html, noindex + no-store on both paths', () => {
+      const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      assert((cfg.rewrites || []).some(r => r.source === '/admin-dtech' && r.destination === '/portal.html'), 'rewrite');
+      assert((cfg.redirects || []).some(r => r.source === '/admin-dtech/' && r.destination === '/admin-dtech'), 'trailing-slash redirect');
+      for (const p of ['/portal.html', '/admin-dtech']) {
+        const keys = cfg.headers.filter(h => new RegExp(`^${h.source}$`).test(p)).flatMap(h => h.headers.map(x => `${x.key}: ${x.value}`));
+        assert(keys.includes('X-Robots-Tag: noindex, nofollow') && keys.includes('Cache-Control: no-store'), `${p} headers: ${keys.join(' | ')}`);
+      }
+    }],
     ['no session: auth GET, data, update → 404', async () => {
       eq((await call(auth, req('GET'))).statusCode, 404);
       eq((await call(data, req('GET'))).statusCode, 404);
@@ -348,6 +357,85 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.statusCode, 200, JSON.stringify(r.body));
       eq(sent[before].attachments.length, 0);
       assert(sent[before].html.includes('href="https://files.example.com/case.pdf"'), 'link in email');
+    }],
+  ]);
+
+  // 6b. Display order of site lists; status and internal notes on the private inbox lists.
+  const siteFile = (f) => JSON.parse(fs.readFileSync(`data/${f}`, 'utf8'));
+  const inboxFile = (f) => JSON.parse(fs.readFileSync(`.portal-data/${f}`, 'utf8'));
+  await area('6b. Console follow-ups & display order', [
+    ['reorder jobs → file and /api/jobs follow the new order', async () => {
+      const before = siteFile('jobs.json').map(j => j.id);
+      const ids = before.slice().reverse();
+      const r = await post({ type: 'job', action: 'reorder', ids });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      assert.deepStrictEqual(r.body.items.map(j => j.id), ids);
+      assert.deepStrictEqual(siteFile('jobs.json').map(j => j.id), ids);
+      const listed = (await call(jobs, req('GET'))).body.jobs.map(j => j.id);
+      assert.deepStrictEqual(listed, ids.filter(id => listed.includes(id)), 'public order');
+      eq((await post({ type: 'job', action: 'reorder', ids: before })).statusCode, 200);
+    }],
+    ['reorder case studies → records kept whole, only the order changes', async () => {
+      const before = siteFile('case-studies.json');
+      const ids = before.map(c => c.id);
+      ids.push(ids.shift());
+      eq((await post({ type: 'caseStudy', action: 'reorder', ids })).statusCode, 200);
+      const after = siteFile('case-studies.json');
+      assert.deepStrictEqual(after.map(c => c.id), ids);
+      assert.deepStrictEqual(after.slice().sort((a, b) => a.id < b.id ? -1 : 1), before.slice().sort((a, b) => a.id < b.id ? -1 : 1));
+    }],
+    ['reorder with a missing, duplicate or unknown id → 400, file unchanged', async () => {
+      const ids = siteFile('jobs.json').map(j => j.id);
+      for (const bad of [ids.slice(1), [ids[0], ...ids.slice(0, -1)], [...ids.slice(0, -1), 'no-such-job'], 'not-a-list']) {
+        eq((await post({ type: 'job', action: 'reorder', ids: bad })).statusCode, 400, JSON.stringify(bad).slice(0, 60));
+      }
+      assert.deepStrictEqual(siteFile('jobs.json').map(j => j.id), ids);
+    }],
+    ['status: applicant → contacted, in the private store only', async () => {
+      const a = inboxFile('applicants.json')[0];
+      const r = await post({ type: 'applicant', action: 'status', id: a.id, value: 'contacted' });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(r.body.items.find(x => x.id === a.id).status, 'contacted');
+      eq(inboxFile('applicants.json').find(x => x.id === a.id).status, 'contacted');
+      eq(inboxFile('applicants.json').length, 2, 'other applicants kept');
+      assert(!fs.readdirSync('data').some(f => /applicant|requirement|lead/.test(f)), 'inbox data written to data/');
+      eq((await post({ type: 'lead', action: 'status', id: inboxFile('leads.json')[0].id, value: 'archived' })).statusCode, 200);
+    }],
+    ['status: unknown value → 400 status; unknown record → 400', async () => {
+      const id = inboxFile('requirements.json')[0].id;
+      await fieldError({ type: 'requirement', action: 'status', id, value: 'won' }, 'status');
+      eq((await post({ type: 'requirement', action: 'status', id: 'nobody-here', value: 'new' })).statusCode, 400);
+    }],
+    ['note: added with date and id, then removed; empty / 1001 chars → 400 note', async () => {
+      const id = inboxFile('requirements.json')[0].id;
+      await fieldError({ type: 'requirement', action: 'note', id, note: '   ' }, 'note');
+      await fieldError({ type: 'requirement', action: 'note', id, note: 'x'.repeat(1001) }, 'note');
+      const r = await post({ type: 'requirement', action: 'note', id, note: 'Called the client.\nQuote by Friday.' });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      const [note] = inboxFile('requirements.json')[0].notes;
+      eq(note.text, 'Called the client.\nQuote by Friday.');
+      assert.match(note.id, /^[0-9a-f]{8}$/); assert(!isNaN(Date.parse(note.date)), 'note date');
+      eq((await post({ type: 'requirement', action: 'note', id, note: 'Second note.' })).body.items[0].notes.length, 2);
+      eq((await post({ type: 'requirement', action: 'deleteNote', id, noteId: note.id })).statusCode, 200);
+      assert.deepStrictEqual(inboxFile('requirements.json')[0].notes.map(n => n.text), ['Second note.']);
+      eq((await post({ type: 'requirement', action: 'deleteNote', id, noteId: note.id })).statusCode, 400, 'already removed');
+    }],
+    ['inbox actions refused on site lists and the reverse; odd section names → 400', async () => {
+      const leads = inboxFile('leads.json').length;
+      eq((await post({ type: 'job', action: 'status', id: openJob.id, value: 'new' })).statusCode, 400);
+      eq((await post({ type: 'lead', action: 'delete', id: inboxFile('leads.json')[0].id })).statusCode, 400);
+      eq((await post({ type: 'applicant', action: 'reorder', ids: [] })).statusCode, 400);
+      for (const type of ['constructor', '__proto__', 'toString']) eq((await post({ type, action: 'save', item: {} })).statusCode, 400, type);
+      eq(inboxFile('leads.json').length, leads, 'leads kept');
+    }],
+    ['private store off → 503 naming the storage setup, nothing written', async () => {
+      const before = fs.readFileSync('.portal-data/leads.json', 'utf8');
+      process.env.VERCEL = '1';
+      try {
+        const r = await post({ type: 'lead', action: 'note', id: inboxFile('leads.json')[0].id, note: 'x' });
+        eq(r.statusCode, 503); assert.match(r.body.error, /private storage/);
+      } finally { delete process.env.VERCEL; }
+      eq(fs.readFileSync('.portal-data/leads.json', 'utf8'), before);
     }],
   ]);
 

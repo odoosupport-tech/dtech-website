@@ -41,6 +41,17 @@
       "source": "/products",
       "destination": "/solutions.html",
       "permanent": true
+    },
+    {
+      "source": "/admin-dtech/",
+      "destination": "/admin-dtech",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/admin-dtech",
+      "destination": "/portal.html"
     }
   ],
   "headers": [
@@ -113,7 +124,7 @@
       ]
     },
     {
-      "source": "/portal.html",
+      "source": "/(portal\\.html|admin-dtech)",
       "headers": [
         {
           "key": "X-Robots-Tag",
