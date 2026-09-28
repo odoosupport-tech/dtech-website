@@ -82,17 +82,16 @@
 
 /* ---- What we do: the three practices, each with its case-study clients -- */
 .hx-practices { background:var(--paper); }
-.hx-practice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
-.hx-practice {
-  --accent:var(--signal-deep);
-  display:flex; flex-direction:column; padding:28px 26px 24px;
-  background:var(--surface); border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:var(--r-plate);
+.hx-practices .section-heading { border-bottom:0; padding-bottom:0; margin-bottom:clamp(32px,4vw,48px); }
+.hx-practice-grid {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0;
+  border-top:1px solid var(--rule-strong);
 }
-.hx-practice[data-category="services"] { --accent:var(--c-green-solid); }
-.hx-practice[data-category="safety"] { --accent:var(--c-orange-solid); }
-html[data-theme="dark"] .hx-practice { --accent:var(--signal); }
-html[data-theme="dark"] .hx-practice[data-category="services"] { --accent:var(--c-green); }
-html[data-theme="dark"] .hx-practice[data-category="safety"] { --accent:var(--c-orange); }
+.hx-practice {
+  display:flex; flex-direction:column; padding:30px clamp(20px,2.6vw,40px) 6px;
+  border-left:1px solid var(--line-strong);
+}
+.hx-practice:first-child { border-left:0; padding-left:0; }
 .hx-practice h3 { margin:0; font:700 21px/1.2 var(--display); color:var(--ink); }
 .hx-practice>p { margin:8px 0 0; font-size:15px; line-height:1.55; color:var(--ink-soft); }
 .hx-practice-clients { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:22px 0 0; padding:0; list-style:none; }
@@ -101,9 +100,8 @@ html[data-theme="dark"] .hx-practice[data-category="safety"] { --accent:var(--c-
   background:#fff; border:1px solid var(--line); border-radius:var(--r-control);
   outline:2px solid transparent; outline-offset:2px; transition:outline-color .15s ease;
 }
-.hx-practice-clients a:hover,.hx-practice-clients a:focus-visible { outline-color:var(--accent); }
-.hx-practice-link { margin-top:auto; padding-top:22px; font-size:14px; font-weight:700; color:var(--accent); }
-.hx-practice-link:hover { text-decoration:underline; text-underline-offset:3px; }
+.hx-practice-clients a:hover,.hx-practice-clients a:focus-visible { outline-color:var(--signal-deep); }
+.hx-practice-link { margin-top:auto; padding-top:22px; align-self:flex-start; }
 .hx-products {
   display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:28px 0 0; padding-top:22px;
   border-top:1px solid var(--line); font-size:14px;
@@ -115,8 +113,6 @@ html[data-theme="dark"] .hx-practice[data-category="safety"] { --accent:var(--c-
 }
 .hx-products a:hover { background:var(--signal-wash); }
 
-/* ---- One team: the delivery steps sit under the three points ----------- */
-.confidence-section .delivery-strip { margin-top:40px; }
 
 /* ---- Responsive -------------------------------------------------------- */
 @media (max-width:1100px) {
@@ -125,6 +121,8 @@ html[data-theme="dark"] .hx-practice[data-category="safety"] { --accent:var(--c-
 }
 @media (max-width:900px) {
   .hx-practice-grid { grid-template-columns:1fr; }
+  .hx-practice { border-left:0; padding:26px 0 22px; }
+  .hx-practice+.hx-practice { border-top:1px solid var(--line-strong); }
 }
 @media (max-width:640px) {
   .home-hero.hx-hero { padding:48px 0 52px; }
@@ -139,4 +137,74 @@ html[data-theme="dark"] .hx-practice[data-category="safety"] { --accent:var(--c-
   .hx-panel::before { display:none; }
   .hx-panel-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .hx-hero .hx-panel-client { font-size:24px; }
+}
+
+/* ---- Delivery sequence ("One team") and industry index ------------------
+   Structure instead of cards: the three stages sit on one rail (a real
+   sequence, so they are numbered), each marked with the logo's slanted cut;
+   industries are a ruled index naming the plants behind them. */
+
+.hx-flow { background:var(--surface); padding:clamp(72px,9vw,128px) 0 clamp(72px,8vw,112px); }
+.hx-flow-head {
+  display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr);
+  gap:clamp(28px,6vw,104px); align-items:end;
+}
+.hx-flow-head h2, .hx-sectors-head h2 {
+  margin:0; color:var(--ink); font-family:var(--display);
+  font-size:clamp(34px,4.3vw,58px); line-height:1.02; letter-spacing:-.038em;
+}
+.hx-flow-intro p { margin:0 0 18px; max-width:50ch; font-size:17px; line-height:1.62; color:var(--ink-soft); }
+
+.hx-flow-steps {
+  list-style:none; margin:clamp(52px,6vw,88px) 0 0; padding:0; position:relative;
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 clamp(24px,3.4vw,56px);
+}
+.hx-flow-steps::before {
+  content:""; position:absolute; left:0; right:0; top:15px; height:1px; background:var(--line-strong);
+}
+.hx-flow-steps li { position:relative; padding-top:58px; }
+.hx-step-tag {
+  position:absolute; top:0; left:0; display:grid; place-items:center;
+  width:50px; height:31px; padding-right:8px; box-sizing:border-box;
+  background:var(--invert); color:#fff;
+  font:700 14px/1 var(--display); font-variant-numeric:tabular-nums;
+  clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);
+}
+html[data-theme="dark"] .hx-step-tag { background:var(--line-strong); }
+.hx-flow-steps h3 {
+  margin:0 0 10px; color:var(--ink); font-family:var(--display);
+  font-size:22px; line-height:1.2; letter-spacing:-.022em;
+}
+.hx-flow-steps p { margin:0 0 18px; max-width:36ch; font-size:15.5px; line-height:1.62; color:var(--ink-soft); }
+
+.hx-sectors { background:var(--paper); padding:clamp(72px,8vw,112px) 0; border-top:1px solid var(--line); }
+.hx-sectors-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px; }
+.hx-sectors-list { list-style:none; margin:clamp(36px,4vw,56px) 0 0; padding:0; border-top:1px solid var(--rule-strong); }
+.hx-sectors-list li { border-bottom:1px solid var(--line-strong); }
+.hx-sectors-list a {
+  display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:8px clamp(28px,6vw,104px);
+  align-items:baseline; padding:26px 12px 26px 0; color:var(--ink);
+  transition:background-color .15s, padding-left .2s var(--ease);
+}
+.hx-sector-name { font-family:var(--display); font-weight:700; font-size:clamp(22px,2.3vw,30px); line-height:1.15; letter-spacing:-.025em; }
+.hx-sector-clients { font-size:16px; line-height:1.5; color:var(--ink-soft); }
+.hx-sector-meta { display:flex; align-items:baseline; justify-content:space-between; gap:12px 32px; }
+.hx-sector-go { font-size:14px; font-weight:600; color:var(--signal-deep); white-space:nowrap; }
+.hx-sectors-list a:hover { background:var(--well); padding-left:16px; }
+.hx-sectors-list a:hover .hx-sector-go { text-decoration:underline; text-underline-offset:5px; }
+.hx-sectors-list a:hover .hx-sector-name { color:var(--signal-deep); }
+.hx-sectors-list a:focus-visible { outline:2px solid var(--signal-deep); outline-offset:-2px; }
+
+@media (max-width:900px) {
+  .hx-flow-head { grid-template-columns:1fr; align-items:start; }
+  .hx-flow-steps { grid-template-columns:1fr; gap:0; }
+  .hx-flow-steps::before { top:0; bottom:0; left:24px; right:auto; width:1px; height:auto; }
+  .hx-flow-steps li { padding:0 0 36px 76px; }
+  .hx-flow-steps li:last-child { padding-bottom:0; }
+  .hx-sectors-list a { grid-template-columns:1fr; gap:6px; padding:22px 0; }
+  .hx-sector-meta { flex-direction:column; gap:6px; }
+  .hx-sectors-list a:hover { padding-left:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .hx-sectors-list a { transition:none; }
 }
