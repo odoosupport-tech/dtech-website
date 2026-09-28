@@ -1,6 +1,6 @@
 // GET /api/admin/console: the management console app script (session required).
-// portal.html is a copy of the 404 page; it loads this script only after the
-// session check passes, so the console's markup never appears in a public file.
+// portal.html (the staff sign-in page at /admin-dtech) loads this script only
+// after sign-in, so the console's markup never appears in a public file.
 
 const fs = require('fs');
 const path = require('path');

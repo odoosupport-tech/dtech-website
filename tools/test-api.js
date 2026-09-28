@@ -184,12 +184,13 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
 
   // 5. Admin portal
   let cookie = '';
-  await area('5. Stealth portal & admin API', [
-    ['portal.html body markup identical to 404.html; no console markup', () => {
-      const strip = (h) => h.replace(/<meta name="robots"[^>]*>/, '').replace(/<script>\s*\(function \(\) \{\s*\/\/ Renders as the 404 page[\s\S]*?<\/script>\s*/, '');
+  await area('5. Admin sign-in & admin API', [
+    ['portal.html: ID + password sign-in page, noindex, posts (never GETs), no console markup', () => {
       const portal = fs.readFileSync(path.join(REPO, 'portal.html'), 'utf8');
-      eq(strip(portal), strip(fs.readFileSync(path.join(REPO, '404.html'), 'utf8')), 'portal differs from 404 beyond robots meta + session script');
-      assert(!/requirements|applicants|ADMIN_SECRET/i.test(portal), 'console strings leaked into portal.html');
+      for (const needle of ['<meta name="robots" content="noindex, nofollow">', 'autocomplete="username"', 'autocomplete="current-password"', 'method="post"', 'type="password"']) {
+        assert(portal.includes(needle), `portal.html missing ${needle}`);
+      }
+      assert(!/requirements|applicants|ADMIN_SECRET|ADMIN_USER/i.test(portal), 'console strings or setting names leaked into portal.html');
     }],
     ['vercel.json: /admin-dtech serves portal.html, noindex + no-store on both paths', () => {
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
@@ -205,12 +206,26 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq((await call(data, req('GET'))).statusCode, 404);
       eq((await call(update, req('POST', {}))).statusCode, 404);
     }],
-    ['wrong passkey → 404 (cloaked; spec said 401), no cookie', async () => {
-      const r = await call(auth, req('POST', { key: 'wrong-passkey-xxxxxxxx' }));
-      eq(r.statusCode, 404); eq(r.headers['set-cookie'], undefined);
+    ['wrong password, wrong ID, missing ID → 401, no cookie', async () => {
+      for (const body of [{ id: 'admin', key: 'wrong-passkey-xxxxxxxx' }, { id: 'someone', key: process.env.ADMIN_SECRET }, { key: process.env.ADMIN_SECRET }]) {
+        const r = await call(auth, req('POST', body));
+        eq(r.statusCode, 401, JSON.stringify(body)); eq(r.body.ok, false); eq(r.headers['set-cookie'], undefined);
+      }
     }],
-    ['correct passkey → 200, signed HttpOnly/Secure/SameSite=Strict cookie', async () => {
-      const r = await call(auth, req('POST', { key: process.env.ADMIN_SECRET }));
+    ['ADMIN_USER sets the ID (any case, spaces trimmed); "admin" then stops working', async () => {
+      process.env.ADMIN_USER = 'Suraj';
+      try {
+        eq((await call(auth, req('POST', { id: '  suraj ', key: process.env.ADMIN_SECRET }))).statusCode, 200);
+        eq((await call(auth, req('POST', { id: 'admin', key: process.env.ADMIN_SECRET }))).statusCode, 401);
+      } finally { delete process.env.ADMIN_USER; }
+    }],
+    ['console switched off (no ADMIN_SECRET) → sign-in 404', async () => {
+      const saved = process.env.ADMIN_SECRET;
+      delete process.env.ADMIN_SECRET;
+      try { eq((await call(auth, req('POST', { id: 'admin', key: saved }))).statusCode, 404); } finally { process.env.ADMIN_SECRET = saved; }
+    }],
+    ['correct ID + password → 200, signed HttpOnly/Secure/SameSite=Strict cookie', async () => {
+      const r = await call(auth, req('POST', { id: 'Admin', key: process.env.ADMIN_SECRET }));
       eq(r.statusCode, 200);
       const c = r.headers['set-cookie'];
       assert(/HttpOnly/.test(c) && /Secure/.test(c) && /SameSite=Strict/.test(c) && /Path=\/api\/admin/.test(c), c);
@@ -230,14 +245,14 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.body.items.find(j => j.id === openJob.id).isActive, false);
       eq((await call(jobs, req('GET'))).body.jobs.length, 11, 'public list reflects toggle');
     }],
-    ['portal sign-in dialog: "admin" / Ctrl+Shift+A, posted passkey, 429 pause, no key in storage', () => {
+    ['sign-in script: posts ID + password, 401/404/429 handled, loads console, nothing stored', () => {
       const portal = fs.readFileSync(path.join(REPO, 'portal.html'), 'utf8');
-      const script = portal.match(/<script>\s*\(function \(\) \{\s*\/\/ Renders as the 404 page[\s\S]*?<\/script>/)[0];
+      const script = portal.match(/<script>\s*\(function \(\) \{\s*\/\/ Staff sign-in\.[\s\S]*?<\/script>/)[0];
       new Function(script.replace(/^<script>|<\/script>$/g, '')); // parses
-      for (const needle of ["typed === 'admin'", "e.code === 'KeyA'", 'r.status === 429', "method: 'POST'", 'autocomplete="current-password"', "'signed-out'", "'session-ended'"]) {
+      for (const needle of ["method: 'POST'", 'JSON.stringify({ id: id, key: key })', 'r.status === 401', 'r.status === 404', 'r.status === 429', "'/api/admin/console'", "'signed-out'", "'session-ended'"]) {
         assert(script.includes(needle), `sign-in script missing ${needle}`);
       }
-      assert(!/setItem\([^)]*key\b/.test(script), 'passkey must never be stored');
+      assert(!/setItem\([^)]*key\b/.test(script), 'password must never be stored');
     }],
     ['console app script: served to a session only, parses', async () => {
       eq((await call(consoleApp, req('GET'))).statusCode, 404);

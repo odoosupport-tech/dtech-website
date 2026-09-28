@@ -1,12 +1,16 @@
-// Session handling for the management console (portal.html + api/admin/*).
+// Session handling for the management console (portal.html, served at
+// /admin-dtech, + api/admin/*).
 //
-//   ADMIN_SECRET  required  the console passkey; at least 16 characters. Without
-//                           it the console is switched off and every admin
-//                           endpoint answers 404. Changing it signs everyone out.
+//   ADMIN_SECRET  required  the console password; at least 16 characters.
+//                           Without it the console is switched off and every
+//                           admin endpoint answers 404. Changing it signs
+//                           everyone out.
+//   ADMIN_USER    optional  the admin ID typed with the password (default
+//                           "admin"); not case-sensitive.
 //
 // The session is a signed, expiring token in an HttpOnly, Secure,
 // SameSite=Strict cookie scoped to /api/admin, so page scripts never see it.
-// Unauthenticated requests get a plain 404 so the endpoints look absent.
+// Requests without a session get a plain 404 so the data endpoints look absent.
 
 const crypto = require('crypto');
 
@@ -36,6 +40,17 @@ function safeEqual(a, b) {
 function passkeyMatches(candidate) {
   const s = secret();
   return Boolean(s) && typeof candidate === 'string' && safeEqual(candidate, s);
+}
+
+function adminId() {
+  return (process.env.ADMIN_USER || '').trim().toLowerCase() || 'admin';
+}
+
+// Both parts are always compared, so the timing does not reveal which one was wrong.
+function credentialsMatch(id, key) {
+  const idOk = typeof id === 'string' && safeEqual(id.trim().toLowerCase(), adminId());
+  const keyOk = passkeyMatches(key);
+  return idOk && keyOk;
 }
 
 function readCookie(req, name) {
@@ -90,4 +105,4 @@ function jsonBody(req) {
   return body && typeof body === 'object' ? body : {};
 }
 
-module.exports = { secret, passkeyMatches, hasSession, startSession, endSession, requireSession, notFound, jsonBody };
+module.exports = { secret, passkeyMatches, credentialsMatch, hasSession, startSession, endSession, requireSession, notFound, jsonBody };
