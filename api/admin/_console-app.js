@@ -173,6 +173,30 @@
     '.dc-toast.is-bad{background:#991b1b}',
     '.dc-toast.is-ok{background:#065f46}',
     '.dc-loading{padding:80px 16px;text-align:center;color:var(--muted);font-size:15px}',
+    '.dc-select{border:1px solid #cbd5e1;border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;background:#fff;color:var(--ink);cursor:pointer;max-width:100%}',
+    '.dc-select:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}',
+    '.dc-select:disabled{opacity:.6;cursor:not-allowed}',
+    '.dc-state{font-weight:600}',
+    '.dc-state[data-value="new"]{background:#e0f2fe;border-color:#bae6fd;color:#075985}',
+    '.dc-state[data-value="contacted"]{background:#e0e7ff;border-color:#c7d2fe;color:#3730a3}',
+    '.dc-state[data-value="review"]{background:#fef3c7;border-color:#fde68a;color:#92400e}',
+    '.dc-state[data-value="archived"]{background:#f1f5f9;color:#475569}',
+    '.dc-follow{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}',
+    '.dc-follow h4{margin:0 0 12px;font-size:14px;font-weight:800;color:var(--navy)}',
+    '.dc-follow-status{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-weight:600;font-size:13px}',
+    '.dc-notes{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:8px}',
+    '.dc-notes li{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px}',
+    '.dc-notes-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}',
+    '.dc-notes-text{white-space:pre-wrap;word-break:break-word}',
+    '.dc-link-btn{border:0;background:none;padding:0;font:inherit;font-size:12px;font-weight:600;color:var(--bad);cursor:pointer;text-decoration:underline;text-underline-offset:2px}',
+    '.dc-link-btn[data-armed]{text-decoration:none;background:#fef2f2;border-radius:6px;padding:0 6px}',
+    '.dc-order{list-style:none;margin:0;padding:4px 16px 12px}',
+    '.dc-order li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}',
+    '.dc-order li:last-child{border-bottom:0}',
+    '.dc-order-n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:12px;color:var(--muted)}',
+    '.dc-order-name{flex:1;min-width:0;word-break:break-word}',
+    '.dc-order-btns{flex:none;display:flex;gap:6px}',
+    '.dc-btn-icon{padding:6px 11px;font-size:15px;line-height:1.2}',
     '@keyframes dc-spin{to{transform:rotate(360deg)}}',
     '@keyframes dc-bar{to{left:100%}}',
     '@keyframes dc-pulse{50%{opacity:.25}}',
@@ -197,11 +221,26 @@
     highlight: { label: 'Highlight', hint: 'hiring, launches', color: '#c2410c' },
     warning: { label: 'Urgent', hint: 'closures, outages', color: '#fbbf24' }
   };
-  // What each switch means, and where each list lives on the website.
+  // What each switch means, and where each list lives on the website. The
+  // private lists (requirements, applicants, leads) never reach the website.
   var TYPES = {
-    job: { list: 'jobs', file: 'jobs.json', on: 'Active', off: 'Closed' },
-    caseStudy: { list: 'caseStudies', file: 'case-studies.json', on: 'Published', off: 'Draft' },
-    banner: { list: 'banners', file: 'banners.json', on: 'Active', off: 'Off' }
+    job: { list: 'jobs', file: 'jobs.json', on: 'Active', off: 'Closed', isOn: function (j) { return j.isActive; },
+      name: function (j) { return j.title; }, detail: function (j) { return j.department + ' · ' + j.location; } },
+    caseStudy: { list: 'caseStudies', file: 'case-studies.json', on: 'Published', off: 'Draft', isOn: function (c) { return c.published !== false; },
+      name: function (c) { return c.client; }, detail: function (c) { return c.arch_tag; } },
+    banner: { list: 'banners', file: 'banners.json', on: 'Active', off: 'Off', isOn: function (b) { return b.isActive; },
+      name: function (b) { return b.message; }, detail: function (b) { return schedule(b); } },
+    requirement: { list: 'requirements', private: true },
+    applicant: { list: 'applicants', private: true },
+    lead: { list: 'leads', private: true }
+  };
+  var TAB_TYPE = { requirements: 'requirement', applicants: 'applicant', leads: 'lead', jobs: 'job', caseStudies: 'caseStudy', banners: 'banner' };
+  // Same values as api/admin/update.js. Records saved before statuses existed count as New.
+  var STATUSES = {
+    new: 'New',
+    contacted: 'Contacted',
+    review: 'Under Review',
+    archived: 'Archived'
   };
   var MAX_PDF_BYTES = 3 * 1024 * 1024;
   // Same rules as api/admin/update.js.
@@ -217,7 +256,8 @@
     warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>'
   };
 
-  var state = { tab: 'requirements', data: null, query: {}, busy: false, leaving: false };
+  // show: status filter per inbox tab. reorder: the unsaved order (list of ids) per site list.
+  var state = { tab: 'requirements', data: null, query: {}, show: {}, reorder: {}, busy: false, leaving: false };
   var deploy = { pending: {}, started: 0, timer: 0, hideTimer: 0 };
   var root, toastEl, modal, progressEl;
 
@@ -345,6 +385,69 @@
   }
   function today() { return new Date().toISOString().slice(0, 10); }
 
+  // ---------- inbox follow-up ----------
+  function statusOf(r) { return STATUSES.hasOwnProperty(r.status) ? r.status : 'new'; }
+  function notesOf(r) { return Array.isArray(r.notes) ? r.notes : []; }
+  function isOpen(r) { return statusOf(r) !== 'archived'; }
+  function notesText(r) {
+    return notesOf(r).map(function (n) { return fmtDate(n.date) + ': ' + n.text; }).join('\n\n');
+  }
+
+  // Inbox tabs show open (not archived) records unless another filter is chosen.
+  function shown(r) {
+    var v = state.show[state.tab] || 'open';
+    return v === 'all' || (v === 'open' ? isOpen(r) : statusOf(r) === v);
+  }
+  function showFilter() {
+    var v = state.show[state.tab] || 'open';
+    var options = [['open', 'Open (not archived)']]
+      .concat(Object.keys(STATUSES).map(function (k) { return [k, STATUSES[k]]; }))
+      .concat([['all', 'Everything']]);
+    return '<select class="dc-select" data-show aria-label="Show records by status">' + options.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === v ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
+    }).join('') + '</select>';
+  }
+  function emptyInbox(q, all, none) {
+    if (q) return 'Nothing matches your search.';
+    if ((state.show[state.tab] || 'open') !== 'all' && all.length) return 'Nothing with this status. Change the filter to see the rest.';
+    return none;
+  }
+
+  function statusSelect(type, r, id) {
+    var s = statusOf(r);
+    return '<select class="dc-select dc-state" data-status="' + type + '" data-id="' + esc(r.id) + '" data-value="' + s + '"' +
+      (id ? ' id="' + id + '"' : ' aria-label="Status of ' + esc(r.name || r.email || 'this record') + '"') + disabledUnless(state.data.hasInbox) + '>' +
+      Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '"' + (k === s ? ' selected' : '') + '>' + esc(STATUSES[k]) + '</option>'; }).join('') +
+      '</select>';
+  }
+  function noteCount(r) {
+    var n = notesOf(r).length;
+    return n ? '<div class="dc-sub">💬 ' + n + ' internal note' + (n === 1 ? '' : 's') + '</div>' : '';
+  }
+
+  // Status, notes and the add-note box, shown under each record's details.
+  function followUp(type, r) {
+    var can = state.data.hasInbox;
+    var notes = notesOf(r);
+    return '<section class="dc-follow" aria-label="Follow-up"><h4>Follow-up</h4>' +
+      '<div class="dc-follow-status"><label for="dc-follow-status">Status</label>' + statusSelect(type, r, 'dc-follow-status') + '</div>' +
+      (notes.length
+        ? '<ol class="dc-notes">' + notes.map(function (n) {
+          return '<li><div class="dc-notes-meta"><span>' + esc(fmtDate(n.date)) + '</span>' +
+            (can ? '<button type="button" class="dc-link-btn" data-remove-note="' + esc(n.id) + '" data-type="' + type + '" data-id="' + esc(r.id) + '">Remove</button>' : '') +
+            '</div><div class="dc-notes-text">' + esc(n.text) + '</div></li>';
+        }).join('') + '</ol>'
+        : '<p class="dc-sub">No internal notes yet.</p>') +
+      (can
+        ? '<form class="dc-form" id="dc-form" data-kind="note" novalidate>' +
+          textarea({ name: 'note', label: 'Add an internal note', max: 1000, rows: 3, wide: true,
+            placeholder: 'e.g. Called on 12 Oct. Sending the quote by Friday.', hint: 'Only staff signed in to this console can see notes.' }) +
+          '<div class="dc-wide"><button type="button" class="dc-btn dc-btn-primary" data-add-note="' + type + '" data-id="' + esc(r.id) + '">Add Note</button></div>' +
+          '</form><p class="dc-error" id="dc-form-error" role="alert" hidden></p>'
+        : '<p class="dc-note">Statuses and notes cannot be saved until the private storage setup is finished.</p>') +
+      '</section>';
+  }
+
   // ---------- banners ----------
   function bannerState(b, day) {
     if (!b.isActive) return 'off';
@@ -401,6 +504,7 @@
 
   function setBusy(on, opts) {
     state.busy = on;
+    var label = opts.label || (publishing() ? 'Committing to GitHub and deploying to Vercel…' : 'Saving…');
     if (opts.inModal) {
       modal.classList.toggle('is-busy', on);
       var el = modal.querySelector('.dc-busy');
@@ -408,7 +512,7 @@
         el = document.createElement('div');
         el.className = 'dc-busy';
         el.setAttribute('role', 'status');
-        el.innerHTML = '<span class="dc-spin" aria-hidden="true"></span><strong>' + esc(opts.label || (publishing() ? 'Committing to GitHub and deploying to Vercel…' : 'Saving…')) + '</strong>' +
+        el.innerHTML = '<span class="dc-spin" aria-hidden="true"></span><strong>' + esc(label) + '</strong>' +
           '<span class="dc-sub">This usually takes a few seconds. Please keep this window open.</span>';
         modal.appendChild(el);
       } else if (!on && el) {
@@ -416,12 +520,16 @@
       }
     } else {
       progressEl.classList.toggle('is-on', on);
-      if (on) toast(publishing() ? 'Committing to GitHub and deploying to Vercel…' : 'Saving…', null, true);
+      if (on) toast(label, null, true);
     }
   }
 
+  // opts.inModal: show progress over the open dialog. opts.done: the toast for a
+  // private-list save (those are not published, so there is no deploy to watch).
   function save(type, action, payload, opts) {
     opts = opts || {};
+    var isPrivate = TYPES[type].private;
+    if (isPrivate && !opts.label) opts.label = 'Saving…';
     setBusy(true, opts);
     return api('/api/admin/update', {
       method: 'POST',
@@ -430,6 +538,10 @@
     }).then(function (res) {
       state.data[TYPES[type].list] = res.items;
       render();
+      if (isPrivate) {
+        toast(opts.done || 'Saved.', 'ok');
+        return res;
+      }
       toast(publishing()
         ? 'Saved to GitHub. Vercel is now redeploying the website, so this change will be live within 1–2 minutes.'
         : 'Saved to the local data folder.', 'ok');
@@ -490,9 +602,9 @@
   function counts() {
     var d = state.data;
     return {
-      requirements: d.requirements.length,
-      applicants: d.applicants.length,
-      leads: d.leads.length,
+      requirements: d.requirements.filter(isOpen).length,
+      applicants: d.applicants.filter(isOpen).length,
+      leads: d.leads.filter(isOpen).length,
       jobs: d.jobs.filter(function (j) { return j.isActive; }).length,
       caseStudies: d.caseStudies.filter(function (c) { return c.published !== false; }).length,
       banners: d.banners.filter(function (b) { return b.isActive; }).length
@@ -558,41 +670,49 @@
   var VIEWS = {
     requirements: function () {
       var q = state.query.requirements || '';
-      var list = state.data.requirements.filter(function (r) { return matches(r, ['name', 'company', 'topic', 'email', 'phone', 'message'], q); });
-      return bar('Client Requirements', q, '<button type="button" class="dc-btn dc-btn-primary" data-export="requirements">' + '📥 Download Excel (CSV)</button>') +
-        table(['Client Name', 'Company', 'Requirement Topic', 'Phone', 'Email', 'Date', ''], list.map(function (r) {
-          return '<tr><td class="dc-strong">' + esc(r.name) + '</td><td>' + esc(r.company || '—') + '</td><td>' + esc(r.topic || 'General') + '</td>' +
+      var all = state.data.requirements;
+      var list = all.filter(function (r) { return shown(r) && matches(r, ['name', 'company', 'topic', 'email', 'phone', 'message'], q); });
+      return bar('Client Requirements', q, showFilter() + '<button type="button" class="dc-btn dc-btn-primary" data-export="requirements">' + '📥 Download Excel (CSV)</button>') +
+        table(['Client Name', 'Company', 'Requirement Topic', 'Phone', 'Email', 'Date', 'Status', ''], list.map(function (r) {
+          return '<tr><td><div class="dc-strong">' + esc(r.name) + '</div>' + noteCount(r) + '</td><td>' + esc(r.company || '—') + '</td><td>' + esc(r.topic || 'General') + '</td>' +
             '<td>' + tel(r.phone) + '</td><td>' + mail(r.email) + '</td><td class="dc-sub">' + esc(fmtDate(r.date)) + '</td>' +
+            '<td>' + statusSelect('requirement', r) + '</td>' +
             '<td><div class="dc-actions"><button type="button" class="dc-btn" data-view-req="' + esc(r.id) + '">' + icon('eye') + 'View Full Scope</button></div></td></tr>';
-        }), q ? 'No requirements match your search.' : 'No client requirements yet. New ones from the Contact page will appear here.');
+        }), emptyInbox(q, all, 'No client requirements yet. New ones from the Contact page will appear here.'));
     },
     applicants: function () {
       var q = state.query.applicants || '';
-      var list = state.data.applicants.filter(function (a) { return matches(a, ['name', 'role', 'email', 'phone', 'location'], q); });
-      return bar('Job Applicants', q, '<button type="button" class="dc-btn" data-export="applicants">' + icon('file-spreadsheet') + 'Export List</button>') +
-        table(['Candidate Name', 'Role Applied For', 'Phone', 'Email', 'Date', ''], list.map(function (a) {
+      var all = state.data.applicants;
+      var list = all.filter(function (a) { return shown(a) && matches(a, ['name', 'role', 'email', 'phone', 'location'], q); });
+      return bar('Job Applicants', q, showFilter() + '<button type="button" class="dc-btn" data-export="applicants">' + icon('file-spreadsheet') + 'Export List</button>') +
+        table(['Candidate Name', 'Role Applied For', 'Phone', 'Email', 'Date', 'Status', ''], list.map(function (a) {
           var cv = a.cv
             ? '<a class="dc-btn dc-btn-primary" href="/api/admin/data?cv=' + encodeURIComponent(a.id) + '" download>' + '📄 Download CV</a>'
             : '<span class="dc-sub">No CV attached</span>';
-          return '<tr><td class="dc-strong">' + esc(a.name) + '</td><td>' + esc(a.role) + (a.location ? '<div class="dc-sub">' + esc(a.location) + '</div>' : '') + '</td>' +
+          return '<tr><td><div class="dc-strong">' + esc(a.name) + '</div>' + noteCount(a) + '</td><td>' + esc(a.role) + (a.location ? '<div class="dc-sub">' + esc(a.location) + '</div>' : '') + '</td>' +
             '<td>' + tel(a.phone) + '</td><td>' + mail(a.email) + '</td><td class="dc-sub">' + esc(fmtDate(a.date)) + '</td>' +
-            '<td><div class="dc-actions">' + cv + '<button type="button" class="dc-btn" data-view-note="' + esc(a.id) + '">View Note</button></div></td></tr>';
-        }), q ? 'No applicants match your search.' : 'No applications yet. New ones from the Careers page will appear here.');
+            '<td>' + statusSelect('applicant', a) + '</td>' +
+            '<td><div class="dc-actions">' + cv + '<button type="button" class="dc-btn" data-view-note="' + esc(a.id) + '">Details &amp; Notes</button></div></td></tr>';
+        }), emptyInbox(q, all, 'No applications yet. New ones from the Careers page will appear here.'));
     },
     leads: function () {
       var q = state.query.leads || '';
-      var list = state.data.leads.filter(function (l) { return matches(l, ['name', 'company', 'email', 'phone', 'caseTitle'], q); });
-      return bar('Case Study Leads', q, '<button type="button" class="dc-btn dc-btn-primary" data-export="leads">' + icon('file-spreadsheet') + 'Export Leads</button>') +
-        table(['Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested', 'Date'], list.map(function (l) {
-          return '<tr><td class="dc-strong">' + esc(l.name || '—') + '</td><td>' + esc(l.company || '—') + '</td><td>' + tel(l.phone) + '</td><td>' + mail(l.email) + '</td>' +
-            '<td>' + esc(l.caseTitle || l.caseId) + '</td><td class="dc-sub">' + esc(fmtDate(l.date)) + '</td></tr>';
-        }), q ? 'No leads match your search.' : 'No case-study requests yet. New ones from the Case Studies page will appear here.');
+      var all = state.data.leads;
+      var list = all.filter(function (l) { return shown(l) && matches(l, ['name', 'company', 'email', 'phone', 'caseTitle'], q); });
+      return bar('Case Study Leads', q, showFilter() + '<button type="button" class="dc-btn dc-btn-primary" data-export="leads">' + icon('file-spreadsheet') + 'Export Leads</button>') +
+        table(['Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested', 'Date', 'Status', ''], list.map(function (l) {
+          return '<tr><td><div class="dc-strong">' + esc(l.name || '—') + '</div>' + noteCount(l) + '</td><td>' + esc(l.company || '—') + '</td><td>' + tel(l.phone) + '</td><td>' + mail(l.email) + '</td>' +
+            '<td>' + esc(l.caseTitle || l.caseId) + '</td><td class="dc-sub">' + esc(fmtDate(l.date)) + '</td>' +
+            '<td>' + statusSelect('lead', l) + '</td>' +
+            '<td><div class="dc-actions"><button type="button" class="dc-btn" data-view-lead="' + esc(l.id) + '">Details &amp; Notes</button></div></td></tr>';
+        }), emptyInbox(q, all, 'No case-study requests yet. New ones from the Case Studies page will appear here.'));
     },
     jobs: function () {
+      if (state.reorder.job) return reorderView('job');
       var q = state.query.jobs || '';
       var can = state.data.canSave;
       var list = state.data.jobs.filter(function (j) { return matches(j, ['title', 'department', 'location', 'summary'], q); });
-      return bar('Manage Careers', q, '<button type="button" class="dc-btn dc-btn-accent" data-new-job' + disabledUnless(can) + '>+ Add New Opening</button>') +
+      return bar('Manage Careers', q, reorderButton('job') + '<button type="button" class="dc-btn dc-btn-accent" data-new-job' + disabledUnless(can) + '>+ Add New Opening</button>') +
         table(['Job Title', 'Department', 'Location', 'Openings', 'Status', ''], list.map(function (j) {
           return '<tr><td class="dc-strong">' + esc(j.title) + '</td><td>' + esc(j.department) + '</td><td>' + esc(j.location) + '</td><td>' + esc(j.positions) + '</td>' +
             '<td>' + toggle('job', j.id, j.isActive, can) + '</td>' +
@@ -601,6 +721,7 @@
         }), q ? 'No openings match your search.' : 'No openings yet. Use “Add New Opening” to post one.');
     },
     caseStudies: function () {
+      if (state.reorder.caseStudy) return reorderView('caseStudy');
       var q = state.query.caseStudies || '';
       var can = state.data.canSave;
       var list = state.data.caseStudies.filter(function (c) { return matches(c, ['client', 'arch_tag', 'industry', 'summary'], q); });
@@ -616,17 +737,18 @@
           '<div class="dc-cs-name">' + esc(c.client) + '</div><div>' + esc(c.arch_tag) + '</div><div class="dc-sub">' + esc(c.industry) + '</div>' +
           '<div class="dc-cs-foot">' + toggle('caseStudy', c.id, on, can) + custom + '</div></article>';
       });
-      return bar('Manage Case Studies', q, '<button type="button" class="dc-btn dc-btn-accent" data-new-cs' + disabledUnless(can) + '>+ Add Case Study</button>') +
+      return bar('Manage Case Studies', q, reorderButton('caseStudy') + '<button type="button" class="dc-btn dc-btn-accent" data-new-cs' + disabledUnless(can) + '>+ Add Case Study</button>') +
         (cards.length ? '<div class="dc-grid">' + cards.join('') + '</div>' : '<div class="dc-empty">' + (q ? 'No case studies match your search.' : 'No case studies yet.') + '</div>');
     },
     banners: function () {
+      if (state.reorder.banner) return reorderView('banner');
       var q = state.query.banners || '';
       var can = state.data.canSave;
       var showing = liveBanner(state.data.banners);
       var day = localDay();
       var list = state.data.banners.filter(function (b) { return matches(b, ['message', 'linkLabel', 'linkUrl'], q); });
-      return bar('Site Banners', q, '<button type="button" class="dc-btn dc-btn-accent" data-new-banner' + disabledUnless(can) + '>+ New Banner</button>') +
-        '<p class="dc-intro">One banner shows at a time, across the top of every page: the first <strong>active</strong> banner in this list whose dates include today. Visitors can close it.</p>' +
+      return bar('Site Banners', q, reorderButton('banner') + '<button type="button" class="dc-btn dc-btn-accent" data-new-banner' + disabledUnless(can) + '>+ New Banner</button>') +
+        '<p class="dc-intro">One banner shows at a time, across the top of every page: the first <strong>active</strong> banner in this list whose dates include today. Visitors can close it. Use Reorder to choose which banner wins when two overlap.</p>' +
         table(['Banner', 'Schedule', 'Status', ''], list.map(function (b) {
           var s = bannerState(b, day);
           var chip = s === 'off' ? '<span class="dc-chip dc-chip-off">Not shown</span>'
@@ -651,6 +773,69 @@
       '<span class="dc-track" aria-hidden="true"></span><span data-toggle-label>' + (on ? t.on : t.off) + '</span></label>';
   }
 
+  // ---------- display order ----------
+  // Reordering happens locally and is saved as one commit, so the site redeploys once.
+  var REORDER = {
+    job: { title: 'Order of openings', intro: 'Openings appear on the careers page in this order. Closed openings stay hidden wherever they sit.' },
+    caseStudy: { title: 'Order of case studies', intro: 'Case studies appear on the Case Studies page in this order. Drafts stay hidden wherever they sit. The client logos on the home page are chosen separately and do not change.' },
+    banner: { title: 'Order of banners', intro: 'When more than one active banner covers today, the one highest in this list is shown.' }
+  };
+
+  function reorderButton(type) {
+    var enough = state.data[TYPES[type].list].length > 1;
+    return '<button type="button" class="dc-btn" data-reorder="' + type + '"' + disabledUnless(state.data.canSave && enough) + '>⇅ Reorder</button>';
+  }
+
+  function currentOrder(type) {
+    return state.data[TYPES[type].list].map(function (x) { return x.id; });
+  }
+
+  function reorderView(type) {
+    var t = TYPES[type];
+    var ids = state.reorder[type] = state.reorder[type].filter(function (id) { return find(t.list, id); });
+    var changed = ids.join('\n') !== currentOrder(type).join('\n');
+    var rows = ids.map(function (id, i) {
+      var x = find(t.list, id);
+      var name = t.name(x);
+      var label = esc(name.length > 60 ? name.slice(0, 57) + '…' : name);
+      return '<li><span class="dc-order-n" aria-hidden="true">' + (i + 1) + '</span>' +
+        '<div class="dc-order-name"><div class="dc-strong">' + esc(name) + '</div><div class="dc-sub">' + esc(t.detail(x)) + '</div></div>' +
+        '<span class="dc-chip ' + (t.isOn(x) ? 'dc-chip-live">' + t.on : 'dc-chip-off">' + t.off) + '</span>' +
+        '<span class="dc-order-btns">' +
+        '<button type="button" class="dc-btn dc-btn-icon" data-move="up" data-id="' + esc(id) + '" aria-label="Move “' + label + '” up"' + disabledUnless(i > 0) + '>↑</button>' +
+        '<button type="button" class="dc-btn dc-btn-icon" data-move="down" data-id="' + esc(id) + '" aria-label="Move “' + label + '” down"' + disabledUnless(i < ids.length - 1) + '>↓</button>' +
+        '</span></li>';
+    });
+    return bar(REORDER[type].title, null,
+      '<button type="button" class="dc-btn" data-reorder-cancel>Cancel</button>' +
+      '<button type="button" class="dc-btn dc-btn-accent" data-reorder-save' + disabledUnless(changed) + '>Save Order</button>') +
+      '<p class="dc-intro">' + esc(REORDER[type].intro) + ' Nothing changes on the website until you press Save Order.</p>' +
+      '<ol class="dc-order">' + rows.join('') + '</ol>';
+  }
+
+  function moveItem(type, id, dir) {
+    var ids = state.reorder[type];
+    var i = ids.indexOf(id);
+    var j = dir === 'up' ? i - 1 : i + 1;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    ids[i] = ids[j];
+    ids[j] = id;
+    renderPanel();
+    // Keep keyboard focus on the item that moved; at either end, on its other arrow.
+    var sel = '[data-move][data-id="' + (window.CSS && window.CSS.escape ? window.CSS.escape(id) : id) + '"]';
+    var buttons = document.querySelectorAll(sel);
+    var same = [].filter.call(buttons, function (b) { return b.dataset.move === dir && !b.disabled; })[0];
+    (same || buttons[dir === 'up' ? 1 : 0] || document.body).focus();
+  }
+
+  function saveOrder(type) {
+    var ids = state.reorder[type].slice();
+    save(type, 'reorder', { ids: ids }).then(function () {
+      delete state.reorder[type];
+      renderPanel();
+    }, function (err) { if (err.message !== 'Signed out') toast(err.message, 'bad'); });
+  }
+
   function renderPanel() {
     var panel = document.getElementById('dc-panel');
     panel.innerHTML = VIEWS[state.tab]();
@@ -665,6 +850,8 @@
   // ---------- details ----------
   function find(list, id) { return state.data[list].filter(function (x) { return x.id === id; })[0]; }
 
+  // Details dialogs double as the follow-up view (status and internal notes), so
+  // they are opened as forms: a stray backdrop click does not lose a half-typed note.
   function showRequirement(id) {
     var r = find('requirements', id);
     if (!r) return;
@@ -672,18 +859,98 @@
       '<dl class="dc-dl"><dt>Client</dt><dd>' + esc(r.name) + '</dd><dt>Company</dt><dd>' + esc(r.company || '—') + '</dd>' +
       '<dt>Topic</dt><dd>' + esc(r.topic || 'General') + '</dd><dt>Phone</dt><dd>' + tel(r.phone) + '</dd><dt>Email</dt><dd>' + mail(r.email) + '</dd>' +
       '<dt>Received</dt><dd>' + esc(fmtDate(r.date)) + '</dd></dl>' +
-      '<p class="dc-sub">Full scope, including any items the client added from the Cart or Estimator:</p><div class="dc-msg">' + esc(r.message || 'No details provided.') + '</div>',
-      '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(r.email) + '?subject=' + encodeURIComponent('Re: ' + (r.topic || 'Your requirement')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>');
+      '<p class="dc-sub">Full scope, including any items the client added from the Cart or Estimator:</p><div class="dc-msg">' + esc(r.message || 'No details provided.') + '</div>' +
+      followUp('requirement', r),
+      '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(r.email) + '?subject=' + encodeURIComponent('Re: ' + (r.topic || 'Your requirement')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>',
+      { form: true });
   }
 
   function showNote(id) {
     var a = find('applicants', id);
     if (!a) return;
-    openModal('Note from ' + a.name,
+    openModal('Application from ' + a.name,
       '<dl class="dc-dl"><dt>Role</dt><dd>' + esc(a.role) + '</dd><dt>Phone</dt><dd>' + tel(a.phone) + '</dd><dt>Email</dt><dd>' + mail(a.email) + '</dd>' +
-      '<dt>Applied</dt><dd>' + esc(fmtDate(a.date)) + '</dd></dl><div class="dc-msg">' + esc(a.message || 'The candidate did not add a note.') + '</div>',
+      '<dt>Applied</dt><dd>' + esc(fmtDate(a.date)) + '</dd></dl><p class="dc-sub">The candidate’s note:</p><div class="dc-msg">' + esc(a.message || 'The candidate did not add a note.') + '</div>' +
+      followUp('applicant', a),
       (a.cv ? '<a class="dc-btn dc-btn-primary" href="/api/admin/data?cv=' + encodeURIComponent(a.id) + '" download>' + '📄 Download CV</a>' : '') +
-      '<button type="button" class="dc-btn" data-close>Close</button>');
+      '<button type="button" class="dc-btn" data-close>Close</button>',
+      { form: true });
+  }
+
+  function showLead(id) {
+    var l = find('leads', id);
+    if (!l) return;
+    openModal('Lead from ' + (l.name || l.email),
+      '<dl class="dc-dl"><dt>Name</dt><dd>' + esc(l.name || '—') + '</dd><dt>Company</dt><dd>' + esc(l.company || '—') + '</dd>' +
+      '<dt>Phone</dt><dd>' + tel(l.phone) + '</dd><dt>Email</dt><dd>' + mail(l.email) + '</dd>' +
+      '<dt>Case study</dt><dd>' + esc(l.caseTitle || l.caseId) + '</dd><dt>Requested</dt><dd>' + esc(fmtDate(l.date)) + '</dd></dl>' +
+      followUp('lead', l),
+      '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(l.email) + '?subject=' + encodeURIComponent('Re: ' + (l.caseTitle || 'Your case study request')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>',
+      { form: true });
+  }
+
+  function showDetails(type, id) {
+    var open = { requirement: showRequirement, applicant: showNote, lead: showLead }[type];
+    if (!find(TYPES[type].list, id)) { forceClose(); return; }
+    open(id);
+  }
+
+  // Redraws an open details dialog after a save, keeping any note still being typed.
+  function refreshDetails(type, id, keepDraft) {
+    var form = document.getElementById('dc-form');
+    var draft = keepDraft && form && form.elements.note ? form.elements.note.value : '';
+    showDetails(type, id);
+    var again = document.getElementById('dc-form');
+    if (draft && again) {
+      again.elements.note.value = draft;
+      modal.dataset.dirty = '1';
+      syncForm(again);
+    }
+  }
+
+  function submitNote(type, id) {
+    var form = document.getElementById('dc-form');
+    var note = form.elements.note.value.trim();
+    if (!showErrors(form, note ? {} : { note: 'Write the note first.' })) return;
+    save(type, 'note', { id: id, note: note }, { inModal: true, done: 'Note added.' })
+      .then(function () { refreshDetails(type, id, false); }, function (err) { serverError(form, err); });
+  }
+
+  // Removing a note takes two clicks on the same button, so the dialog stays open.
+  function removeNote(button) {
+    var d = button.dataset;
+    if (!d.armed) {
+      button.dataset.armed = '1';
+      button.textContent = 'Click again to remove';
+      setTimeout(function () {
+        if (button.isConnected) { delete button.dataset.armed; button.textContent = 'Remove'; }
+      }, 4000);
+      return;
+    }
+    save(d.type, 'deleteNote', { id: d.id, noteId: d.removeNote }, { inModal: true, done: 'Note removed.' })
+      .then(function () { refreshDetails(d.type, d.id, true); }, function (err) {
+        if (err.message === 'Signed out') return;
+        if (document.getElementById('dc-form-error')) formError(err.message); else toast(err.message, 'bad');
+      });
+  }
+
+  function saveStatus(select) {
+    var d = select.dataset;
+    var before = d.value;
+    var inModal = modal.contains(select);
+    var archiving = select.value === 'archived' && (state.show[state.tab] || 'open') === 'open';
+    select.disabled = true;
+    save(d.status, 'status', { id: d.id, value: select.value }, {
+      inModal: inModal,
+      done: 'Marked as ' + STATUSES[select.value] + '.' + (archiving ? ' Archived records are hidden from the Open list; use the filter to see them.' : '')
+    }).then(function () {
+      if (inModal) refreshDetails(d.status, d.id, true);
+    }, function (err) {
+      select.value = before;
+      select.disabled = false;
+      if (err.message === 'Signed out') return;
+      if (inModal && document.getElementById('dc-form-error')) formError(err.message); else toast(err.message, 'bad');
+    });
   }
 
   // ---------- form building ----------
@@ -1141,18 +1408,25 @@
     }
     if (d.viewReq) return showRequirement(d.viewReq);
     if (d.viewNote) return showNote(d.viewNote);
+    if (d.viewLead) return showLead(d.viewLead);
+    if (d.addNote) return submitNote(d.addNote, d.id);
+    if (d.removeNote) return removeNote(t);
     if (d.export === 'requirements') {
-      return downloadCsv('client-requirements-' + today() + '.csv', ['Date', 'Client Name', 'Company', 'Topic', 'Phone', 'Email', 'Full Scope'],
-        state.data.requirements.map(function (r) { return [fmtDate(r.date), r.name, r.company, r.topic, r.phone, r.email, r.message]; }));
+      return downloadCsv('client-requirements-' + today() + '.csv', ['Date', 'Client Name', 'Company', 'Topic', 'Phone', 'Email', 'Full Scope', 'Status', 'Internal Notes'],
+        state.data.requirements.map(function (r) { return [fmtDate(r.date), r.name, r.company, r.topic, r.phone, r.email, r.message, STATUSES[statusOf(r)], notesText(r)]; }));
     }
     if (d.export === 'applicants') {
-      return downloadCsv('job-applicants-' + today() + '.csv', ['Date', 'Candidate Name', 'Role Applied For', 'Location', 'Phone', 'Email', 'CV Attached', 'Note'],
-        state.data.applicants.map(function (a) { return [fmtDate(a.date), a.name, a.role, a.location, a.phone, a.email, a.cv ? 'Yes' : 'No', a.message]; }));
+      return downloadCsv('job-applicants-' + today() + '.csv', ['Date', 'Candidate Name', 'Role Applied For', 'Location', 'Phone', 'Email', 'CV Attached', 'Note', 'Status', 'Internal Notes'],
+        state.data.applicants.map(function (a) { return [fmtDate(a.date), a.name, a.role, a.location, a.phone, a.email, a.cv ? 'Yes' : 'No', a.message, STATUSES[statusOf(a)], notesText(a)]; }));
     }
     if (d.export === 'leads') {
-      return downloadCsv('case-study-leads-' + today() + '.csv', ['Date', 'Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested'],
-        state.data.leads.map(function (l) { return [fmtDate(l.date), l.name, l.company, l.phone, l.email, l.caseTitle || l.caseId]; }));
+      return downloadCsv('case-study-leads-' + today() + '.csv', ['Date', 'Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested', 'Status', 'Internal Notes'],
+        state.data.leads.map(function (l) { return [fmtDate(l.date), l.name, l.company, l.phone, l.email, l.caseTitle || l.caseId, STATUSES[statusOf(l)], notesText(l)]; }));
     }
+    if (d.reorder) { state.reorder[d.reorder] = currentOrder(d.reorder); renderPanel(); return; }
+    if ('reorderCancel' in d) { delete state.reorder[TAB_TYPE[state.tab]]; renderPanel(); return; }
+    if ('reorderSave' in d) return saveOrder(TAB_TYPE[state.tab]);
+    if (d.move) return moveItem(TAB_TYPE[state.tab], d.id, d.move);
     if ('newJob' in d) return jobForm(null);
     if (d.editJob) return jobForm(find('jobs', d.editJob));
     if ('newCs' in d) return caseForm(null);
@@ -1182,7 +1456,14 @@
 
   function onChange(event) {
     var input = event.target;
-    if (!input.dataset || !input.dataset.toggle) return;
+    if (!input.dataset) return;
+    if ('show' in input.dataset) { state.show[state.tab] = input.value; renderPanel(); return; }
+    if (input.dataset.status) {
+      if (state.busy) { input.value = input.dataset.value; return; }
+      saveStatus(input);
+      return;
+    }
+    if (!input.dataset.toggle) return;
     var type = input.dataset.toggle;
     var value = input.checked;
     var label = input.parentNode.querySelector('[data-toggle-label]');
@@ -1211,6 +1492,7 @@
     return api('/api/admin/data').then(function (data) {
       data.banners = data.banners || [];
       state.data = data;
+      state.reorder = {}; // an unsaved order may no longer match the reloaded lists
       render();
     }, function (err) {
       if (err.message === 'Signed out') return;
