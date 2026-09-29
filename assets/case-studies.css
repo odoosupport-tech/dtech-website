@@ -192,7 +192,34 @@ html[data-theme="dark"] .cs-btn-solid:hover { background:#fff; border-color:#fff
   .cs-logo { width:76%; max-height:104px; }
 }
 
-.cs-empty { margin-top:24px; font-size:14px; color:var(--muted); }
+/* Search, pager and empty state */
+.cs-sr { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+.cs-search { position:relative; display:flex; align-items:center; margin:0 0 16px; }
+.cs-search[hidden], .cs-pager[hidden], .cs-search-clear[hidden], .cs-more[hidden] { display:none; }
+.cs-search-icon { position:absolute; left:16px; color:var(--muted); pointer-events:none; }
+.cs-search-input {
+  width:100%; min-height:52px; padding:0 52px 0 46px;
+  font:500 15px/1.2 var(--text-face); color:var(--ink);
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--r-plate);
+  -webkit-appearance:none; appearance:none;
+}
+.cs-search-input::placeholder { color:var(--muted); opacity:1; }
+.cs-search-input::-webkit-search-cancel-button { -webkit-appearance:none; display:none; }
+.cs-search-input:focus { outline:none; border-color:var(--signal-deep); box-shadow:0 0 0 3px var(--c-cyan-wash); }
+html[data-theme="dark"] .cs-search-input:focus { border-color:var(--signal); }
+.cs-search-clear {
+  position:absolute; right:8px; width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
+  color:var(--muted); background:transparent; border:0; border-radius:var(--r-control); cursor:pointer;
+}
+.cs-search-clear:hover { color:var(--ink); background:var(--well); }
+.cs-search-clear:focus-visible { outline:2px solid var(--signal); outline-offset:1px; }
+.cs-pager { display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:36px; }
+.cs-status { margin:0; font:600 13px/1.4 var(--mono); color:var(--muted); }
+.cs-status:focus { outline:none; }
+.cs-more { min-width:240px; }
+.cs-empty { margin-top:24px; font-size:14px; color:var(--muted); text-align:center; padding:32px 16px; border:1px dashed var(--line-strong); border-radius:var(--r-plate); }
+.cs-empty p { margin:0 0 16px; }
+.cs-reset { flex:none; }
 
 @media (prefers-reduced-motion:reduce) {
   .cs-card,.cs-logo,.cs-wall-tile { transition:none; }

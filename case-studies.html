@@ -81,9 +81,9 @@
   </style>
   <script src="assets/refined.min.js?v=a1f3a16cdd" defer></script>
   <script src="assets/agent-a.min.js?v=83bacdca56" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=e937bc1754">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=34c6fadc15">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
-  <link rel="stylesheet" href="assets/case-studies.min.css?v=d0a0880ee9">
+  <link rel="stylesheet" href="assets/case-studies.min.css?v=772f447ce1">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff" media="print" onload="this.media='all'">
@@ -222,6 +222,13 @@
               <span class="cs-eyebrow">Executive Proof · Across Business in PAN India</span>
               <h2>Turnkey Deployments &amp; Field Impact</h2>
               <p>11 documented D-TECH engagements across energy, chemicals, pharma, tyre manufacturing and plant safety — from greenfield networks to multi-year managed services. Pick a tab to filter, open a summary, or have the full PDF case study emailed to you.</p>
+            </div>
+
+            <div class="cs-search" id="cs-search" hidden>
+              <label class="cs-sr" for="cs-search-input">Search case studies</label>
+              <svg class="cs-search-icon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="cs-search-input" class="cs-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="Search by client, technology, industry, or location..." aria-controls="case-grid" enterkeyhint="search">
+              <button type="button" id="cs-search-clear" class="cs-search-clear" aria-label="Clear search" hidden><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
             </div>
 
             <div class="case-tabs" role="tablist" aria-label="Filter case studies by category">
@@ -409,7 +416,14 @@
           </div>
         </article>
             </div>
-            <p id="case-empty" class="hidden cs-empty">No case studies in this category yet.</p>
+            <div id="case-empty" class="hidden cs-empty" role="status">
+              <p id="case-empty-msg">No case studies in this category yet.</p>
+              <button type="button" id="case-reset" class="cs-btn cs-btn-ghost cs-reset">Reset filters</button>
+            </div>
+            <div id="cs-pager" class="cs-pager" hidden>
+              <p id="cs-status" class="cs-status" role="status" aria-live="polite" tabindex="-1"></p>
+              <button type="button" id="cs-more" class="cs-btn cs-btn-solid cs-more">Load More Case Studies</button>
+            </div>
 
           </div>
         </section>
@@ -800,39 +814,137 @@
           return String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
         }
 
-        // Category tabs above the case-study grid
-        function filterCases(key) {
-          let shown = 0;
-          document.querySelectorAll('#case-grid .case-card').forEach(card => {
-            const match = key === 'all' || card.dataset.category === key;
-            card.classList.toggle('hidden', !match);
-            if (match) shown++;
-          });
+        // Category tabs, live search and "Load More" paging over the case-study grid.
+        // Cards stay in the DOM (so deep links, modals and no-JS all keep working);
+        // filtering and paging only toggle their visibility.
+        const CASES_PER_PAGE = 12;
+        const caseView = { cat: 'all', query: '', limit: CASES_PER_PAGE };
+        const caseText = new WeakMap();
+
+        function caseHaystack(card) {
+          let text = caseText.get(card);
+          if (text === undefined) {
+            text = ['.cs-client', '.cs-scope', '.cs-industry', '.cs-where', '.cs-summary']
+              .map(sel => card.querySelector(sel)?.textContent || '').join(' ').toLowerCase();
+            caseText.set(card, text);
+          }
+          return text;
+        }
+
+        function renderCases(opts) {
+          const focusStatus = !!(opts && opts.focusStatus);
+          const cards = [...document.querySelectorAll('#case-grid .case-card')];
+          const tokens = caseView.query.toLowerCase().split(/\s+/).filter(Boolean);
+          const matched = cards.filter(card =>
+            (caseView.cat === 'all' || card.dataset.category === caseView.cat) &&
+            tokens.every(t => caseHaystack(card).includes(t)));
+          const matchSet = new Set(matched);
+          const shownSet = new Set(matched.slice(0, caseView.limit));
+          cards.forEach(card => card.classList.toggle('hidden', !shownSet.has(card)));
+
           document.querySelectorAll('.case-tab').forEach(tab => {
-            const on = tab.dataset.filter === key;
+            const on = tab.dataset.filter === caseView.cat;
             tab.classList.toggle('active', on);
             tab.setAttribute('aria-selected', on ? 'true' : 'false');
           });
-          document.getElementById('case-grid').setAttribute('aria-labelledby', 'case-tab-' + key);
-          document.getElementById('case-empty').classList.toggle('hidden', shown > 0);
+          document.getElementById('case-grid').setAttribute('aria-labelledby', 'case-tab-' + caseView.cat);
+
+          const empty = document.getElementById('case-empty');
+          empty.classList.toggle('hidden', matchSet.size > 0);
+          document.getElementById('case-empty-msg').textContent = tokens.length
+            ? 'No case studies match \u201c' + caseView.query.trim() + '\u201d. Try a different client, technology, industry or location.'
+            : 'No case studies in this category yet.';
+
+          const pager = document.getElementById('cs-pager');
+          const more = document.getElementById('cs-more');
+          const remaining = matched.length - shownSet.size;
+          pager.hidden = matched.length === 0 || (matched.length <= CASES_PER_PAGE);
+          document.getElementById('cs-status').textContent =
+            'Showing ' + shownSet.size + ' of ' + matched.length + ' case ' + (matched.length === 1 ? 'study' : 'studies');
+          more.hidden = remaining <= 0;
+          if (!more.hidden) more.textContent = 'Load More Case Studies';
+          if (focusStatus && more.hidden) document.getElementById('cs-status').focus({ preventScroll: true });
         }
 
-        // Deep links: case-studies.html#services opens that tab; #mrf opens the tab holding that card
-        function applyCaseHash() {
+        function filterCases(key) {
+          caseView.cat = key;
+          caseView.limit = CASES_PER_PAGE;
+          renderCases();
+        }
+
+        function resetCaseFilters() {
+          const input = document.getElementById('cs-search-input');
+          input.value = '';
+          document.getElementById('cs-search-clear').hidden = true;
+          caseView.query = '';
+          filterCases('all');
+        }
+
+        // Makes sure a specific card is on screen (right tab, no search, inside the loaded page)
+        function revealCase(card, scroll) {
+          const input = document.getElementById('cs-search-input');
+          input.value = '';
+          document.getElementById('cs-search-clear').hidden = true;
+          caseView.query = '';
+          caseView.cat = 'all';
+          const idx = [...document.querySelectorAll('#case-grid .case-card')].indexOf(card);
+          caseView.limit = Math.max(CASES_PER_PAGE, idx + 1);
+          renderCases();
+          if (scroll) card.scrollIntoView({ block: 'start' });
+        }
+
+        function initCaseSearch() {
+          const box = document.getElementById('cs-search');
+          const input = document.getElementById('cs-search-input');
+          const clear = document.getElementById('cs-search-clear');
+          let timer = 0;
+          box.hidden = false;
+          input.addEventListener('input', () => {
+            clear.hidden = input.value === '';
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+              caseView.query = input.value;
+              caseView.limit = CASES_PER_PAGE;
+              renderCases();
+            }, 150);
+          });
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && input.value) { e.preventDefault(); clear.click(); }
+          });
+          clear.addEventListener('click', () => {
+            clearTimeout(timer);
+            input.value = '';
+            clear.hidden = true;
+            caseView.query = '';
+            caseView.limit = CASES_PER_PAGE;
+            renderCases();
+            input.focus();
+          });
+          document.getElementById('cs-more').addEventListener('click', () => {
+            caseView.limit += CASES_PER_PAGE;
+            renderCases({ focusStatus: true });
+          });
+          document.getElementById('case-reset').addEventListener('click', resetCaseFilters);
+        }
+
+        // Deep links: case-studies.html#services opens that tab; #mrf opens the card itself
+        function applyCaseHash(scroll) {
           const h = decodeURIComponent(location.hash.slice(1));
           if (!h) return;
           if (document.querySelector(`.case-tab[data-filter="${CSS.escape(h)}"]`)) { filterCases(h); return; }
           const card = document.getElementById(h);
-          if (card && card.classList.contains('case-card')) filterCases('all');
+          if (card && card.classList.contains('case-card')) revealCase(card, scroll);
         }
-        window.addEventListener('hashchange', applyCaseHash);
+        window.addEventListener('hashchange', () => applyCaseHash(true));
 
         let pendingAction = null; // 'view_details' or 'download_pdf'
         let targetCaseId = null;
 
         document.addEventListener("DOMContentLoaded", () => {
           prefillGateForm();
-          applyCaseHash();
+          initCaseSearch();
+          renderCases();
+          applyCaseHash(true);
         });
 
         function prefillGateForm() {
@@ -1200,9 +1312,9 @@
                   .forEach(({ el }) => grid.insertBefore(el, anchor));
               }
               recount();
-              const active = document.querySelector('.case-tab.active');
-              filterCases(active ? active.dataset.filter : 'all');
-              applyCaseHash();
+              renderCases();
+              const hashCard = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+              if (hashCard && hashCard.classList.contains('case-card') && hashCard.classList.contains('hidden') && !caseView.query && caseView.cat === 'all') revealCase(hashCard, true);
               window.lucide?.createIcons();
             })
             .catch(err => console.warn('Case study list not refreshed:', err.message));
