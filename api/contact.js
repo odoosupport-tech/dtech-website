@@ -1,6 +1,7 @@
 // POST /api/contact
 // Emails a contact.html enquiry to D-TECH sales over SMTP, with Reply-To set to
-// the visitor so sales can answer straight from their inbox, and files it in
+// the visitor so sales can answer straight from their inbox, sends the visitor an
+// automatic "requirement received" confirmation, and files it in
 // requirements.json in the private data repository for the management console.
 //
 // Body (JSON):
@@ -35,6 +36,53 @@ function enquiryText({ enquiry, ip }) {
   return [
     `Name: ${enquiry.name}`, `Email: ${enquiry.email}`, `Phone: ${enquiry.phone || '—'}`,
     `Company: ${enquiry.company || '—'}`, `Subject: ${enquiry.topic}`, `IP: ${ip}`, '', enquiry.message,
+  ].join('\n');
+}
+
+// The greeting is the one visitor-typed string that lands in a mail sent to an
+// address the visitor chose, so keep it to plain name characters (no links or markup).
+function safeGreetingName(name) {
+  const words = String(name).split(/\s+/).filter(w => /^[\p{L}\p{M}'.-]{1,30}$/u.test(w));
+  return words.slice(0, 3).join(' ');
+}
+
+const CONFIRMATION_SUBJECT = 'Thank you for contacting D-TECH \u2014 Requirement Received';
+
+function customerConfirmationEmail({ enquiry }) {
+  const name = safeGreetingName(enquiry.name) || 'there';
+  const topic = enquiry.topic || 'your enquiry';
+  return `<!doctype html><html><body style="margin:0;background:#f4f3ef;font-family:Arial,Helvetica,sans-serif;color:#14181c">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3ef;padding:24px 12px"><tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
+      <tr><td style="background:#0b1a33;padding:22px 28px;color:#ffffff">
+        <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#ff8a3d">D-TECH Solution Integrators</div>
+        <div style="font-size:22px;font-weight:bold;margin-top:6px">Requirement received</div>
+      </td></tr>
+      <tr><td style="height:4px;background:linear-gradient(90deg,#f0561d,#fbbf24,#14b8a6,#3b82f6,#7c3aed);background-color:#f0561d"></td></tr>
+      <tr><td style="padding:26px 28px;font-size:15px;line-height:1.6">
+        <p style="margin:0 0 14px">Hello ${esc(name)},</p>
+        <p style="margin:0 0 14px">Thank you for reaching out to D-TECH Solution Integrators.</p>
+        <p style="margin:0 0 14px">Your requirement regarding <strong>${esc(topic)}</strong> has been recorded and assigned to our solutions engineering team.</p>
+        <p style="margin:0 0 14px">A representative will review the details and get in touch with you within 1 business day.</p>
+      </td></tr>
+      <tr><td style="padding:18px 28px;background:#f8fafc;font-size:13px;color:#475569;line-height:1.6">
+        <strong style="color:#14181c">D-TECH Solution Integrators Private Limited</strong><br>
+        Email: <a href="mailto:sales@dtechindia.com" style="color:#0075ae">sales@dtechindia.com</a><br>
+        Phone: <a href="tel:+919998026089" style="color:#0075ae">+91 99980 26089</a><br>
+        Bharuch Corporate HQ, Gujarat
+      </td></tr>
+    </table>
+  </td></tr></table></body></html>`;
+}
+
+function customerConfirmationText({ enquiry }) {
+  return [
+    `Hello ${safeGreetingName(enquiry.name) || 'there'},`, '',
+    'Thank you for reaching out to D-TECH Solution Integrators.', '',
+    `Your requirement regarding ${enquiry.topic || 'your enquiry'} has been recorded and assigned to our solutions engineering team.`, '',
+    'A representative will review the details and get in touch with you within 1 business day.', '',
+    'D-TECH Solution Integrators Private Limited',
+    'Email: sales@dtechindia.com', 'Phone: +91 99980 26089', 'Bharuch Corporate HQ, Gujarat',
   ].join('\n');
 }
 
@@ -77,7 +125,7 @@ module.exports = async function handler(req, res) {
   }
 
   const record = { id: store.newId(), ...enquiry, date: new Date().toISOString() };
-  const [mailed, filed] = await Promise.allSettled([
+  const [mailed, filed, confirmed] = await Promise.allSettled([
     sendMail({
       to: salesEmail(),
       replyTo: enquiry.email,
@@ -85,12 +133,20 @@ module.exports = async function handler(req, res) {
       html: enquiryEmail({ enquiry, ip }),
       text: enquiryText({ enquiry, ip }),
     }),
+    sendMail({
+      to: enquiry.email,
+      subject: CONFIRMATION_SUBJECT,
+      html: customerConfirmationEmail({ enquiry }),
+      text: customerConfirmationText({ enquiry }),
+    }),
     store.isConfigured('private')
       ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
       : Promise.reject(new Error('private storage is not configured')),
   ]);
   if (mailed.status === 'rejected') console.error('Contact email failed:', mailed.reason.message);
   if (filed.status === 'rejected') console.error('Filing requirement failed:', filed.reason.message);
+  // The visitor's copy is a courtesy; sales already has the enquiry, so a failure here is only logged.
+  if (confirmed.status === 'rejected') console.error('Confirmation email failed:', confirmed.reason.message);
 
   // Either copy reaching sales is enough; only fail when both were lost.
   if (mailed.status === 'fulfilled' || filed.status === 'fulfilled') {

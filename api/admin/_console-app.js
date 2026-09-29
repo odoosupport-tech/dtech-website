@@ -213,8 +213,7 @@
     { id: 'applicants', label: '👥 Job Applicants' },
     { id: 'leads', label: '📑 Case Study Leads' },
     { id: 'jobs', label: '💼 Manage Careers' },
-    { id: 'caseStudies', label: '🏆 Manage Case Studies' },
-    { id: 'banners', label: '📣 Site Banners' }
+    { id: 'caseStudies', label: '🏆 Manage Case Studies' }
   ];
   var CATEGORIES = { network: 'Network & IT Infrastructure', services: 'Managed Services', safety: 'Safety, Communication & Automation' };
   var LOCATIONS = ['Bharuch', 'Dahej', 'Jhagadia', 'Ankleshwar', 'Vadodara'];
@@ -652,7 +651,7 @@
     }).join('');
     var notes = [];
     if (!state.data.hasInbox) notes.push('New client requirements, job applications and case-study leads are still emailed to sales, but they are not being saved here yet. Ask your website administrator to finish the storage setup.');
-    if (!state.data.canSave) notes.push('Changes to careers, case studies and banners cannot be saved yet. Ask your website administrator to finish the publishing setup.');
+    if (!state.data.canSave) notes.push('Changes to careers and case studies cannot be saved yet. Ask your website administrator to finish the publishing setup.');
     document.getElementById('dc-notes').innerHTML = notes.map(function (n) { return '<p class="dc-note">' + esc(n) + '</p>'; }).join('');
   }
 
@@ -1163,7 +1162,7 @@
     var current = c.pdf_file || '';
     var isLink = /^https:/.test(current);
     var pdfModes = (current ? [{ value: 'keep', html: 'Keep current PDF' }] : []).concat([
-      { value: 'none', html: 'No PDF' }, { value: 'upload', html: 'Upload a PDF' }, { value: 'link', html: 'Link to a PDF' }
+      { value: 'upload', html: 'Upload a PDF' }, { value: 'link', html: 'Link to a PDF' }
     ]);
     var body = '<form class="dc-form" id="dc-form" data-kind="caseStudy" novalidate>' +
       section('Client & project', '',
@@ -1194,12 +1193,12 @@
             '<input name="mk' + i + '" value="' + esc(m[0] || '') + '" maxlength="40" placeholder="' + esc(ex[1]) + '" aria-label="Metric ' + (i + 1) + ' measures">' +
             '<p class="dc-err" hidden></p></div>';
         }).join('')) +
-      section('PDF whitepaper', 'Visitors who ask for the full case study get this PDF by email, and their details arrive under Case Study Leads.',
+      section('PDF whitepaper (required)', 'Every case study needs a PDF, uploaded or linked. Visitors who ask for the full case study get this PDF by email, and their details arrive under Case Study Leads.',
         (current ? '<p class="dc-current dc-wide">Current: ' + (isLink
           ? '<a href="' + esc(current) + '" target="_blank" rel="noopener">' + esc(current) + '</a>'
           : '<a href="/' + esc(current) + '" target="_blank" rel="noopener">' + esc(current.split('/').pop()) + '</a> (uploaded)') + '</p>' : '') +
-        choices('pdfMode', 'PDF', pdfModes, current ? 'keep' : 'none', true) +
-        wrap({ name: 'pdfFile', label: 'PDF file', required: true, wide: true, show: 'upload', hidden: true, hint: 'PDF only, up to 3 MB. For a bigger file, use “Link to a PDF”.' },
+        choices('pdfMode', 'PDF', pdfModes, current ? 'keep' : 'upload', true) +
+        wrap({ name: 'pdfFile', label: 'PDF file', required: true, wide: true, show: 'upload', hidden: current ? true : false, hint: 'PDF only, up to 3 MB. For a bigger file, use “Link to a PDF”.' },
           '<input type="file" id="' + fid('pdfFile') + '" name="pdfFile" accept="application/pdf,.pdf" aria-describedby="' + fid('pdfFile') + '-hint ' + fid('pdfFile') + '-err">') +
         input({ name: 'pdfUrl', label: 'PDF link', required: true, type: 'url', max: 500, wide: true, show: 'link', hidden: true, value: isLink ? current : '',
           placeholder: 'https://…', hint: 'Must start with https://. For Google Drive or OneDrive, share the file with “Anyone with the link” first.' })) +

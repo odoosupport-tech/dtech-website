@@ -17,9 +17,8 @@
 //   { type, action: "note", id, note }           adds an internal note (up to 1000 characters)
 //   { type, action: "deleteNote", id, noteId }
 //
-// A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it:
+// A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it (every case study needs one):
 //   { mode: "keep" }                           leave it as it is (the default)
-//   { mode: "none" }                           no PDF
 //   { mode: "link", url: "https://…" }         emailed as a link
 //   { mode: "upload", filename, dataBase64 }   a PDF of up to 3 MB, committed to
 //                                              assets/case-studies/pdf/custom/ and
@@ -43,6 +42,7 @@ const SITE_ACTIONS = ['save', 'toggle', 'delete', 'reorder'];
 const INBOX_ACTIONS = ['status', 'note', 'deleteNote'];
 const MAX_NOTES = 50;
 const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
+const PDF_REQUIRED = 'Please upload a PDF or enter a valid PDF link.';
 const MAX_LOGO_BYTES = 300 * 1024; // kept small so a logo plus a 3 MB PDF still fit in one request
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // Pages on this site (careers.html, /contact.html?subject=x, #section); no schemes, no //host.
@@ -211,7 +211,7 @@ function itemOf(body) {
 async function resolvePdf(input) {
   const pdf = input.pdf && typeof input.pdf === 'object' ? input.pdf : { mode: 'keep' };
   if (pdf.mode === 'keep') return undefined;
-  if (pdf.mode === 'none') return null;
+  if (pdf.mode === 'none') throw new InputError(PDF_REQUIRED, 'pdfFile');
   if (pdf.mode === 'link') {
     const raw = clean(pdf.url, 501);
     if (!/^https:\/\//i.test(raw)) throw new InputError('Paste the full PDF link, starting with https://', 'pdfUrl');
@@ -303,6 +303,7 @@ function apply(type, body, list, pdfFile, logoFile) {
   const item = type === 'job' ? jobFrom(input, current)
     : type === 'caseStudy' ? caseStudyFrom(input, current, pdfFile, logoFile)
     : bannerFrom(input, current);
+  if (type === 'caseStudy' && !item.pdf_file) throw new InputError(PDF_REQUIRED, 'pdfFile');
   if (!current) {
     item.id = newIdFor(type, item, items);
     return { next: [item, ...items], summary: `Add ${cfg.label} "${cfg.name(item)}"` };
