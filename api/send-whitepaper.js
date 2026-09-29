@@ -31,6 +31,7 @@ const HOST_RE = /^[a-z0-9.-]+(:\d{1,5})?$/i;
 const CASE_ID_RE = /^[a-z0-9-]{1,80}$/;
 const CUSTOM_PDF_RE = /^assets\/case-studies\/pdf\/custom\/[A-Za-z0-9-]+\.pdf$/;
 const PDF_FETCH_TIMEOUT_MS = 10 * 1000;
+const PDF_HEAD_TIMEOUT_MS = 3 * 1000;
 const MAX_PDF_BYTES = 15 * 1024 * 1024;
 const CONSOLE_LIST_TTL_MS = 60 * 1000;
 const CONSOLE_LIST_RETRY_MS = 10 * 1000;
@@ -74,9 +75,21 @@ function downloadUrlFor(paper, siteUrl) {
 }
 
 // The PDF's bytes from this site's static files, or null (logged) when it cannot
-// be fetched, is not a PDF, or is too large to email.
+// be fetched, is not a PDF, or is too large to email. A fast HEAD pre-check
+// skips oversized files without buffering them into function memory; anything
+// the HEAD check cannot decide falls through to the GET below.
 async function fetchPdf(url) {
   try {
+    try {
+      const head = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(PDF_HEAD_TIMEOUT_MS) });
+      const headLen = Number(head.headers.get('content-length'));
+      if (head.ok && Number.isFinite(headLen) && headLen > MAX_PDF_BYTES) {
+        console.error(`Skipping PDF ${url}: HEAD reports ${headLen} bytes, over the ${MAX_PDF_BYTES}-byte limit`);
+        return null;
+      }
+    } catch (headErr) {
+      console.error(`PDF HEAD pre-check ${url} failed, falling back to GET:`, headErr.message);
+    }
     const r = await fetch(url, { signal: AbortSignal.timeout(PDF_FETCH_TIMEOUT_MS) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const buf = Buffer.from(await r.arrayBuffer());
