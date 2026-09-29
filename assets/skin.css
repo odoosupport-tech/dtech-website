@@ -358,14 +358,27 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
   padding:0 40px 16px;
 }
 
+/* Edge fades are static overlays, not a mask on the animated track, so the
+   compositor never re-rasterises the moving logos. */
+.brand-marquee-row::before,
+.brand-marquee-row::after {
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:64px;
+  z-index:1;
+  pointer-events:none;
+}
+.brand-marquee-row::before { left:0;  background:linear-gradient(90deg, var(--surface), transparent); }
+.brand-marquee-row::after  { right:0; background:linear-gradient(270deg, var(--surface), transparent); }
+
 /* --- Scrolling track --- */
 .brand-marquee-track {
   display:flex;
   width:max-content;
   will-change:transform;
   backface-visibility:hidden;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 64px, #000 calc(100% - 64px), transparent 100%);
-  mask-image:linear-gradient(90deg, transparent 0%, #000 64px, #000 calc(100% - 64px), transparent 100%);
 }
 .marquee-set {
   display:flex;
@@ -431,7 +444,7 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 @media (prefers-reduced-motion:reduce) {
   .partner-card,.partner-cta,.alliance-brand { transition:none; }
   .marquee-scroll-left,.marquee-scroll-right { animation:none; }
-  .brand-marquee-track { overflow-x:auto; -webkit-overflow-scrolling:touch; mask-image:none; -webkit-mask-image:none; }
+  .brand-marquee-track { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .brand-marquee { overflow-x:auto; }
 }
 
@@ -448,10 +461,7 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
   .brand-marquee { padding:44px 0 36px; }
   .brand-marquee-heading { padding-bottom:30px; }
   .brand-marquee-item img { height:38px; max-width:130px; }
-  .brand-marquee-track {
-    -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 24px, #000 calc(100% - 24px), transparent 100%);
-    mask-image:linear-gradient(90deg, transparent 0%, #000 24px, #000 calc(100% - 24px), transparent 100%);
-  }
+  .brand-marquee-row::before,.brand-marquee-row::after { width:24px; }
   .brand-marquee-row { padding:18px 0; }
 }
 
