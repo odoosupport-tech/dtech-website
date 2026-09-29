@@ -133,15 +133,15 @@ module.exports = async function handler(req, res) {
       html: enquiryEmail({ enquiry, ip }),
       text: enquiryText({ enquiry, ip }),
     }),
+    store.isConfigured('private')
+      ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
+      : Promise.reject(new Error('private storage is not configured')),
     sendMail({
       to: enquiry.email,
       subject: CONFIRMATION_SUBJECT,
       html: customerConfirmationEmail({ enquiry }),
       text: customerConfirmationText({ enquiry }),
     }),
-    store.isConfigured('private')
-      ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
-      : Promise.reject(new Error('private storage is not configured')),
   ]);
   if (mailed.status === 'rejected') console.error('Contact email failed:', mailed.reason.message);
   if (filed.status === 'rejected') console.error('Filing requirement failed:', filed.reason.message);
