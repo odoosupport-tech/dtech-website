@@ -31,7 +31,7 @@ const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'dtech-suite-'));
 fs.cpSync(path.join(REPO, 'data'), path.join(sandbox, 'data'), { recursive: true });
 // assets/ is linked entry by entry, with real directories down to the console's
 // PDF upload folder, so uploads made in the tests land in the sandbox.
-const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', 'assets/case-studies/pdf/custom', 'assets/case-studies/logos'].map(d => path.join(REPO, d));
+const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', 'assets/case-studies/pdf/custom', 'assets/case-studies/logos', 'assets/case-studies/logos/custom'].map(d => path.join(REPO, d));
 (function mirror(src, dst) {
   fs.mkdirSync(dst);
   for (const name of fs.readdirSync(src)) {
@@ -355,13 +355,15 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'link', url: 'http://example.com/a.pdf' } } }, 'pdfUrl');
     }],
     ['case study: non-PDF upload → 400, over 3 MB → 413, nothing written', async () => {
+      const before = uploads().length;
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', dataBase64: Buffer.from('MZ fake').toString('base64') } } }, 'pdfFile');
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', dataBase64: pdf(3 * 1024 * 1024) } } }, 'pdfFile', 413);
-      eq(uploads().length, 0);
+      eq(uploads().length, before);
     }],
     ['case study: bad text is refused before the PDF is uploaded', async () => {
+      const before = uploads().length;
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, client: '', pdf: { mode: 'upload', dataBase64: pdf(10) } } }, 'client');
-      eq(uploads().length, 0);
+      eq(uploads().length, before);
     }],
     ['case study: PDF upload → committed under custom/, pdf_file set, published', async () => {
       const r = await post({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'upload', filename: 'x.pdf', dataBase64: pdf(64) } } });
@@ -380,10 +382,12 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'keep' } } }, 'pdfFile');
     }],
     ['case study: logo must be a PNG/JPG/WebP under 300 KB (SVG and fakes refused)', async () => {
+      const logos = () => fs.readdirSync('assets/case-studies/logos/custom').length;
+      const before = logos();
       const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>').toString('base64');
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, logo: { mode: 'upload', dataBase64: svg } } }, 'logoFile');
       await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, logo: { mode: 'upload', dataBase64: Buffer.alloc(400 * 1024, 0xff).toString('base64') } } }, 'logoFile', 413);
-      eq(fs.readdirSync('assets/case-studies/logos/custom').length, 0);
+      eq(logos(), before);
     }],
     ['case study: logo upload → committed under logos/custom/, kept on edit, removable', async () => {
       const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)]).toString('base64');
