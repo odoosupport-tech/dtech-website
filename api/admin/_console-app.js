@@ -101,6 +101,8 @@
     '.dc-form input:not([type=checkbox]):not([type=radio]),.dc-form select,.dc-form textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:9px 12px;font:inherit;font-weight:400;color:var(--ink);background:#fff}',
     '.dc-form textarea{resize:vertical;line-height:1.5}',
     '.dc-form input[type=file]{padding:7px 10px;background:var(--soft)}',
+    '.dc-check{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-weight:500}',
+    '.dc-check input{width:auto}',
     '.dc-form input:focus,.dc-form select:focus,.dc-form textarea:focus,.dc-search:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}',
     '.dc-form [aria-invalid="true"]{border-color:#dc2626!important;background:#fef2f2!important}',
     '.dc-hint{font-weight:400;color:var(--muted);font-size:12px;margin:0}',
@@ -244,6 +246,7 @@
     archived: 'Archived'
   };
   var MAX_PDF_BYTES = 3 * 1024 * 1024;
+  var MAX_LOGO_BYTES = 300 * 1024;
   // Same rules as api/admin/update.js.
   var SITE_PATH_RE = /^(\/?[A-Za-z0-9][A-Za-z0-9._\/-]*)?(\?[A-Za-z0-9._~=&%+-]*)?(#[A-Za-z0-9._-]*)?$/;
   var CONTACT_LINK_RE = /^(tel:\+?[0-9 ()-]{3,20}|mailto:[^\s@<>"'()]+@[^\s@<>"'()]+\.[A-Za-z]{2,})$/i;
@@ -1171,6 +1174,10 @@
           '<option value="">Choose a category</option>' + Object.keys(CATEGORIES).map(function (k) {
             return '<option value="' + k + '"' + (k === c.category ? ' selected' : '') + '>' + esc(CATEGORIES[k]) + '</option>';
           }).join('')) +
+        wrap({ name: 'logoFile', label: 'Client logo', wide: true, hint: 'Optional. PNG, JPG or WebP, up to 300 KB, on a transparent or white background. Without a logo the card shows the client name.' },
+          (c.logo ? '<p class="dc-current">Current: <a href="/' + esc(c.logo) + '" target="_blank" rel="noopener">' + esc(c.logo.split('/').pop()) + '</a></p>' +
+            '<label class="dc-check"><input type="checkbox" name="logoRemove"> Remove the current logo</label>' : '') +
+          '<input type="file" id="' + fid('logoFile') + '" name="logoFile" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-describedby="' + fid('logoFile') + '-hint ' + fid('logoFile') + '-err">') +
         input({ name: 'location', label: 'Site / location', max: 120, value: c.location, placeholder: 'e.g. Dahej, Gujarat' }) +
         input({ name: 'period', label: 'Period', max: 120, value: c.period, placeholder: 'e.g. 2025 – 2026' })) +
       section('The story', '',
@@ -1224,6 +1231,11 @@
       if (value && !label) e['metric' + i] = 'Add what this figure measures.';
       if (label && !value) e['metric' + i] = 'Add the figure, e.g. 99.8%.';
     });
+    var logo = f.logoFile.files[0];
+    if (logo) {
+      if (!/^image\/(png|jpeg|webp)$/.test(logo.type) && !/\.(png|jpe?g|webp)$/i.test(logo.name)) e.logoFile = 'The logo must be a PNG, JPG or WebP image.';
+      else if (logo.size > MAX_LOGO_BYTES) e.logoFile = 'That logo is ' + Math.ceil(logo.size / 1024) + ' KB. The limit is 300 KB, so resize or compress it.';
+    }
     var mode = pdfMode();
     if (mode === 'upload') {
       var file = f.pdfFile.files[0];
@@ -1253,6 +1265,16 @@
     });
   }
 
+  // Reads a chosen logo as base64 (the server checks the real image type).
+  function readLogo(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result).replace(/^data:[^,]*,/, '')); };
+      reader.onerror = function () { var err = new Error('The logo could not be read. Please choose it again.'); err.field = 'logoFile'; reject(err); };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function submitCase(id) {
     var form = document.getElementById('dc-form');
     var f = form.elements;
@@ -1267,12 +1289,15 @@
     };
     if (mode === 'link') item.pdf.url = f.pdfUrl.value.trim();
     var upload = mode === 'upload' ? f.pdfFile.files[0] : null;
-    (upload ? readPdf(upload) : Promise.resolve(null)).then(function (data) {
-      if (data) { item.pdf.filename = upload.name; item.pdf.dataBase64 = data; }
+    var logoUpload = f.logoFile.files[0] || null;
+    item.logo = { mode: logoUpload ? 'upload' : (f.logoRemove && f.logoRemove.checked ? 'none' : 'keep') };
+    Promise.all([upload ? readPdf(upload) : null, logoUpload ? readLogo(logoUpload) : null]).then(function (files) {
+      if (files[0]) { item.pdf.filename = upload.name; item.pdf.dataBase64 = files[0]; }
+      if (files[1]) item.logo.dataBase64 = files[1];
       return save('caseStudy', 'save', { id: id || undefined, item: item }, {
         inModal: true,
-        label: upload
-          ? (publishing() ? 'Uploading the PDF, committing to GitHub and deploying to Vercel…' : 'Uploading the PDF…')
+        label: (upload || logoUpload)
+          ? (publishing() ? 'Uploading the files, committing to GitHub and deploying to Vercel…' : 'Uploading the files…')
           : null
       });
     }).then(forceClose, function (err) { serverError(form, err); });

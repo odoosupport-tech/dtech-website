@@ -9,6 +9,8 @@
 //   uploads  assets/case-studies/pdf/custom/ in the same repository: case-study
 //            PDFs uploaded from the management console (public by design, like
 //            the built-in PDFs next to them).
+//   logos    assets/case-studies/logos/custom/ in the same repository: client logos
+//            uploaded with a case study (public, shown on its card).
 //   private  a SEPARATE PRIVATE repository for anything personal: client
 //            requirements, case-study leads, job applications and their CVs.
 //            Never point this at the public site repository. Writes are
@@ -34,13 +36,15 @@ const TIMEOUT_MS = 6000;
 const UPLOAD_TIMEOUT_MS = 20000; // a 3 MB PDF is a 4 MB request body
 const MAX_ATTEMPTS = 2;
 const UPLOADS_DIR = 'assets/case-studies/pdf/custom';
+const LOGOS_DIR = 'assets/case-studies/logos/custom';
 
 function storeConfig(name) {
-  if (name !== 'site' && name !== 'uploads' && name !== 'private') throw new Error(`Unknown store "${name}"`);
+  if (name !== 'site' && name !== 'uploads' && name !== 'logos' && name !== 'private') throw new Error(`Unknown store "${name}"`);
   const env = process.env;
   const siteRepo = { repo: env.GITHUB_REPO || 'odoosupport-tech/dtech-website', token: env.GITHUB_TOKEN, branch: env.GITHUB_BRANCH || 'main' };
   const cfg = name === 'site' ? { name, ...siteRepo, localDir: 'data', prefix: 'data/' }
     : name === 'uploads' ? { name, ...siteRepo, localDir: UPLOADS_DIR, prefix: `${UPLOADS_DIR}/` }
+    : name === 'logos' ? { name, ...siteRepo, localDir: LOGOS_DIR, prefix: `${LOGOS_DIR}/` }
     : { name, repo: env.GITHUB_DATA_REPO, token: env.GITHUB_DATA_TOKEN || env.GITHUB_TOKEN, branch: env.GITHUB_DATA_BRANCH || 'main', localDir: '.portal-data', prefix: '' };
   if (name === 'private' && cfg.repo && cfg.repo.toLowerCase() === (env.GITHUB_REPO || 'odoosupport-tech/dtech-website').toLowerCase()) {
     throw new Error('GITHUB_DATA_REPO must be a private repository, not the public site repository');
@@ -216,4 +220,4 @@ function newId() {
   return `${Date.now().toString(36)}-${require('crypto').randomBytes(4).toString('hex')}`;
 }
 
-module.exports = { UPLOADS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, readFile, newId };
+module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, readFile, newId };

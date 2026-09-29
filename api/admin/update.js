@@ -43,6 +43,7 @@ const SITE_ACTIONS = ['save', 'toggle', 'delete', 'reorder'];
 const INBOX_ACTIONS = ['status', 'note', 'deleteNote'];
 const MAX_NOTES = 50;
 const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
+const MAX_LOGO_BYTES = 300 * 1024; // kept small so a logo plus a 3 MB PDF still fit in one request
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // Pages on this site (careers.html, /contact.html?subject=x, #section); no schemes, no //host.
 const SITE_PATH_RE = /^(\/?[A-Za-z0-9][A-Za-z0-9._\/-]*)?(\?[A-Za-z0-9._~=&%+-]*)?(#[A-Za-z0-9._-]*)?$/;
@@ -112,7 +113,7 @@ function jobFrom(input, existing) {
   };
 }
 
-function caseStudyFrom(input, existing, pdfFile) {
+function caseStudyFrom(input, existing, pdfFile, logoFile) {
   const client = text(input, 'client', 'the client name', 120, { required: true });
   const industry = text(input, 'industry', 'the industry sector', 80, { required: true });
   const category = clean(input.category, 20);
@@ -139,7 +140,7 @@ function caseStudyFrom(input, existing, pdfFile) {
     id: existing ? existing.id : undefined,
     client,
     wordmark: null,
-    logo: null,
+    logo: logoFile !== undefined ? logoFile : (existing ? existing.logo || null : null),
     category,
     industry,
     location: text(input, 'location', 'the site / location', 120),
@@ -231,6 +232,32 @@ async function resolvePdf(input) {
   return `${store.UPLOADS_DIR}/${name}`;
 }
 
+// Resolves item.logo to the new logo path, uploading first when an image is attached.
+// undefined keeps the current value. PNG, JPEG and WebP only: SVG can carry scripts.
+const LOGO_TYPES = [
+  { ext: 'png', test: b => b.length > 8 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) },
+  { ext: 'jpg', test: b => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: 'webp', test: b => b.length > 12 && b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP' },
+];
+
+async function resolveLogo(input) {
+  const logo = input.logo && typeof input.logo === 'object' ? input.logo : { mode: 'keep' };
+  if (logo.mode === 'keep') return undefined;
+  if (logo.mode === 'none') return null;
+  if (logo.mode !== 'upload') throw new InputError('Please choose a logo option.', 'logoFile');
+
+  const base64 = String(logo.dataBase64 || '').replace(/^data:[^;]+;base64,/, '').replace(/\s/g, '');
+  if (!base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new InputError('The logo could not be read. Please choose the file again.', 'logoFile');
+  if (Math.floor(base64.length * 3 / 4) > MAX_LOGO_BYTES) throw new InputError('The logo is larger than 300 KB. Resize or compress it and try again.', 'logoFile', 413);
+  const buffer = Buffer.from(base64, 'base64');
+  const type = LOGO_TYPES.find(t => t.test(buffer));
+  if (!type) throw new InputError('The logo must be a PNG, JPG or WebP image.', 'logoFile');
+  if (!store.isConfigured('logos')) throw new Error('Upload storage is not configured');
+  const name = `${slug(input.client).slice(0, 40)}-${crypto.randomBytes(3).toString('hex')}.${type.ext}`;
+  await store.putFile('logos', name, buffer, `content: Upload client logo for "${clean(input.client, 120)}" (management console)`);
+  return `${store.LOGOS_DIR}/${name}`;
+}
+
 function newIdFor(type, item, items) {
   const base = type === 'job' ? `${item.title} ${item.location}`
     : type === 'caseStudy' ? `${item.client} ${item.arch_tag}`
@@ -238,7 +265,7 @@ function newIdFor(type, item, items) {
   return uniqueId(slug(base), items);
 }
 
-function apply(type, body, list, pdfFile) {
+function apply(type, body, list, pdfFile, logoFile) {
   const cfg = TYPES[type];
   const items = Array.isArray(list) ? list : [];
   const id = clean(body.id || itemOf(body).id, 80);
@@ -274,7 +301,7 @@ function apply(type, body, list, pdfFile) {
   if (type === 'caseStudy' && current && !current.custom) throw new InputError('Built-in case studies can be published or unpublished but not edited here.');
   const input = itemOf(body);
   const item = type === 'job' ? jobFrom(input, current)
-    : type === 'caseStudy' ? caseStudyFrom(input, current, pdfFile)
+    : type === 'caseStudy' ? caseStudyFrom(input, current, pdfFile, logoFile)
     : bannerFrom(input, current);
   if (!current) {
     item.id = newIdFor(type, item, items);
@@ -341,15 +368,16 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    let pdfFile;
+    let pdfFile, logoFile;
     if (body.type === 'caseStudy' && body.action === 'save') {
       const input = itemOf(body);
       caseStudyFrom(input, null, null); // reject bad text before anything is uploaded
       pdfFile = await resolvePdf(input);
+      logoFile = await resolveLogo(input);
     }
     let summary = '';
     const items = await store.updateJson(cfg.store, cfg.file, [], list => {
-      const result = cfg.store === 'site' ? apply(body.type, body, list, pdfFile) : followUp(body.type, body, list);
+      const result = cfg.store === 'site' ? apply(body.type, body, list, pdfFile, logoFile) : followUp(body.type, body, list);
       summary = result.summary;
       return result.next;
     }, () => `${cfg.store === 'site' ? 'content' : 'inbox'}: ${summary} (management console)`);
