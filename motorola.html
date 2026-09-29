@@ -106,6 +106,7 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
     <link rel="stylesheet" href="assets/refresh.min.css?v=2dcef3706e">
+    <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
   <style>
     /* The OEM's own showcase fills the page, edge to edge, below the site header.
        Inline so an outdated cached stylesheet cannot break it. */
@@ -148,16 +149,23 @@
   </div>
 
   <main id="main-content" class="flex-1 partner-embed-page" tabindex="-1">
-    <h1 class="visually-hidden">Motorola Solutions</h1>
-    <!-- motorolasolutions.com sends X-Frame-Options: SAMEORIGIN, so it cannot be embedded like the HP and Dell pages. -->
-    <div class="partner-fallback">
-      <img src="assets/partners/motorola-solutions.svg" alt="Motorola Solutions" width="634" height="73">
-      <p>D-TECH is a Motorola Solutions partner for mission-critical voice and plant communications. Motorola's own site opens in a new tab.</p>
-      <div class="partner-fallback-actions">
-        <a class="button button-primary" href="https://www.motorolasolutions.com/en_xp.html" target="_blank" rel="noopener">Visit Motorola Solutions <span>&#8599;</span></a>
-        <a class="button" href="contact.html">Talk to our team</a>
+    <section class="dt-section dt-partner-intro" aria-labelledby="partner-title">
+      <div class="executive-container dt-partner-hero">
+        <div>
+          <span class="dt-partner-logo dt-partner-logo--motorola"><img src="assets/partners/motorola-solutions.svg" alt="" width="634" height="73"></span>
+          <p class="dt-role">Communications Partner</p>
+          <h1 id="partner-title" class="dt-h2">Motorola Solutions</h1>
+        </div>
+        <div>
+          <p class="dt-intro">Motorola Solutions partner for mission-critical voice and plant communications — engineered, installed, and supported by D-TECH across large industrial campuses with licensed-spectrum discipline and site-wide coverage surveys.</p>
+          <ul class="dt-proof" aria-label="What we supply"><li>Two-Way Radios</li><li>Plant Communications</li><li>Coverage Surveys</li></ul>
+          <div class="dt-partner-actions">
+            <a class="button button-primary" href="contact.html?subject=other">Plan a Radio Survey</a>
+            <a class="hx-link" href="https://www.motorolasolutions.com/en_xp.html" target="_blank" rel="noopener">Visit Motorola Solutions</a>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
 <!-- =========================================================================
