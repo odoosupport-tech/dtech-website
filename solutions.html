@@ -19,7 +19,7 @@
   <meta property="og:image" content="https://www.dtechindia.com/assets/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="D-TECH: Complex systems. Precisely integrated. Industrial IT, automation, safety and security since 2003.">
+  <meta property="og:image:alt" content="D-TECH: Complex systems. Precisely integrated. Industrial IT, automation, safety and security since 1999.">
   <meta name="twitter:image" content="https://www.dtechindia.com/assets/og-image.png">
   
   <script src="assets/lucide.min.js?v=d5638e66bc" defer></script>
@@ -64,7 +64,7 @@
   </style>
   <script src="assets/refined.min.js?v=41edded8b7" defer></script>
   <script src="assets/agent-a.min.js?v=5e91858b66" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=71ab878448">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=ba749e1930">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=8d554599fd">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=819b514fbb" media="print" onload="this.media='all'">
@@ -111,6 +111,7 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
     <link rel="stylesheet" href="assets/refresh.min.css?v=2dcef3706e">
+    <link rel="stylesheet" href="assets/sections.min.css?v=64b6335e7f">
 </head>
 <body data-page="solutions" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -163,12 +164,9 @@
     <section id="systems-catalog" class="py-16 bg-white border-b border-slate-200">
       <div class="executive-container">
         
-        <div class="text-center max-w-3xl mx-auto mb-12 space-y-2">
-          <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-600">Engineering IP</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            6 Specialized Industrial Solutions
-          </h2>
-          <p class="text-sm text-slate-600">Select any system below to inspect technical architecture, compliance specifications, and field metrics.</p>
+        <div class="dt-partners-head dt-catalog-head">
+          <h2 class="dt-h2 dt-h2--sm">6 Specialized Industrial Solutions</h2>
+          <p class="dt-intro">Select any system below to inspect technical architecture, compliance specifications, and field metrics.</p>
         </div>
 
         <!-- System Selection Tabs -->
@@ -243,35 +241,18 @@
     </section>
 
     <!-- TURNKEY SCOPE MATRIX -->
-    <section class="py-16 bg-slate-50 border-b border-slate-200">
+    <section class="dt-section" aria-labelledby="solutions-lifecycle-title">
       <div class="executive-container">
-        <div class="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Turnkey Engineering Lifecycle</h2>
-          <p class="text-sm text-slate-600">Every deployment adheres to our ISO 9001:2015 stage-gate SOP methodology.</p>
+        <div class="dt-partners-head">
+          <h2 id="solutions-lifecycle-title" class="dt-h2 dt-h2--sm">Turnkey Engineering Lifecycle</h2>
+          <p class="dt-intro">Every deployment adheres to our ISO 9001:2015 stage-gate SOP methodology.</p>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <span class="text-xs font-mono font-bold text-blue-600">STAGE 01</span>
-            <h4 class="text-base font-bold text-slate-900">Site Survey & Engineering CAD</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Topographical cable trench mapping, EMI interference scans, and BOM sizing tailored to plant safety standards.</p>
-          </div>
-          <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <span class="text-xs font-mono font-bold text-blue-600">STAGE 02</span>
-            <h4 class="text-base font-bold text-slate-900">Factory Acceptance (FAT)</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Full rack pre-staging, firmware hardening, and burn-in testing at our Bharuch staging lab prior to field delivery.</p>
-          </div>
-          <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <span class="text-xs font-mono font-bold text-blue-600">STAGE 03</span>
-            <h4 class="text-base font-bold text-slate-900">Deployment & Splicing (SAT)</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">Fusion-spliced OTDR testing, explosion-proof conduit installation, and PLC protocol handshake verification.</p>
-          </div>
-          <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <span class="text-xs font-mono font-bold text-blue-600">STAGE 04</span>
-            <h4 class="text-base font-bold text-slate-900">Commissioning & 4-Hr AMC</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">As-built CAD handover, plant engineer training, and 24/7 priority emergency dispatch under guaranteed SLA.</p>
-          </div>
-        </div>
+        <ol class="dt-rail">
+          <li><span class="dt-tag" aria-hidden="true">1</span><h3>Site Survey & Engineering CAD</h3><p>Topographical cable trench mapping, EMI interference scans, and BOM sizing tailored to plant safety standards.</p></li>
+          <li><span class="dt-tag" aria-hidden="true">2</span><h3>Factory Acceptance (FAT)</h3><p>Full rack pre-staging, firmware hardening, and burn-in testing at our Bharuch staging lab prior to field delivery.</p></li>
+          <li><span class="dt-tag" aria-hidden="true">3</span><h3>Deployment & Splicing (SAT)</h3><p>Fusion-spliced OTDR testing, explosion-proof conduit installation, and PLC protocol handshake verification.</p></li>
+          <li><span class="dt-tag" aria-hidden="true">4</span><h3>Commissioning & 4-Hr AMC</h3><p>As-built CAD handover, plant engineer training, and 24/7 priority emergency dispatch under guaranteed SLA.</p></li>
+        </ol>
       </div>
     </section>
 
