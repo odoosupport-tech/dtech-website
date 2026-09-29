@@ -109,6 +109,9 @@ body { letter-spacing:-.003em; }
   background-color: var(--sunken) !important;
   background-image: none !important;
 }
+/* Edge fades must match the section's sunken fill, not --surface. */
+.brand-marquee-row::before { background:linear-gradient(90deg, var(--sunken), transparent) !important; }
+.brand-marquee-row::after  { background:linear-gradient(270deg, var(--sunken), transparent) !important; }
 .brand-marquee-label { color:var(--muted) !important; opacity:.75 !important; }
 .brand-marquee-label-wrap { }
 .brand-marquee-row + .brand-marquee-row { border-top-color:rgba(255,255,255,.07) !important; }
