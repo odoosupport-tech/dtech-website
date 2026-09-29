@@ -155,7 +155,7 @@
             <p class="lead">AT-GTS (D-TECH Group Training System) is a digital classroom training solution that manages and delivers group-based safety and compliance training using large displays and handheld devices.</p>
             <div class="hero-actions"><a class="button button-primary" href="contact.html?subject=kiosk">Contact Us <span>↗</span></a><a class="button button-secondary" href="case-studies.html#rockwool">ROCKWOOL case study <span>→</span></a></div>
           </div>
-          <figure class="jiva-figure jiva-lead-photo is-portrait"><button type="button" data-jiva-zoom aria-label="Enlarge photo: AT-GTS safety training kiosk at ROCKWOOL"><img src="assets/kiosk/rockwool-safety-training-kiosk.webp" alt="D-TECH Group Training System safety kiosk on the ROCKWOOL factory floor, showing the Safety Training Kiosk screen and a Collect Safety Pass slot" width="672" height="1280" decoding="async" loading="lazy" decoding="async"></button><figcaption>AT-GTS safety training kiosk at ROCKWOOL</figcaption></figure>
+          <figure class="jiva-figure jiva-lead-photo is-portrait"><button type="button" data-jiva-zoom aria-label="Enlarge photo: AT-GTS safety training kiosk at ROCKWOOL"><img src="assets/kiosk/rockwool-safety-training-kiosk.webp" srcset="assets/kiosk/rockwool-safety-training-kiosk-480.webp 480w, assets/kiosk/rockwool-safety-training-kiosk.webp 672w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 458px, 458px" alt="D-TECH Group Training System safety kiosk on the ROCKWOOL factory floor, showing the Safety Training Kiosk screen and a Collect Safety Pass slot" width="672" height="1280" decoding="async" loading="lazy" decoding="async"></button><figcaption>AT-GTS safety training kiosk at ROCKWOOL</figcaption></figure>
         </div>
       </div>
     </section>
@@ -194,7 +194,7 @@
         <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Real kiosks, real plants</h2></div>
         <div class="jiva-intro" style="margin-bottom:32px">
           <a class="jiva-video" href="https://www.youtube.com/watch?v=MxedaWs3DWg" target="_blank" rel="noopener">
-            <img src="assets/kiosk/kiosk-video-poster.webp" alt="Watch the D-TECH safety training video on YouTube" width="1280" height="720" loading="lazy" decoding="async">
+            <img src="assets/kiosk/kiosk-video-poster.webp" srcset="assets/kiosk/kiosk-video-poster-480.webp 480w, assets/kiosk/kiosk-video-poster-800.webp 800w, assets/kiosk/kiosk-video-poster.webp 1280w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 681px" alt="Watch the D-TECH safety training video on YouTube" width="1280" height="720" loading="lazy" decoding="async">
             <span class="jiva-play" aria-hidden="true"><i data-lucide="play"></i></span>
             <span class="jiva-video-label">▶ Watch on YouTube · From manual to digital safety training at ROCKWOOL</span>
           </a>
@@ -311,7 +311,7 @@
         if (trigger) {
           var photo = trigger.querySelector('img');
           var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.currentSrc || photo.src;
+          big.src = photo.src;
           big.alt = photo.alt;
           text.textContent = caption ? caption.textContent : photo.alt;
           box.showModal();
