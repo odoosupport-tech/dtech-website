@@ -309,4 +309,50 @@ body[data-page="solutions"] #systems-catalog>div>div.dt-catalog-head:first-child
   .dt-rail li { padding:0 0 32px 68px; }
   .dt-rail li:last-child { padding-bottom:0; }
 }
-@media (prefers-reduced-motion:reduce) { .hx-link, .dt-whatsapp, .dt-cta-ghost { transition:none; } }
+
+/* ---- Solutions: system tabs and the selected-system panel -------------- */
+.dt-tabs {
+  display:flex; gap:0 4px; margin:0 0 28px; overflow-x:auto; scrollbar-width:none;
+  border-bottom:1px solid var(--line-strong);
+}
+.dt-tabs::-webkit-scrollbar { display:none; }
+.dt-tab {
+  flex:none; display:inline-flex; align-items:center; gap:8px; margin-bottom:-1px;
+  padding:12px 14px 13px; border:0; border-bottom:3px solid transparent; background:none;
+  color:var(--ink-soft); font:600 15px/1.2 var(--text-face); white-space:nowrap; cursor:pointer;
+  transition:color .15s, border-color .15s;
+}
+.dt-tab:first-child { padding-left:0; }
+.dt-tab svg { width:18px; height:18px; }
+.dt-tab:hover { color:var(--ink); }
+.dt-tab.active { color:var(--ink); border-bottom-color:var(--signal-deep); }
+.dt-tab.active svg { color:var(--signal-deep); }
+.dt-tab:focus-visible { outline:2px solid var(--signal-deep); outline-offset:-2px; border-radius:4px; }
+
+.dt-system {
+  display:grid; grid-template-columns:minmax(0,8fr) minmax(0,4fr);
+  gap:32px clamp(32px,5vw,72px); align-items:start;
+}
+.dt-system h3 {
+  margin:6px 0 12px; color:var(--ink); font-family:var(--display);
+  font-size:clamp(26px,2.6vw,34px); line-height:1.12; letter-spacing:-.03em;
+}
+.dt-system-lead { margin:0 0 20px; max-width:62ch; font-size:17px; line-height:1.55; color:var(--ink); }
+.dt-points { list-style:none; margin:0; padding:0; max-width:68ch; }
+.dt-points li {
+  position:relative; padding:11px 0 11px 30px; border-top:1px solid var(--line);
+  font-size:15.5px; line-height:1.6; color:var(--ink-soft);
+}
+.dt-points li:last-child { border-bottom:1px solid var(--line); }
+.dt-points li::before {
+  content:""; position:absolute; left:0; top:20px; width:16px; height:5px; background:var(--signal-deep);
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%);
+}
+.dt-system-actions { margin-top:26px; display:flex; flex-wrap:wrap; align-items:center; gap:14px 26px; }
+.dt-system-figures h4 { margin:4px 0 0; color:var(--ink); font-family:var(--display); font-size:18px; letter-spacing:-.015em; }
+.dt-system-figures .dt-sheet { margin-top:14px; }
+.dt-sheet--figures>div { grid-template-columns:minmax(0,1fr) auto; align-items:baseline; }
+.dt-sheet--figures dd { color:var(--ink); font-family:var(--display); font-weight:700; font-size:17px; text-align:right; }
+@media (max-width:900px) { .dt-system { grid-template-columns:1fr; } }
+@media (max-width:640px) { .dt-sheet--figures>div { grid-template-columns:minmax(0,1fr) auto; } }
+@media (prefers-reduced-motion:reduce) { .dt-tab, .hx-link, .dt-whatsapp, .dt-cta-ghost { transition:none; } }
