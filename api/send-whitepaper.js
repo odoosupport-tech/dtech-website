@@ -5,8 +5,11 @@
 // Built-in case studies and their PDFs are listed in _whitepapers.json. Case
 // studies added from the management console carry their own PDF in
 // data/case-studies.json: an upload under assets/case-studies/pdf/custom/
-// (bundled with this function like the built-in PDFs, and attached) or an
-// https link (emailed as a link).
+// or an https link. PDFs held on this site are attached to the email, but are
+// fetched from the site's own static URL at request time rather than bundled
+// with this function, so the library can grow without nearing Vercel's function
+// size limit. An https link is emailed as a link; so is a PDF that cannot be
+// fetched, so the visitor is never left empty-handed.
 //
 // Sends over SMTP via _mail.js; set SMTP_HOST, SMTP_USER and SMTP_PASS (and
 // optionally MAIL_FROM, SALES_EMAIL) as described there. Also reads:
@@ -16,7 +19,6 @@
 //   ALLOWED_ORIGINS optional  extra comma-separated origins allowed to call this
 //                             endpoint; the deployment's own origin is always allowed
 
-const fs = require('fs');
 const path = require('path');
 const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
@@ -28,6 +30,8 @@ const overLimit = createRateLimiter();
 const HOST_RE = /^[a-z0-9.-]+(:\d{1,5})?$/i;
 const CASE_ID_RE = /^[a-z0-9-]{1,80}$/;
 const CUSTOM_PDF_RE = /^assets\/case-studies\/pdf\/custom\/[A-Za-z0-9-]+\.pdf$/;
+const PDF_FETCH_TIMEOUT_MS = 10 * 1000;
+const MAX_PDF_BYTES = 15 * 1024 * 1024;
 const CONSOLE_LIST_TTL_MS = 60 * 1000;
 const CONSOLE_LIST_RETRY_MS = 10 * 1000;
 
@@ -63,12 +67,35 @@ function safeGreetingName(name) {
   return words.slice(0, 2).join(' ');
 }
 
-function visitorEmail({ name, paper, siteUrl }) {
+// The public address of a case study's PDF: its own https link, or the file as
+// served from this site's static assets.
+function downloadUrlFor(paper, siteUrl) {
+  return paper.url || `${siteUrl}/${paper.file.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+// The PDF's bytes from this site's static files, or null (logged) when it cannot
+// be fetched, is not a PDF, or is too large to email.
+async function fetchPdf(url) {
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(PDF_FETCH_TIMEOUT_MS) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > MAX_PDF_BYTES) throw new Error(`${buf.length} bytes exceeds the ${MAX_PDF_BYTES}-byte limit`);
+    if (buf.subarray(0, 5).toString() !== '%PDF-') throw new Error('not a PDF');
+    return buf;
+  } catch (err) {
+    console.error(`Fetching PDF ${url} failed:`, err.message);
+    return null;
+  }
+}
+
+function visitorEmail({ name, paper, siteUrl, attached }) {
   const greeting = name ? `Hello ${esc(name)},` : 'Hello,';
-  const delivery = paper.url
-    ? `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is ready to download as a PDF:</p>
-        <p style="margin:0 0 22px"><a href="${esc(paper.url)}" style="display:inline-block;background:#0b1a33;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Download the case study (PDF)</a></p>`
-    : `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is attached to this email as a PDF.</p>`;
+  const downloadUrl = downloadUrlFor(paper, siteUrl);
+  const delivery = attached
+    ? `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is attached to this email as a PDF.</p>`
+    : `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is ready to download as a PDF:</p>
+        <p style="margin:0 0 22px"><a href="${esc(downloadUrl)}" style="display:inline-block;background:#0b1a33;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Download the case study (PDF)</a></p>`;
   return `<!doctype html><html><body style="margin:0;background:#f4f3ef;font-family:Arial,Helvetica,sans-serif;color:#14181c">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3ef;padding:24px 12px"><tr><td align="center">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden">
@@ -91,13 +118,12 @@ function visitorEmail({ name, paper, siteUrl }) {
   </td></tr></table></body></html>`;
 }
 
-function leadEmail({ lead, paper, ip }) {
+function leadEmail({ lead, paper, ip, attached }) {
   const rows = [
     ['Name', lead.name], ['Email', lead.email], ['Phone', lead.phone], ['Company', lead.company],
     ['Case study', `${paper.title} — ${paper.topic}`], ['Requested at', new Date().toISOString()], ['IP', ip],
   ].map(([k, v]) => `<tr><td style="padding:6px 12px;color:#64748b">${esc(k)}</td><td style="padding:6px 12px"><strong>${esc(v || '—')}</strong></td></tr>`).join('');
-  const how = paper.url ? 'A download link for the PDF was emailed to the visitor automatically.' : 'The PDF was emailed to the visitor automatically.';
-  return `<p style="font-family:Arial,sans-serif">New case-study PDF request from the website. ${how}</p>
+  return `<p style="font-family:Arial,sans-serif">New case-study PDF request from the website. ${attached ? 'The PDF was emailed to the visitor automatically.' : 'A download link for the PDF was emailed to the visitor automatically.'}</p>
   <table style="font-family:Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows}</table>`;
 }
 
@@ -153,28 +179,20 @@ module.exports = async function handler(req, res) {
     if (!paper) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
   }
 
-  let pdf = null;
-  if (paper.file) {
-    const pdfPath = path.join(process.cwd(), paper.file);
-    try {
-      pdf = fs.readFileSync(pdfPath);
-    } catch (e) {
-      console.error('PDF not found in function bundle:', pdfPath);
-      return res.status(500).json({ ok: false, error: 'Case study file is unavailable.' });
-    }
-  }
-
   const sales = salesEmail();
   const requestHost = String(req.headers['x-forwarded-host'] || req.headers.host || '');
   const siteUrl = (process.env.SITE_URL || (HOST_RE.test(requestHost) ? `https://${requestHost}` : 'https://www.dtechindia.com')).replace(/\/+$/, '');
+
+  const pdf = paper.file ? await fetchPdf(downloadUrlFor(paper, siteUrl)) : null;
+  const attached = pdf !== null;
 
   try {
     const sent = await sendMail({
       to: lead.email,
       replyTo: sales,
       subject: `Your D-TECH case study: ${paper.title}`,
-      html: visitorEmail({ name: safeGreetingName(lead.name), paper, siteUrl }),
-      attachments: pdf ? [{ filename: path.basename(paper.file), content: pdf, contentType: 'application/pdf' }] : [],
+      html: visitorEmail({ name: safeGreetingName(lead.name), paper, siteUrl, attached }),
+      attachments: attached ? [{ filename: path.basename(paper.file), content: pdf, contentType: 'application/pdf' }] : [],
     });
 
     // The visitor already has their PDF; a failed sales notice or filing must not
@@ -185,7 +203,7 @@ module.exports = async function handler(req, res) {
         to: sales,
         replyTo: lead.email,
         subject: `Website lead: ${paper.title} PDF requested by ${lead.name || lead.email}`,
-        html: leadEmail({ lead, paper, ip }),
+        html: leadEmail({ lead, paper, ip, attached }),
       }).catch(err => console.error('Sales notification failed:', err.message)),
       store.isConfigured('private')
         ? store.appendJson('private', 'leads.json', record, `Add case-study lead from ${lead.name || lead.email}`)

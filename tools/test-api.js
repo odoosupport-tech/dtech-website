@@ -16,7 +16,15 @@ if (!fs.existsSync(path.join(REPO, 'node_modules/nodemailer'))) throw new Error(
 // ---- isolation -------------------------------------------------------------
 for (const k of Object.keys(process.env)) if (/^(GITHUB_|SMTP_|MAIL_FROM|SALES_EMAIL|HR_EMAIL|VERCEL|ADMIN_SECRET|ALLOWED_ORIGINS|SITE_URL)/.test(k)) delete process.env[k];
 Object.assign(process.env, { SMTP_HOST: 'smtp.invalid', SMTP_USER: 'test@invalid', SMTP_PASS: 'x', SALES_EMAIL: 'sales@test.invalid', ADMIN_SECRET: 'test-admin-secret-0123456789' });
-globalThis.fetch = async (url) => { throw new Error(`network blocked in tests: ${url}`); };
+// The only network the suite allows: this site's own static PDFs (the whitepaper
+// handler fetches them from https://dtech.test), served from the sandbox's assets/.
+let failPdfFetch = false;
+globalThis.fetch = async (url) => {
+  const m = /^https:\/\/dtech\.test\/(assets\/case-studies\/pdf\/[A-Za-z0-9\/._-]+\.pdf)$/.exec(String(url));
+  if (!m) throw new Error(`network blocked in tests: ${url}`);
+  if (failPdfFetch) return new Response('missing', { status: 404 });
+  return new Response(fs.readFileSync(path.join(process.cwd(), m[1])), { status: 200 });
+};
 require(path.join(REPO, 'node_modules/nodemailer')).createTransport = () => { throw new Error('real SMTP transport must never be created in tests'); };
 
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'dtech-suite-'));
@@ -169,16 +177,31 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(buf.subarray(0, 5).toString(), '%PDF-', 'PDF header');
     }]),
     ['unknown caseId → 400', async () => eq((await call(whitepaper, req('POST', { email: 'lead@example.com', caseId: 'nope' }))).statusCode, 400)],
-    ['petronet-fms → visitor gets PDF, sales gets lead alert, lead filed', async () => {
+    ['petronet-fms → visitor gets the PDF attached, sales gets lead alert, lead filed', async () => {
       const before = sent.length;
       const r = await call(whitepaper, req('POST', { email: 'lead@example.com', name: 'Lead Person', company: 'Acme', caseId: 'petronet-fms' }));
       eq(r.statusCode, 200); eq(r.body.ok, true);
       const [visitor, sales] = sent.slice(before);
       eq(visitor.to, 'lead@example.com');
+      eq(visitor.attachments.length, 1);
       eq(visitor.attachments[0].filename, 'petronet-lng-enterprise-fms-2026.pdf');
       eq(visitor.attachments[0].contentType, 'application/pdf');
+      eq(visitor.attachments[0].content.subarray(0, 5).toString(), '%PDF-');
+      assert(visitor.html.includes('attached to this email'), 'says attached');
+      assert(!visitor.html.includes('Download the case study'), 'no link when attached');
       eq(sales.to, 'sales@test.invalid'); eq(sales.replyTo, 'lead@example.com');
       eq(JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8'))[0].caseId, 'petronet-fms');
+    }],
+    ['PDF cannot be fetched → visitor still gets the CDN download link, no attachment', async () => {
+      failPdfFetch = true;
+      try {
+        const before = sent.length;
+        const r = await call(whitepaper, req('POST', { email: 'lead5@example.com', caseId: 'petronet-fms' }));
+        eq(r.statusCode, 200, JSON.stringify(r.body));
+        const visitor = sent[before];
+        eq(visitor.attachments.length, 0);
+        assert(visitor.html.includes('href="https://dtech.test/assets/case-studies/pdf/petronet-lng-enterprise-fms-2026.pdf"'), 'CDN download link');
+      } finally { failPdfFetch = false; }
     }],
   ]);
 
