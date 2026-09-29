@@ -83,7 +83,7 @@
   <script src="assets/agent-a.min.js?v=83bacdca56" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=6d409fb5cc">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
-  <link rel="stylesheet" href="assets/case-studies.min.css?v=cce3eb1dcf">
+  <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff" media="print" onload="this.media='all'">
@@ -1328,7 +1328,7 @@
           var wall = document.querySelector('.cs-wall');
           if (!wall) return;
           if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-          var ROTATE_MS = 3500, FADE_MS = 300;
+          var ROTATE_MS = 4500, FADE_MS = 400;
           var BEST_BRAND_IDS = [
             'lt-mhi-cisco-amc',               // Larsen & Toubro (L&T)
             'honda-cctv-network',              // Honda Motorcycle & Scooter India
@@ -1397,14 +1397,22 @@
             var pick = cands[Math.floor(Math.random() * cands.length)];
             var img = tile.querySelector('img');
             if (!img) return;
+            // Phase 1: Smoothly float up and dissolve
             img.style.opacity = '0';
+            img.style.transform = 'scale(0.85) translateY(-6px)';
             setTimeout(function () {
               if (!tile.isConnected) return;
               img.src = pick.logo;
               img.alt = pick.client + ' logo';
               tile.setAttribute('href', '#' + pick.id);
               tile.setAttribute('title', pick.client);
+              // Phase 2: Stage below without animation, force reflow, then float into place
+              img.style.transition = 'none';
+              img.style.transform = 'scale(0.85) translateY(6px)';
+              void img.offsetWidth;
+              img.style.transition = '';
               img.style.opacity = '1';
+              img.style.transform = 'scale(1) translateY(0)';
             }, FADE_MS);
           }
           fetch('/data/case-studies.json', { headers: { Accept: 'application/json' } })
@@ -1418,6 +1426,12 @@
               });
               // Keep strictly the premier enterprise brands
               pool = BEST_BRAND_IDS.map(function (id) { return map[id]; }).filter(Boolean);
+              pool.forEach(function (c) {
+                if (c.logo) {
+                  var img = new Image();
+                  img.src = c.logo;
+                }
+              });
               if (pool.length > tiles().length) setInterval(tick, ROTATE_MS);
             })
             .catch(function (err) { console.warn('Wall rotation unavailable:', err.message); });
