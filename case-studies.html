@@ -940,6 +940,13 @@
         let pendingAction = null; // 'view_details' or 'download_pdf'
         let targetCaseId = null;
 
+        // Admin bypass: signed-in console sessions preview details and open
+        // PDFs directly, without the corporate email gate.
+        var dtIsAdmin = false;
+        fetch('/api/admin/auth', { credentials: 'same-origin' })
+          .then(function (r) { if (r.ok) dtIsAdmin = true; })
+          .catch(function () {});
+
         document.addEventListener("DOMContentLoaded", () => {
           prefillGateForm();
           initCaseSearch();
@@ -963,6 +970,10 @@
         // When clicking "View Engineering Details"
         function handleViewDetailsClick(caseId) {
           targetCaseId = caseId;
+          if (dtIsAdmin) {
+            renderCaseDetailModal(caseId, 'admin@dtech.in');
+            return;
+          }
           const verifiedEmail = localStorage.getItem('dtech_user_email');
 
           if (!verifiedEmail) {
@@ -977,6 +988,14 @@
         // When clicking "Get Full PDF"
         function handleDownloadPdfClick(caseId) {
           targetCaseId = caseId;
+          if (dtIsAdmin) {
+            var adminCase = (typeof allCases !== 'undefined' ? allCases : []).filter(function (x) { return x.id === caseId; })[0];
+            var adminPdf = adminCase && (adminCase.pdf_file || adminCase.url);
+            if (adminPdf) {
+              window.open(adminPdf, '_blank');
+              return;
+            }
+          }
           const verifiedEmail = localStorage.getItem('dtech_user_email');
 
           if (!verifiedEmail) {
