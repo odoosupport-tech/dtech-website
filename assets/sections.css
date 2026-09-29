@@ -355,4 +355,71 @@ body[data-page="solutions"] #systems-catalog>div>div.dt-catalog-head:first-child
 .dt-sheet--figures dd { color:var(--ink); font-family:var(--display); font-weight:700; font-size:17px; text-align:right; }
 @media (max-width:900px) { .dt-system { grid-template-columns:1fr; } }
 @media (max-width:640px) { .dt-sheet--figures>div { grid-template-columns:minmax(0,1fr) auto; } }
+
+/* ---- Product pages (main.dt-product): shared jiva components as structure */
+.dt-product .jiva-cards:not(:has(img)) { gap:0; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); border-top:1px solid var(--rule-strong); }
+.dt-product .jiva-card:not(:has(img)) {
+  background:transparent!important; border:0!important; border-left:1px solid var(--line-strong)!important;
+  border-radius:0!important; box-shadow:none!important; transform:none!important;
+}
+.dt-product .jiva-card:not(:has(img)):first-child { border-left:0!important; }
+.dt-product .jiva-card:not(:has(img)) .jiva-card-body { padding:26px clamp(18px,2.4vw,32px) 8px; }
+.dt-product .jiva-card:not(:has(img)):first-child .jiva-card-body { padding-left:0; }
+.dt-product .cafe-card .jiva-icon { width:auto; height:auto; display:flex; justify-content:flex-start; background:none; border-radius:0; color:var(--signal-deep); }
+.dt-product .cafe-card .jiva-icon svg { margin:0; width:24px; height:24px; }
+.dt-product .jiva-card h3 { font-size:20px; letter-spacing:-.02em; }
+
+.dt-product .jiva-list { gap:0; border-top:1px solid var(--rule-strong); }
+.dt-product .jiva-list li {
+  grid-template-columns:30px 1fr; gap:0; padding:16px 0;
+  background:none; border:0; border-bottom:1px solid var(--line-strong);
+}
+.dt-product .jiva-list li::before {
+  content:""; width:16px; height:5px; margin-top:9px; padding:0; background:var(--signal-deep);
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%);
+}
+.dt-product .jiva-list strong { font-size:17px; }
+.dt-product .jiva-list span { font-size:15px; }
+
+.dt-product .jiva-features { gap:0; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid var(--rule-strong); }
+.dt-product .jiva-feature {
+  padding:18px 20px 18px 0; background:none!important; border:0!important; border-bottom:1px solid var(--line-strong)!important;
+  border-radius:0!important; box-shadow:none!important; transform:none!important; font-size:18px;
+}
+.dt-product .jiva-feature:not(:nth-child(3n+1)) { padding-left:20px; border-left:1px solid var(--line-strong)!important; }
+.dt-product .jiva-feature small {
+  margin-bottom:4px; font-family:var(--text-face)!important; font-size:13.5px!important; font-weight:500;
+  text-transform:none!important; letter-spacing:0!important; color:var(--ink-soft)!important;
+}
+
+/* Photo cards stay cards (they are link tiles), minus the stripe and lift. */
+.dt-product .jiva-card:has(img) {
+  border:1px solid var(--line-strong)!important; border-radius:var(--r-plate,12px)!important;
+  box-shadow:none!important; transform:none!important;
+}
+.dt-product .jiva-card:has(img):hover { border-color:var(--signal-deep)!important; }
+.dt-product .jiva-card .jiva-num { display:none; }
+.dt-product .jiva-card .jiva-more {
+  color:var(--signal-deep); font-family:var(--text-face)!important; font-size:14.5px!important; font-weight:600;
+  letter-spacing:0!important; text-transform:none!important;
+}
+.dt-product .jiva-row .jiva-num { font:600 13px/1 var(--text-face); letter-spacing:0; color:var(--signal-deep); }
+
+/* Icon tiles (features and capabilities): plain signal icons on ruled cells. */
+.dt-product .jiva-feature .jiva-icon, .dt-product .jiva-cap .jiva-icon {
+  width:auto; height:auto; background:none!important; border-radius:0; color:var(--signal-deep);
+}
+.dt-product .jiva-caps { gap:0; border-top:1px solid var(--rule-strong); grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+.dt-product .jiva-cap {
+  padding:18px 16px 18px 0; background:none!important; border:0!important; border-bottom:1px solid var(--line-strong)!important;
+  border-radius:0!important; box-shadow:none!important; transform:none!important;
+}
+@media (max-width:900px) {
+  .dt-product .jiva-cards:not(:has(img)) { grid-template-columns:1fr; }
+  .dt-product .jiva-card:not(:has(img)) { border-left:0!important; border-bottom:1px solid var(--line-strong)!important; }
+  .dt-product .jiva-card:not(:has(img)) .jiva-card-body { padding:22px 0 20px; }
+  .dt-product .jiva-features { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .dt-product .jiva-feature:not(:nth-child(3n+1)) { padding-left:0; border-left:0!important; }
+  .dt-product .jiva-feature:nth-child(even) { padding-left:16px; border-left:1px solid var(--line-strong)!important; }
+}
 @media (prefers-reduced-motion:reduce) { .dt-tab, .hx-link, .dt-whatsapp, .dt-cta-ghost { transition:none; } }
