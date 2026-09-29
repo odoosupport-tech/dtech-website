@@ -32,6 +32,11 @@
   },
   "redirects": [
     {
+      "source": "/favicon.ico",
+      "destination": "/assets/favicon.png",
+      "permanent": true
+    },
+    {
       "source": "/products.html",
       "destination": "/solutions.html",
       "permanent": true

@@ -3,3 +3,4 @@ node_modules/
 .portal-data/
 .env*
 .vercel
+.claude/
