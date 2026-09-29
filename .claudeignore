@@ -1,0 +1,37 @@
+# Dependencies & Package Managers
+node_modules/
+vendor/
+.pnpm-store/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Build outputs & Bundles
+dist/
+build/
+.next/
+out/
+.turbo/
+.cache/
+
+# Git, Logs & Coverage
+.git/
+*.log
+*.tsbuildinfo
+coverage/
+
+# Secrets
+.env*
+*.pem
+*.key
+
+# Media Assets (prevent large token waste in context)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.mp4
+*.pdf
