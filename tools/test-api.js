@@ -125,6 +125,25 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const filed = JSON.parse(fs.readFileSync('.portal-data/requirements.json', 'utf8'));
       eq(filed[0].id, r.body.id);
     }],
+    ['valid → visitor gets the thank-you auto-responder (and no reply-to sales leak)', async () => {
+      const before = sent.length;
+      const r = await call(contact, req('POST', validEnquiry));
+      eq(r.statusCode, 200);
+      const c = sent.slice(before).find(m => m.to === validEnquiry.email);
+      assert(c, 'no confirmation mail to the visitor');
+      eq(c.subject, 'Thank you for contacting D-TECH \u2014 Requirement Received');
+      assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
+      assert(c.html.includes('Forklift AI Safety') && c.text.includes('Forklift AI Safety'), 'topic acknowledged');
+      assert(/within 1 business day/.test(c.text), 'response promise');
+      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 99980 26089') && c.text.includes('Bharuch'), 'contact details');
+      eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
+    }],
+    ['auto-responder ignores markup planted in the name', async () => {
+      const before = sent.length;
+      await call(contact, req('POST', { ...validEnquiry, name: 'Win <a href="http://x.test">prize</a> now' }));
+      const c = sent.slice(before).find(m => m.to === validEnquiry.email);
+      assert(c && !c.html.includes('x.test'), 'markup reached the visitor mail');
+    }],
   ]);
 
   // 3. Apply
@@ -271,7 +290,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 1); eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3 eq(r.body.leads.length, 1);
+      eq(r.body.requirements.length, 3); eq(r.body.applicants.length, 2); // 3 = the valid enquiry plus the two area-2 auto-responder posts; // PDF + DOCX applications from area 3 eq(r.body.leads.length, 1);
     }],
     ['update toggles a role isActive (sandbox copy only)', async () => {
       const r = await call(update, req('POST', { type: 'job', action: 'toggle', id: openJob.id, value: false }, { headers: { cookie } }));
@@ -304,7 +323,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     eq(r.statusCode, status, JSON.stringify(r.body)); eq(r.body.ok, false); eq(r.body.field, field, r.body.error);
   };
   const job = { title: 'Industrial Network Engineer', department: 'Engineering', location: 'Bharuch', positions: 2, summary: 'Keep plant networks running.\n\n- Configure switches\n- Support CCTV links', isActive: true };
-  const cs = { client: 'Test Chemicals Ltd', industry: 'Chemicals', category: 'network', arch_tag: 'Plant-wide Network', summary: 'A short summary.', outcomes: ['45% reduction in cycle time'], metrics: [['Uptime', '99.8%']] };
+  const cs = { pdf: { mode: 'link', url: 'https://files.example.com/default.pdf' }, client: 'Test Chemicals Ltd', industry: 'Chemicals', category: 'network', arch_tag: 'Plant-wide Network', summary: 'A short summary.', outcomes: ['45% reduction in cycle time'], metrics: [['Uptime', '99.8%']] };
   const banner = { message: 'Offices closed 20–24 Oct for Diwali.', tone: 'warning', linkLabel: 'Contact us', linkUrl: 'contact.html', startsOn: '2026-10-18', endsOn: '2026-10-25', isActive: true };
   const pdf = (bytes) => Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(bytes)]).toString('base64');
   const uploads = () => fs.existsSync('assets/case-studies/pdf/custom') ? fs.readdirSync('assets/case-studies/pdf/custom') : [];
@@ -353,6 +372,12 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(fs.readFileSync(uploadedCase.pdf_file).subarray(0, 5).toString() === '%PDF-', 'uploaded file');
       const repoNow = fs.existsSync(repoUploads) ? fs.readdirSync(repoUploads).length : -1;
       eq(repoNow, repoUploadsBefore, 'upload leaked into the repository');
+    }],
+    ['case study: PDF is mandatory — none, missing, or "keep" with nothing to keep → 400 pdfFile', async () => {
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'none' } } }, 'pdfFile');
+      const { pdf: _omit, ...noPdf } = cs;
+      await fieldError({ type: 'caseStudy', action: 'save', item: noPdf }, 'pdfFile');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, pdf: { mode: 'keep' } } }, 'pdfFile');
     }],
     ['case study: logo must be a PNG/JPG/WebP under 300 KB (SVG and fakes refused)', async () => {
       const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>').toString('base64');
