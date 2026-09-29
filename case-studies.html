@@ -81,7 +81,7 @@
   </style>
   <script src="assets/refined.min.js?v=a1f3a16cdd" defer></script>
   <script src="assets/agent-a.min.js?v=83bacdca56" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=34c6fadc15">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=e937bc1754">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=772f447ce1">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
@@ -1253,7 +1253,7 @@
             const metrics = (c.metrics || []).map(m => `<div><dt>${escapeHtml(m[0])}</dt><dd>${escapeHtml(m[1])}</dd></div>`).join('');
             const where = [c.location, c.period].filter(Boolean).map(escapeHtml).join('</span><span class="cs-dot" aria-hidden="true">·</span><span>');
             return `<article id="${escapeHtml(c.id)}" data-category="${escapeHtml(c.category)}" class="case-card cs-card">
-              <div class="cs-stage"><span class="cs-wordmark">${escapeHtml(c.client)}</span></div>
+              <div class="cs-stage">${c.logo ? `<img class="cs-logo" src="${escapeHtml(c.logo)}" alt="${escapeHtml(c.client)} logo" loading="lazy" decoding="async">` : `<span class="cs-wordmark">${escapeHtml(c.client)}</span>`}</div>
               <div class="cs-body">
                 <div class="cs-meta"><span class="cs-industry">${escapeHtml(c.industry)}</span><span class="case-cat-chip" data-cat="${escapeHtml(c.category)}">${CAT_LABEL[c.category] || ''}</span></div>
                 <h3 class="cs-client">${escapeHtml(c.client)}</h3>

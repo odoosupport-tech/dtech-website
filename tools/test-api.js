@@ -31,7 +31,7 @@ const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'dtech-suite-'));
 fs.cpSync(path.join(REPO, 'data'), path.join(sandbox, 'data'), { recursive: true });
 // assets/ is linked entry by entry, with real directories down to the console's
 // PDF upload folder, so uploads made in the tests land in the sandbox.
-const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', 'assets/case-studies/pdf/custom'].map(d => path.join(REPO, d));
+const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', 'assets/case-studies/pdf/custom', 'assets/case-studies/logos'].map(d => path.join(REPO, d));
 (function mirror(src, dst) {
   fs.mkdirSync(dst);
   for (const name of fs.readdirSync(src)) {
@@ -39,7 +39,10 @@ const REAL_DIRS = ['assets', 'assets/case-studies', 'assets/case-studies/pdf', '
     if (REAL_DIRS.includes(from)) mirror(from, path.join(dst, name)); else fs.symlinkSync(from, path.join(dst, name));
   }
 })(path.join(REPO, 'assets'), path.join(sandbox, 'assets'));
+fs.mkdirSync(path.join(sandbox, 'assets/case-studies/logos/custom'), { recursive: true });
 const repoUploads = path.join(REPO, 'assets/case-studies/pdf/custom');
+const repoLogos = path.join(REPO, 'assets/case-studies/logos/custom');
+const repoLogosBefore = fs.existsSync(repoLogos) ? fs.readdirSync(repoLogos).length : -1;
 const repoUploadsBefore = fs.existsSync(repoUploads) ? fs.readdirSync(repoUploads).length : -1;
 process.chdir(sandbox);
 
@@ -350,6 +353,27 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(fs.readFileSync(uploadedCase.pdf_file).subarray(0, 5).toString() === '%PDF-', 'uploaded file');
       const repoNow = fs.existsSync(repoUploads) ? fs.readdirSync(repoUploads).length : -1;
       eq(repoNow, repoUploadsBefore, 'upload leaked into the repository');
+    }],
+    ['case study: logo must be a PNG/JPG/WebP under 300 KB (SVG and fakes refused)', async () => {
+      const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>').toString('base64');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, logo: { mode: 'upload', dataBase64: svg } } }, 'logoFile');
+      await fieldError({ type: 'caseStudy', action: 'save', item: { ...cs, logo: { mode: 'upload', dataBase64: Buffer.alloc(400 * 1024, 0xff).toString('base64') } } }, 'logoFile', 413);
+      eq(fs.readdirSync('assets/case-studies/logos/custom').length, 0);
+    }],
+    ['case study: logo upload → committed under logos/custom/, kept on edit, removable', async () => {
+      const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)]).toString('base64');
+      const r = await post({ type: 'caseStudy', action: 'save', item: { ...cs, client: 'Logo Client', logo: { mode: 'upload', dataBase64: png } } });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      const made = r.body.items[0];
+      assert.match(made.logo, /^assets\/case-studies\/logos\/custom\/logo-client-[0-9a-f]{6}\.png$/);
+      assert(fs.existsSync(made.logo), 'logo file written');
+      const kept = await post({ type: 'caseStudy', action: 'save', id: made.id, item: { ...cs, client: 'Logo Client', logo: { mode: 'keep' } } });
+      eq(kept.body.items.find(c => c.id === made.id).logo, made.logo);
+      const gone = await post({ type: 'caseStudy', action: 'save', id: made.id, item: { ...cs, client: 'Logo Client', logo: { mode: 'none' } } });
+      eq(gone.body.items.find(c => c.id === made.id).logo, null);
+      const repoNow = fs.existsSync(repoLogos) ? fs.readdirSync(repoLogos).length : -1;
+      eq(repoNow, repoLogosBefore, 'logo upload leaked into the repository');
+      await post({ type: 'caseStudy', action: 'delete', id: made.id });
     }],
     ['case study: edit with "keep" leaves the PDF; draft + link saved', async () => {
       const kept = await post({ type: 'caseStudy', action: 'save', id: uploadedCase.id, item: { ...cs, summary: 'Edited.', pdf: { mode: 'keep' } } });
