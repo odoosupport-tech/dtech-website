@@ -200,19 +200,3 @@ html[data-theme="dark"] .cs-btn-solid:hover { background:#fff; border-color:#fff
   .cs-card:hover .cs-logo { transform:none; }
 }
 
-/* ---- Preferred partners: logos only, no pills ---------------------------- */
-.cs-partner-logos {
-  display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-start;
-  gap:28px 56px; margin:8px 0 0;
-}
-.cs-partner-logos img {
-  display:block; width:auto; height:40px; max-width:150px; object-fit:contain;
-}
-.cs-partner-logos img[src$="hp.svg"] { height:48px; }
-.cs-partner-logos img[src$="dell-technologies.svg"] { height:auto; width:150px; }
-@media (max-width:640px) {
-  .cs-partner-logos { gap:24px 36px; }
-  .cs-partner-logos img { height:32px; max-width:120px; }
-  .cs-partner-logos img[src$="hp.svg"] { height:40px; }
-  .cs-partner-logos img[src$="dell-technologies.svg"] { width:120px; }
-}
