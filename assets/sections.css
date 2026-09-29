@@ -289,4 +289,24 @@ html[data-theme="dark"] .dt-partner-grid li { background:#f3f7fa; }
   .dt-leaders { grid-template-columns:1fr; }
   .dt-leader-list li { grid-template-columns:1fr; }
 }
+
+/* ---- Sequences on one rail (Solutions lifecycle) ------------------------ */
+.dt-catalog-head { margin-bottom:clamp(28px,3.4vw,44px); }
+/* skin.css draws a rule under the catalog's first block; the new head does not want it. */
+body[data-page="solutions"] #systems-catalog>div>div.dt-catalog-head:first-child { border-bottom:0!important; }
+.dt-rail {
+  list-style:none; margin:clamp(44px,5vw,72px) 0 0; padding:0; position:relative;
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0 clamp(20px,2.8vw,44px);
+}
+.dt-rail::before { content:""; position:absolute; left:0; right:0; top:13px; height:1px; background:var(--line-strong); }
+.dt-rail li { position:relative; padding-top:52px; }
+.dt-rail .dt-tag { position:absolute; top:0; left:0; }
+.dt-rail h3 { margin:0 0 10px; color:var(--ink); font-family:var(--display); font-size:20px; line-height:1.25; letter-spacing:-.02em; }
+.dt-rail p { margin:0; max-width:34ch; font-size:15px; line-height:1.62; color:var(--ink-soft); }
+@media (max-width:900px) {
+  .dt-rail { grid-template-columns:1fr; gap:0; }
+  .dt-rail::before { top:0; bottom:0; left:20px; right:auto; width:1px; height:auto; }
+  .dt-rail li { padding:0 0 32px 68px; }
+  .dt-rail li:last-child { padding-bottom:0; }
+}
 @media (prefers-reduced-motion:reduce) { .hx-link, .dt-whatsapp, .dt-cta-ghost { transition:none; } }
