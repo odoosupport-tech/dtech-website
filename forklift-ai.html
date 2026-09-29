@@ -164,7 +164,7 @@
             <p class="text-slate-600">It combines front and rear vision cameras, AI-powered driver monitoring and real-time alerts to reduce accidents and improve operator awareness.</p>
             <ul class="cafe-sectors" aria-label="Designed for"><li>Warehouses</li><li>Factories</li><li>Logistics centres</li><li>Ports</li><li>Industrial facilities</li></ul>
           </div>
-          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge image: Forklift working inside a warehouse"><img src="assets/forklift/reach-truck-warehouse-aisle.webp" alt="Counterbalance forklift moving stacked crates inside a packing warehouse" width="1024" height="678" decoding="async" loading="lazy" decoding="async"></button><figcaption>Forklift working inside a warehouse</figcaption></figure>
+          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge image: Forklift working inside a warehouse"><img src="assets/forklift/reach-truck-warehouse-aisle.webp" srcset="assets/forklift/reach-truck-warehouse-aisle-480.webp 480w, assets/forklift/reach-truck-warehouse-aisle-800.webp 800w, assets/forklift/reach-truck-warehouse-aisle.webp 1024w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Counterbalance forklift moving stacked crates inside a packing warehouse" width="1024" height="678" decoding="async" loading="lazy" decoding="async"></button><figcaption>Forklift working inside a warehouse</figcaption></figure>
         </div>
       </div>
     </section>
@@ -176,7 +176,7 @@
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Built to prevent the next near miss</h2>
             <ol class="jiva-list jiva-accent"><li><div><strong>Real-time pedestrian detection</strong><span>Visual and audible alerts when pedestrians enter danger zones, with adjustable sensitivity and detection range.</span></div></li><li><div><strong>AI driver monitoring (DMS)</strong><span>Alerts for fatigue, phone use, smoking and missing safety helmets, significantly reducing human error.</span></div></li><li><div><strong>Smart management system</strong><span>Overspeed warnings, seat belt reminders and driver absence alarms.</span></div></li><li><div><strong>Industrial-grade durability</strong><span>IP65 waterproof, shock-resistant to ISO 16750-3, and operates from −20 °C to 70 °C.</span></div></li></ol>
           </div>
-          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge image: Forklift operator at the controls"><img src="assets/forklift/forklift-violation-alerts.webp" alt="Operator seated at the controls of a forklift on a marked course" width="1024" height="683" loading="lazy" decoding="async"></button><figcaption>Forklift operator at the controls</figcaption></figure>
+          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge image: Forklift operator at the controls"><img src="assets/forklift/forklift-violation-alerts.webp" srcset="assets/forklift/forklift-violation-alerts-480.webp 480w, assets/forklift/forklift-violation-alerts-800.webp 800w, assets/forklift/forklift-violation-alerts.webp 1024w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Operator seated at the controls of a forklift on a marked course" width="1024" height="683" loading="lazy" decoding="async"></button><figcaption>Forklift operator at the controls</figcaption></figure>
         </div>
       </div>
     </section>
@@ -296,7 +296,7 @@
         if (trigger) {
           var photo = trigger.querySelector('img');
           var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.currentSrc || photo.src;
+          big.src = photo.src;
           big.alt = photo.alt;
           text.textContent = caption ? caption.textContent : photo.alt;
           box.showModal();

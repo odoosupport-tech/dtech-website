@@ -269,7 +269,7 @@
         if (trigger) {
           var photo = trigger.querySelector('img');
           var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.currentSrc || photo.src;
+          big.src = photo.src;
           big.alt = photo.alt;
           text.textContent = caption ? caption.textContent : photo.alt;
           box.showModal();
