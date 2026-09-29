@@ -310,25 +310,25 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
 .brand-marquee {
   position:relative;
   overflow:hidden;
-  padding:72px 0 64px;
+  padding:30px 0 26px;
   border-block:1px solid var(--line);
   background-color:var(--surface);
   background-image:radial-gradient(50% 60% at 50% 0%, var(--signal-wash) 0%, transparent 75%);
 }
 .brand-marquee-heading {
   text-align:center;
-  padding:0 24px 48px;
+  padding:0 24px 16px;
 }
 .brand-marquee-eyebrow {
   display:block;
   color:var(--signal-deep);
-  font:700 11px/1.2 var(--label);
+  font:700 10px/1.2 var(--label);
   letter-spacing:.16em;
   text-transform:uppercase;
-  margin-bottom:12px;
+  margin-bottom:6px;
 }
 .brand-marquee-title {
-  font-size:clamp(1.5rem, 2.8vw, 2.25rem);
+  font-size:clamp(1.15rem, 1.8vw, 1.35rem);
   font-weight:700;
   color:var(--ink);
   letter-spacing:-.028em;
@@ -340,7 +340,7 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
 .brand-marquee-row {
   position:relative;
   overflow:hidden;
-  padding:26px 0 28px;
+  padding:10px 0 12px;
 }
 .brand-marquee-row + .brand-marquee-row {
   border-top:1px solid var(--line);
@@ -348,14 +348,14 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
 .brand-marquee-label {
   display:inline-block;
   color:var(--signal-deep);
-  font:700 10.5px/1 var(--label);
+  font:700 9.5px/1 var(--label);
   letter-spacing:.16em;
   text-transform:uppercase;
   white-space:nowrap;
   opacity:.88;
 }
 .brand-marquee-label-wrap {
-  padding:0 40px 16px;
+  padding:0 32px 6px;
 }
 
 /* Edge fades are static overlays, not a mask on the animated track, so the
@@ -383,8 +383,8 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
 .marquee-set {
   display:flex;
   align-items:center;
-  gap:76px;
-  padding:0 38px;
+  gap:40px;
+  padding:0 20px;
 }
 
 /* Keyframes for left and right infinite scroll */
@@ -418,8 +418,8 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 .brand-marquee-item img {
   display:block;
   width:auto;
-  max-width:180px;
-  height:52px;
+  max-width:110px;
+  height:26px;
   object-fit:contain;
   opacity:.88;
   transition:opacity .22s ease, transform .22s ease;
@@ -427,19 +427,19 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 .brand-marquee-item:hover img,.brand-marquee-item:focus-visible img { opacity:1; }
 
 /* Optical scaling adjustments for wide vs square marks */
-.brand-marquee-item img[src$="hp.svg"] { width:52px; height:52px; }
-.brand-marquee-item img[src$="dell-technologies.svg"] { height:26px; max-width:170px; }
-.brand-marquee-item img[src$="motorola-solutions.svg"] { height:28px; max-width:200px; }
-.brand-marquee-item img[src$="lenovo.svg"] { height:26px; }
-.brand-marquee-item img[src$="polycab.png"] { height:28px; }
-.brand-marquee-item img[src$="grandstream.png"] { height:30px; }
-.brand-marquee-item img[src$="cp-plus.png"] { height:26px; }
-.brand-marquee-item img[src$="matrix-comsec.png"] { height:30px; }
-.brand-marquee-item img[src$="apple.svg"] { height:48px; }
-.brand-marquee-item img[src$="google.svg"] { height:44px; }
-.brand-marquee-item img[src$="microsoft.svg"] { height:30px; }
-.brand-marquee-item img[src$="jbl.svg"] { height:44px; }
-.brand-marquee-item img[src$="cisco.svg"] { height:40px; }
+.brand-marquee-item img[src$="hp.svg"] { width:26px; height:26px; }
+.brand-marquee-item img[src$="dell-technologies.svg"] { height:15px; max-width:105px; }
+.brand-marquee-item img[src$="motorola-solutions.svg"] { height:16px; max-width:115px; }
+.brand-marquee-item img[src$="lenovo.svg"] { height:16px; }
+.brand-marquee-item img[src$="polycab.png"] { height:16px; }
+.brand-marquee-item img[src$="grandstream.png"] { height:18px; }
+.brand-marquee-item img[src$="cp-plus.png"] { height:16px; }
+.brand-marquee-item img[src$="matrix-comsec.png"] { height:18px; }
+.brand-marquee-item img[src$="apple.svg"] { height:24px; }
+.brand-marquee-item img[src$="google.svg"] { height:22px; }
+.brand-marquee-item img[src$="microsoft.svg"] { height:18px; }
+.brand-marquee-item img[src$="jbl.svg"] { height:22px; }
+.brand-marquee-item img[src$="cisco.svg"] { height:22px; }
 
 @media (prefers-reduced-motion:reduce) {
   .partner-card,.partner-cta,.alliance-brand { transition:none; }
@@ -455,14 +455,14 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 @media (max-width:700px) {
   body .leadership-team-grid { grid-template-columns:1fr; }
   .leadership-card:last-child { grid-column:auto; max-width:none; }
-  .marquee-set { gap:42px; padding:0 20px; }
+  .marquee-set { gap:26px; padding:0 20px; }
   .brand-marquee-label-wrap { padding:0 20px 10px; }
   .brand-marquee-label { font-size:9.5px; }
-  .brand-marquee { padding:44px 0 36px; }
-  .brand-marquee-heading { padding-bottom:30px; }
-  .brand-marquee-item img { height:38px; max-width:130px; }
+  .brand-marquee { padding:22px 0 18px; }
+  .brand-marquee-heading { padding-bottom:12px; }
+  .brand-marquee-item img { height:20px; max-width:80px; }
   .brand-marquee-row::before,.brand-marquee-row::after { width:24px; }
-  .brand-marquee-row { padding:18px 0; }
+  .brand-marquee-row { padding:8px 0; }
 }
 
 /* ==================== 3 · UTILITY NEUTRALISATION ====================

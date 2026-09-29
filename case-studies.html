@@ -81,9 +81,9 @@
   </style>
   <script src="assets/refined.min.js?v=a1f3a16cdd" defer></script>
   <script src="assets/agent-a.min.js?v=83bacdca56" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=34c6fadc15">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=6d409fb5cc">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
-  <link rel="stylesheet" href="assets/case-studies.min.css?v=772f447ce1">
+  <link rel="stylesheet" href="assets/case-studies.min.css?v=cce3eb1dcf">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff" media="print" onload="this.media='all'">
@@ -1318,6 +1318,109 @@
               window.lucide?.createIcons();
             })
             .catch(err => console.warn('Case study list not refreshed:', err.message));
+        })();
+      </script>
+      <script>
+        // Wall rotator: cycles through premier enterprise client logos so only
+        // top-tier brands surface on the hero wall, without duplicate brands.
+        // Clicks preserve native anchor behavior (smooth-scroll to the card).
+        (function () {
+          var wall = document.querySelector('.cs-wall');
+          if (!wall) return;
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          var ROTATE_MS = 3500, FADE_MS = 300;
+          var BEST_BRAND_IDS = [
+            'lt-mhi-cisco-amc',               // Larsen & Toubro (L&T)
+            'honda-cctv-network',              // Honda Motorcycle & Scooter India
+            'petronet-fms',                    // Petronet LNG Limited
+            'mrf',                             // MRF Limited
+            'grasim-cctv-network',             // Grasim Industries (Aditya Birla Group)
+            'ultratech-endpoint-fms',          // UltraTech Wires & Cables
+            'cadila-server-infra',             // Cadila Pharmaceuticals
+            'gnfc-fms',                        // GNFC Limited
+            'rockwool',                        // ROCKWOOL
+            'kohler-cisco-network',            // Kohler India
+            'avantor-it-infra',                // Avantor
+            'bostik',                          // Bostik India
+            'coromandel-hazarea-cctv',         // Coromandel International
+            'continental-network-workplace',   // Continental Carbon
+            'balaji',                          // Balaji Wafers
+            'wago-assembly-it',                // WAGO
+            'adama-fms',                       // ADAMA India
+            'indofil',                         // Indofil Industries
+            'jb-pharma-fms'                    // JB Pharma
+          ];
+          var pool = [], hovering = false, inView = true;
+          wall.addEventListener('mouseenter', function () { hovering = true; });
+          wall.addEventListener('mouseleave', function () { hovering = false; });
+          wall.addEventListener('focusin', function () { hovering = true; });
+          wall.addEventListener('focusout', function () { hovering = false; });
+          if ('IntersectionObserver' in window) {
+            new IntersectionObserver(function (entries) { inView = entries[0].isIntersecting; }, { threshold: 0 }).observe(wall);
+          }
+          function tiles() { return Array.prototype.slice.call(wall.querySelectorAll('.cs-wall-tile')); }
+          function shownKeys() {
+            var keys = { ids: {}, logos: {}, clients: {} };
+            tiles().forEach(function (t) {
+              var h = t.getAttribute('href') || '';
+              if (h.charAt(0) === '#') keys.ids[h.slice(1)] = true;
+              var title = t.getAttribute('title') || '';
+              if (title) keys.clients[title.toLowerCase()] = true;
+              var img = t.querySelector('img');
+              if (img) {
+                var src = img.getAttribute('src') || '';
+                if (src) keys.logos[src] = true;
+              }
+            });
+            return keys;
+          }
+          function tick() {
+            if (document.hidden || hovering || !inView || !pool.length) return;
+            var active = document.activeElement;
+            var slots = tiles().filter(function (t) {
+              return t.isConnected && !t.matches(':hover') && !(active && t.contains(active));
+            });
+            if (!slots.length) return;
+            var shown = shownKeys();
+            var cands = pool.filter(function (c) {
+              return !shown.ids[c.id] && !shown.logos[c.logo] && !shown.clients[c.client.toLowerCase()];
+            });
+            if (!cands.length) return;
+            // Prioritize swapping out any tile that is not in the premier best-brand tier
+            var nonBestSlots = slots.filter(function (t) {
+              var h = (t.getAttribute('href') || '').replace(/^#/, '');
+              return BEST_BRAND_IDS.indexOf(h) === -1;
+            });
+            var tile = nonBestSlots.length
+              ? nonBestSlots[Math.floor(Math.random() * nonBestSlots.length)]
+              : slots[Math.floor(Math.random() * slots.length)];
+            var pick = cands[Math.floor(Math.random() * cands.length)];
+            var img = tile.querySelector('img');
+            if (!img) return;
+            img.style.opacity = '0';
+            setTimeout(function () {
+              if (!tile.isConnected) return;
+              img.src = pick.logo;
+              img.alt = pick.client + ' logo';
+              tile.setAttribute('href', '#' + pick.id);
+              tile.setAttribute('title', pick.client);
+              img.style.opacity = '1';
+            }, FADE_MS);
+          }
+          fetch('/data/case-studies.json', { headers: { Accept: 'application/json' } })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (list) {
+              var map = {};
+              (Array.isArray(list) ? list : []).forEach(function (c) {
+                if (c && c.id && c.client && c.logo && c.published !== false) {
+                  map[c.id] = c;
+                }
+              });
+              // Keep strictly the premier enterprise brands
+              pool = BEST_BRAND_IDS.map(function (id) { return map[id]; }).filter(Boolean);
+              if (pool.length > tiles().length) setInterval(tick, ROTATE_MS);
+            })
+            .catch(function (err) { console.warn('Wall rotation unavailable:', err.message); });
         })();
       </script>
     <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
