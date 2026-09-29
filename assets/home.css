@@ -1,9 +1,9 @@
 /* ==========================================================================
    Home page. Loaded only by index.html, after the shared skin.
-   The hero is a case file: client logos (the case studies) act as tabs over
-   a panel with that project's scope and figures. Client logos always sit on
-   white plates, as on the case-studies page, so their colours read correctly
-   in both themes.
+   The hero pairs the pitch with a wall of client logos (the plants behind
+   the case studies), each linking to its case study. Client logos always sit
+   on white, as on the case-studies page, so their colours read correctly in
+   both themes.
    ========================================================================== */
 
 /* ---- Hero ------------------------------------------------------------- */
@@ -35,50 +35,43 @@
 .hx-actions .button-secondary:hover { background:rgba(255,255,255,.08); border-color:#fff; color:#fff; }
 .hx-hero .hx-footnote { display:flex; align-items:center; gap:8px; margin:28px 0 0; font-size:13px; color:rgba(255,255,255,.62); }
 
-/* ---- Case file: logo tabs + panel -------------------------------------- */
-.hx-casefile { --panel:color-mix(in srgb,var(--invert) 91%,#fff); min-width:0; }
-.hx-hero .hx-casefile-label { margin:0 0 12px; font-size:13px; font-weight:600; color:rgba(255,255,255,.74); }
-.hx-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-.hx-tab {
-  display:flex; align-items:center; justify-content:center; height:78px; padding:10px 14px;
-  background:#fff; border-radius:var(--r-plate);
-  outline:3px solid transparent; outline-offset:3px;
-  transition:outline-color .15s ease;
+/* ---- Client wall: one white sheet ruled into logo cells ---------------- */
+.hx-brands { min-width:0; }
+.hx-brands .dt-cut { display:block; margin-bottom:18px; }
+.hx-hero .hx-brands-title { margin:0; font:800 clamp(26px,2.4vw,34px)/1.12 var(--display); letter-spacing:-.03em; color:#fff; }
+.hx-hero .hx-brands-sub { margin:10px 0 0; max-width:52ch; font-size:15px; line-height:1.55; color:rgba(255,255,255,.7); }
+.hx-brand-wall {
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:24px 0 0; padding:0; list-style:none;
+  background:#fff; border-radius:var(--r-panel); overflow:hidden;
+  box-shadow:0 24px 60px -28px rgba(0,0,0,.55);
 }
-.hx-tab:hover { outline-color:rgba(255,255,255,.45); }
-.hx-tab:focus-visible { outline-color:#fff; }
-.hx-tab[aria-selected="true"],.hx-tab[aria-current="true"] { outline-color:var(--signal); }
-.hx-tab img,.hx-practice-clients img {
+/* Rules are outer shadows, clipped at the sheet's edge, so a logo that drops
+   out (Draft case study) leaves white space rather than a grey hole. */
+.hx-brand-wall li { box-shadow:1px 0 0 #e3e8ef,0 1px 0 #e3e8ef; }
+.hx-brand-wall a {
+  position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto; justify-items:center; align-items:center; gap:10px;
+  height:136px; padding:18px 12px 16px; transition:background-color .15s ease;
+}
+.hx-brand-wall a::after {
+  content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
+  background:#0075ae; transform:scaleX(0); transform-origin:left; transition:transform .2s ease;
+}
+.hx-brand-wall a:hover { background:#f3f7fb; }
+.hx-brand-wall a:hover::after,.hx-brand-wall a:focus-visible::after { transform:scaleX(1); }
+.hx-brand-wall a:focus-visible { outline:2px solid #0075ae; outline-offset:-2px; }
+.hx-brand-wall img,.hx-practice-clients img {
   width:auto; height:auto; max-width:78%; max-height:var(--logo-h,36px); object-fit:contain;
 }
-
-.hx-panel {
-  position:relative; margin-top:20px; padding:26px 28px 24px;
-  background:var(--panel); border:1px solid rgba(255,255,255,.14); border-radius:var(--r-panel);
+.hx-brand-wall img { flex:none; }
+.hx-brand-sector { font-size:11.5px; font-weight:600; line-height:1.2; color:#64748b; text-align:center; }
+.hx-brand-wall a:hover .hx-brand-sector { color:#0075ae; }
+.hx-brands-foot {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 20px;
+  margin-top:18px; font-size:13px; color:rgba(255,255,255,.62);
 }
-/* The notch points at the selected logo; the script sets --notch-x. */
-.hx-panel::before {
-  content:""; position:absolute; top:-8px; left:var(--notch-x,12.5%); width:14px; height:14px;
-  background:var(--panel); border:1px solid rgba(255,255,255,.14); border-right:0; border-bottom:0;
-  transform:translateX(-50%) rotate(45deg); transition:left .3s var(--ease);
-}
-.hx-hero .hx-panel-sector { margin:0; font-size:12.5px; font-weight:600; color:var(--signal); }
-.hx-hero .hx-panel-client { margin:6px 0 0; font:800 28px/1.15 var(--display); letter-spacing:-.03em; color:#fff; }
-.hx-hero .hx-panel-scope { margin:4px 0 0; font-size:16px; font-weight:600; color:rgba(255,255,255,.88); }
-.hx-hero .hx-panel-summary { margin:14px 0 0; max-width:64ch; font-size:14.5px; line-height:1.6; color:rgba(255,255,255,.72); }
-.hx-panel-metrics {
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; margin:20px 0 0;
-  background:rgba(255,255,255,.12); border-radius:10px; overflow:hidden;
-}
-.hx-panel-metrics>div { min-width:0; padding:12px 14px; background:var(--panel); }
-.hx-panel-metrics dt { font-size:11.5px; line-height:1.35; color:rgba(255,255,255,.62); }
-.hx-panel-metrics dd { margin:3px 0 0; font:700 17px/1.25 var(--display); letter-spacing:-.01em; color:var(--signal); overflow-wrap:anywhere; }
-.hx-panel-foot { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 20px; margin-top:18px; }
-.hx-panel-where { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:rgba(255,255,255,.64); }
-.hx-panel-where svg { flex:none; width:15px; height:15px; color:rgba(255,255,255,.5); }
-.hx-panel-link { font-size:14px; font-weight:700; color:var(--signal); text-underline-offset:3px; }
-.hx-panel-link:hover { text-decoration:underline; }
-.hx-panel-link:focus-visible { outline:2px solid var(--signal); outline-offset:3px; border-radius:4px; }
+.hx-hero .hx-brands-foot .hx-link { color:#fff; text-decoration-color:rgba(255,255,255,.45); }
+.hx-hero .hx-brands-foot .hx-link:focus-visible { outline-color:#fff; }
+@media (prefers-reduced-motion:reduce) { .hx-brand-wall a,.hx-brand-wall a::after { transition:none; } }
 
 /* ---- What we do: the three practices, each with its case-study clients -- */
 .hx-practices { background:var(--paper); }
@@ -126,17 +119,9 @@
 }
 @media (max-width:640px) {
   .home-hero.hx-hero { padding:48px 0 52px; }
-  /* Tabs become a swipeable row of logos; the notch would point at a moving target, so it goes. */
-  .hx-tabs {
-    grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:38%;
-    overflow-x:auto; scroll-snap-type:x mandatory; padding:8px 8px 12px; margin:-4px -8px 0; scroll-padding-left:8px;
-    scrollbar-width:thin;
-  }
-  .hx-tab { scroll-snap-align:start; height:70px; }
-  .hx-panel { padding:22px 18px 20px; }
-  .hx-panel::before { display:none; }
-  .hx-panel-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .hx-hero .hx-panel-client { font-size:24px; }
+  .hx-brand-wall { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .hx-brand-wall a { height:116px; }
+  .hx-brand-wall img { max-height:min(var(--logo-h,36px),52px); }
 }
 
 /* ---- Delivery sequence ("One team") and industry index ------------------
