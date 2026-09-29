@@ -77,6 +77,19 @@
     '.dc-chip-off{background:#f1f5f9;color:#475569}',
     '.dc-chip-warn{background:#fef3c7;color:#92400e}',
     '.dc-cs-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}',
+    '.dc-dash{display:flex;flex-direction:column;gap:24px;padding:20px}',
+    '.dc-dash-h{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}',
+    '.dc-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}',
+    '.dc-card-alert{background:linear-gradient(135deg,#0b2f52 0%,#0052cc 100%);color:#fff;border:0;border-radius:14px;padding:20px 24px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;text-align:left;font:inherit;width:100%}',
+    '.dc-card-alert:hover{transform:translateY(-2px);box-shadow:0 10px 25px -8px rgba(0,82,204,.5)}',
+    '.dc-card-alert .dc-kpi-title{display:block;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.9}',
+    '.dc-card-alert .dc-kpi-num{display:block;font-size:42px;font-weight:800;line-height:1.1;margin:10px 0 4px}',
+    '.dc-card-alert .dc-kpi-sub{display:block;font-size:12px;opacity:.8}',
+    '.dc-card-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px;cursor:pointer;transition:transform .15s ease,border-color .15s ease;text-align:left;font:inherit;width:100%}',
+    '.dc-card-stat:hover{transform:translateY(-2px);border-color:var(--blue)}',
+    '.dc-card-stat .dc-kpi-title{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;color:var(--muted)}',
+    '.dc-card-stat .dc-kpi-num{display:block;font-size:36px;font-weight:800;color:var(--ink);margin:8px 0 4px}',
+    '.dc-card-stat .dc-kpi-sub{display:block;font-size:12px;color:var(--muted)}',
     '.dc-status{display:flex;flex-direction:column;align-items:flex-start;gap:6px}',
     '.dc-swatch{flex:none;display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:6px}',
     '.dc-modal{background:#fff;color:var(--ink);border:0;border-radius:16px;padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 20px 50px rgba(15,23,42,.3)}',
@@ -209,6 +222,7 @@
   ].join('\n');
 
   var TABS = [
+    { id: 'dashboard', label: '📊 Dashboard Overview' },
     { id: 'requirements', label: '📋 Client Requirements' },
     { id: 'applicants', label: '👥 Job Applicants' },
     { id: 'leads', label: '📑 Case Study Leads' },
@@ -260,7 +274,7 @@
   };
 
   // show: status filter per inbox tab. reorder: the unsaved order (list of ids) per site list.
-  var state = { tab: 'requirements', data: null, query: {}, show: {}, reorder: {}, busy: false, leaving: false };
+  var state = { tab: 'dashboard', data: null, query: {}, show: {}, reorder: {}, busy: false, leaving: false };
   var deploy = { pending: {}, started: 0, timer: 0, hideTimer: 0 };
   var root, toastEl, modal, progressEl;
 
@@ -604,7 +618,9 @@
   // ---------- rendering ----------
   function counts() {
     var d = state.data;
+    function fresh(list) { return list.filter(function (r) { return statusOf(r) === 'new'; }).length; }
     return {
+      dashboard: fresh(d.requirements) + fresh(d.applicants) + fresh(d.leads),
       requirements: d.requirements.filter(isOpen).length,
       applicants: d.applicants.filter(isOpen).length,
       leads: d.leads.filter(isOpen).length,
@@ -671,6 +687,44 @@
   function disabledUnless(can) { return can ? '' : ' disabled'; }
 
   var VIEWS = {
+    dashboard: function () {
+      var d = state.data;
+      var newApplicants = d.applicants.filter(function (a) { return statusOf(a) === 'new'; }).length;
+      var newRequirements = d.requirements.filter(function (r) { return statusOf(r) === 'new'; }).length;
+      var newLeads = d.leads.filter(function (l) { return statusOf(l) === 'new'; }).length;
+      var totalActionable = newApplicants + newRequirements + newLeads;
+      var activeJobs = d.jobs.filter(function (j) { return j.isActive; }).length;
+      var totalVacancies = d.jobs.filter(function (j) { return j.isActive; }).reduce(function (sum, j) { return sum + (Number(j.positions) || 1); }, 0);
+      var publishedCases = d.caseStudies.filter(function (c) { return c.published !== false; }).length;
+      var inbox = d.requirements.concat(d.applicants, d.leads);
+      var inProgress = inbox.filter(function (r) { var s = statusOf(r); return s === 'contacted' || s === 'review'; }).length;
+      var archived = inbox.filter(function (r) { return statusOf(r) === 'archived'; }).length;
+      var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      var recentWeek = inbox.filter(function (r) { var t = new Date(r.date).getTime(); return !isNaN(t) && t >= weekAgo; }).length;
+      function alertCard(tab, title, num, sub) {
+        return '<button type="button" class="dc-card-alert" data-tab="' + tab + '"><span class="dc-kpi-title">' + esc(title) + '</span>' +
+          '<span class="dc-kpi-num">' + num + '</span><span class="dc-kpi-sub">' + esc(sub) + '</span></button>';
+      }
+      function statCard(tab, title, num, sub) {
+        return '<button type="button" class="dc-card-stat" data-tab="' + tab + '"><span class="dc-kpi-title"><span>' + esc(title) + '</span><span aria-hidden="true">→</span></span>' +
+          '<span class="dc-kpi-num">' + num + '</span><span class="dc-kpi-sub">' + esc(sub) + '</span></button>';
+      }
+      return bar('Dashboard Overview', null, '<span class="dc-sub">Live metrics across inboxes and site content</span>') +
+        '<div class="dc-dash">' +
+        '<h3 class="dc-dash-h">Needs attention</h3><div class="dc-kpi-grid">' +
+        alertCard('requirements', '⚡ Action Needed', totalActionable, 'New items across all inboxes') +
+        alertCard('applicants', '👥 New Applicants', newApplicants, 'Job applications awaiting review') +
+        alertCard('requirements', '📋 New Requirements', newRequirements, 'Client requirements awaiting review') +
+        alertCard('leads', '📑 New Leads', newLeads, 'Case-study leads awaiting review') +
+        '</div><h3 class="dc-dash-h">Site content &amp; pipeline</h3><div class="dc-kpi-grid">' +
+        statCard('jobs', '💼 Open Roles', activeJobs, 'Active career openings') +
+        statCard('jobs', '🪑 Total Vacancies', totalVacancies, 'Open positions to fill') +
+        statCard('caseStudies', '🏆 Published Cases', publishedCases, 'Case studies live on the site') +
+        statCard('requirements', '🔄 In Progress', inProgress, 'Contacted or under review') +
+        statCard('requirements', '🗄 Archived', archived, 'Completed inbox records') +
+        statCard('requirements', '📥 This Week', recentWeek, 'Inbound items in the last 7 days') +
+        '</div></div>';
+    },
     requirements: function () {
       var q = state.query.requirements || '';
       var all = state.data.requirements;
@@ -731,14 +785,18 @@
       var cards = list.map(function (c) {
         var on = c.published !== false;
         var pdf = !c.pdf_file ? 'No PDF' : /^https:/.test(c.pdf_file) ? 'PDF link' : 'PDF attached';
+        var pdfUrl = c.pdf_file ? (c.pdf_file.startsWith('http') ? c.pdf_file : '/' + c.pdf_file) : '';
+        var viewBtn = '<button type="button" class="dc-btn" data-view-cs="' + esc(c.id) + '">👁 View</button>';
+        var pdfBtn = pdfUrl ? '<a class="dc-btn" href="' + esc(pdfUrl) + '" target="_blank" rel="noopener">📄 PDF</a>' : '';
+        var siteBtn = '<a class="dc-btn" href="/case-studies.html#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Live</a>';
         var custom = c.custom
-          ? '<span class="dc-actions"><button type="button" class="dc-btn" data-edit-cs="' + esc(c.id) + '"' + disabledUnless(can) + '>Edit</button>' +
-            '<button type="button" class="dc-btn dc-btn-danger" data-delete="caseStudy" data-id="' + esc(c.id) + '"' + disabledUnless(can) + '>Delete</button></span>'
+          ? '<button type="button" class="dc-btn" data-edit-cs="' + esc(c.id) + '"' + disabledUnless(can) + '>Edit</button>' +
+            '<button type="button" class="dc-btn dc-btn-danger" data-delete="caseStudy" data-id="' + esc(c.id) + '"' + disabledUnless(can) + '>Delete</button>'
           : '';
         return '<article class="dc-cs' + (on ? '' : ' is-off') + '"><div class="dc-tags"><span class="dc-chip">' + esc(CATEGORIES[c.category] || c.category) + '</span>' +
           '<span class="dc-chip dc-chip-off">' + (c.custom ? pdf : 'Built-in') + '</span></div>' +
           '<div class="dc-cs-name">' + esc(c.client) + '</div><div>' + esc(c.arch_tag) + '</div><div class="dc-sub">' + esc(c.industry) + '</div>' +
-          '<div class="dc-cs-foot">' + toggle('caseStudy', c.id, on, can) + custom + '</div></article>';
+          '<div class="dc-cs-foot">' + toggle('caseStudy', c.id, on, can) + '<div class="dc-actions">' + viewBtn + pdfBtn + siteBtn + custom + '</div></div></article>';
       });
       return bar('Manage Case Studies', q, reorderButton('caseStudy') + '<button type="button" class="dc-btn dc-btn-accent" data-new-cs' + disabledUnless(can) + '>+ Add Case Study</button>') +
         (cards.length ? '<div class="dc-grid">' + cards.join('') + '</div>' : '<div class="dc-empty">' + (q ? 'No case studies match your search.' : 'No case studies yet.') + '</div>');
@@ -890,6 +948,29 @@
       followUp('lead', l),
       '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(l.email) + '?subject=' + encodeURIComponent('Re: ' + (l.caseTitle || 'Your case study request')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>',
       { form: true });
+  }
+
+  function showCaseStudy(id) {
+    var c = find('caseStudies', id);
+    if (!c) return;
+    var pdfUrl = c.pdf_file ? (c.pdf_file.startsWith('http') ? c.pdf_file : '/' + c.pdf_file) : '';
+    var outcomes = Array.isArray(c.outcomes) ? c.outcomes : [];
+    var metrics = Array.isArray(c.metrics) ? c.metrics : [];
+    var bodyHtml = '<dl class="dc-dl"><dt>Client</dt><dd>' + esc(c.client) + '</dd>' +
+      '<dt>Section</dt><dd>' + esc(c.arch_tag || '—') + '</dd>' +
+      '<dt>Industry</dt><dd>' + esc(c.industry || '—') + '</dd>' +
+      '<dt>Category</dt><dd>' + esc(CATEGORIES[c.category] || c.category || '—') + '</dd>' +
+      '<dt>Status</dt><dd>' + (c.published !== false ? 'Published' : 'Draft') + '</dd></dl>' +
+      (c.summary ? '<p class="dc-sub">Summary:</p><div class="dc-msg">' + esc(c.summary) + '</div>' : '') +
+      (c.challenge ? '<p class="dc-sub">Challenge:</p><div class="dc-msg">' + esc(c.challenge) + '</div>' : '') +
+      (c.solution ? '<p class="dc-sub">Solution:</p><div class="dc-msg">' + esc(c.solution) + '</div>' : '') +
+      (outcomes.length ? '<p class="dc-sub">Outcomes:</p><div class="dc-msg"><ul>' + outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div>' : '') +
+      (metrics.length ? '<p class="dc-sub">Metrics:</p><div class="dc-msg"><ul>' + metrics.map(function (m) { return '<li>' + esc(Array.isArray(m) ? m.join(': ') : m) + '</li>'; }).join('') + '</ul></div>' : '');
+    var footHtml = (pdfUrl ? '<a class="dc-btn dc-btn-primary" href="' + esc(pdfUrl) + '" target="_blank" rel="noopener">📄 Open Full PDF</a>' : '') +
+      '<a class="dc-btn" href="/case-studies.html#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Open on Live Site</a>' +
+      (c.custom ? '<button type="button" class="dc-btn" data-edit-cs="' + esc(c.id) + '">Edit</button>' : '') +
+      '<button type="button" class="dc-btn" data-close>Close</button>';
+    openModal(c.client + ' — Case Study', bodyHtml, footHtml, { wide: true, size: 'wide' });
   }
 
   function showDetails(type, id) {
@@ -1434,6 +1515,7 @@
     if (d.viewReq) return showRequirement(d.viewReq);
     if (d.viewNote) return showNote(d.viewNote);
     if (d.viewLead) return showLead(d.viewLead);
+    if (d.viewCs) return showCaseStudy(d.viewCs);
     if (d.addNote) return submitNote(d.addNote, d.id);
     if (d.removeNote) return removeNote(t);
     if (d.export === 'requirements') {
