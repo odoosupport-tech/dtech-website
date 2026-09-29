@@ -149,12 +149,6 @@ html body[data-page="contact"] form button[type="submit"] {
 .button-secondary { background:transparent; color:var(--ink); border-color:rgba(255,255,255,.18); }
 .button-secondary:hover { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.35); color:#fff; }
 
-/* ---- Selected states invert to cyan-on-navy. ---------------------------- */
-body[data-page="solutions"] .system-tab-btn { background:var(--surface)!important; }
-body[data-page="solutions"] .system-tab-btn.active {
-  background:var(--signal-deep)!important; color:#ffffff!important; border-color:var(--signal-deep)!important;
-}
-
 /* ---- Dark bands on a dark page need a lighter navy to stay legible. ----- */
 .project-cta,
 body[data-page]:not([data-page="home"]) main>section:first-child,

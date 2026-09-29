@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   menu?.querySelectorAll('a').forEach(link => {
-    link.classList.remove('bg-blue-50','text-blue-700');
     if (link.getAttribute('href') === current) link.setAttribute('aria-current','page');
   });
   document.querySelectorAll('img').forEach(img => {

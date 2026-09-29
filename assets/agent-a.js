@@ -69,7 +69,7 @@
      Only a figure that STARTS with digits is animated, so "20+ Years" and
      "500+ Plants" count while "ISO 9001:2015" and "< 4 Hours" are left
      exactly as written. */
-  function countUp(el, target, suffix, digits) {
+  function countUp(el, target, suffix) {
     var start = null;
     var dur = 1100;
     function frame(now) {
@@ -77,7 +77,7 @@
       var t = Math.min(1, (now - start) / dur);
       var eased = 1 - Math.pow(1 - t, 3);
       var val = Math.round(target * eased);
-      el.textContent = (digits ? String(val).padStart(digits, '0') : String(val)) + suffix;
+      el.textContent = val + suffix;
       if (t < 1) requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -113,7 +113,7 @@
                fires, the figures stay exactly as authored in the markup. */
             for (var j = 0; j < jobs.length; j++) {
               jobs[j].el.textContent = '0' + jobs[j].suffix;
-              countUp(jobs[j].el, jobs[j].target, jobs[j].suffix, 0);
+              countUp(jobs[j].el, jobs[j].target, jobs[j].suffix);
             }
             return;
           }
