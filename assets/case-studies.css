@@ -63,7 +63,7 @@ body[data-page="case-studies"] main>section:first-child p.cs-lede { margin:18px 
   box-shadow:0 0 0 2px var(--signal),0 18px 36px -18px rgba(0,0,0,.7);
   outline:none;
 }
-.cs-wall-logo { width:84%; height:78%; object-fit:contain; }
+.cs-wall-logo { width:84%; height:78%; object-fit:contain; transition:opacity .35s ease; }
 @media (max-width:640px) { .cs-wall { gap:8px; } .cs-wall-tile { padding:10px; } }
 
 /* ---- Section header ---------------------------------------------------- */
