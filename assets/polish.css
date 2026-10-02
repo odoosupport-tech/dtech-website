@@ -265,14 +265,14 @@ html:not([data-theme="dark"]) .jiva-accent>*:nth-child(5n+5) .jiva-num { color:v
   font-size:clamp(88px,12vw,150px); line-height:1; letter-spacing:-.04em;
 }
 #not-found h1 { font-size:clamp(30px,3.6vw,48px)!important; }
-#not-found a[href="index.html"] {
+#not-found a[href="/"] {
   background:var(--signal)!important; color:#04121f!important; border:1px solid var(--signal);
 }
-#not-found a[href="index.html"]:hover { background:#fff!important; }
-#not-found a[href="contact.html"] {
+#not-found a[href="/"]:hover { background:#fff!important; }
+#not-found a[href="contact"] {
   color:#fff!important; border-color:rgba(255,255,255,.34)!important;
 }
-#not-found a[href="contact.html"]:hover { background:rgba(255,255,255,.1)!important; border-color:#fff!important; }
+#not-found a[href="contact"]:hover { background:rgba(255,255,255,.1)!important; border-color:#fff!important; }
 #not-found .border-t { border-color:rgba(255,255,255,.14)!important; }
 #not-found .border-t>span { color:var(--signal)!important; }
 #not-found .border-t>a { color:rgba(255,255,255,.78)!important; }

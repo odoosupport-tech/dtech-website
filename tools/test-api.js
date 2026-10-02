@@ -241,7 +241,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
       assert((cfg.rewrites || []).some(r => r.source === '/admin-dtech' && r.destination === '/portal.html'), 'rewrite');
       assert((cfg.redirects || []).some(r => r.source === '/admin-dtech/' && r.destination === '/admin-dtech'), 'trailing-slash redirect');
-      for (const p of ['/portal.html', '/admin-dtech']) {
+      for (const p of ['/portal.html', '/portal', '/admin-dtech']) {
         const keys = cfg.headers.filter(h => new RegExp(`^${h.source}$`).test(p)).flatMap(h => h.headers.map(x => `${x.key}: ${x.value}`));
         assert(keys.includes('X-Robots-Tag: noindex, nofollow') && keys.includes('Cache-Control: no-store'), `${p} headers: ${keys.join(' | ')}`);
       }
@@ -251,7 +251,8 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       for (const r of [...(cfg.redirects || []), ...(cfg.rewrites || [])]) {
         const dest = r.destination.split(/[?#]/)[0];
         if (dest === '/' || dest === '/admin-dtech') continue;
-        assert(fs.existsSync(path.join(REPO, dest.replace(/^\//, ''))), `${r.source} -> ${r.destination} is missing`);
+        const file = dest.replace(/^\//, '');
+        assert(fs.existsSync(path.join(REPO, file)) || fs.existsSync(path.join(REPO, `${file}.html`)), `${r.source} -> ${r.destination} is missing`);
       }
     }],
     ['no session: auth GET, data, update → 404', async () => {
