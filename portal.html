@@ -16,7 +16,7 @@
   <link id="theme-dark-css" rel="stylesheet" href="/assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="/assets/fonts.min.css?v=98176d8aff" media="print" onload="this.media='all'">
   <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/Inter-var.woff2" crossorigin>
-  <script>try{var __dt=localStorage.getItem('dtech-theme');if(__dt!=='light'&&__dt!=='dark'){try{__dt=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){__dt='light';}}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
+  <script>try{var __dt='light';try{if(localStorage.getItem('dtech-theme')==='dark'){__dt='dark';}}catch(e){}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
   <style>
     body.dt-auth{--si-bg:#fff;--si-ink:#0f253b;--si-muted:#5b6f82;--si-line:#ccdee8;--si-field:#f7fafc;--si-accent:#0075ae;--si-accent-ink:#fff;--si-bad:#b42318;--si-bad-bg:#fef3f2;--si-ok:#067647;--si-ok-bg:#ecfdf3;--si-info:#0b4a6f;--si-info-bg:#eaf6fb;
       margin:0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px 16px;box-sizing:border-box;

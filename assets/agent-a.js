@@ -144,17 +144,14 @@
     initCounters();
   }
 
-  /* Theme: stored pref wins, else OS, else dark. Sheet toggle only. */
+  /* Theme: the visitor's saved choice wins, otherwise light (the system setting is ignored). Sheet toggle only. */
   function readTheme() {
     try {
       var t = localStorage.getItem('dtech-theme');
       if (t === 'light' || t === 'dark') return t;
     } catch (e) {}
     // The design system is derived from a light document, so light is the
-    // default voice; only an explicit OS dark preference opts into the dark chapter.
-    try {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-    } catch (e) {}
+    // default voice; dark is only used after the visitor picks it with the toggle.
     return 'light';
   }
 
