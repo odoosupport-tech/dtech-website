@@ -95,10 +95,16 @@
 }
 .hx-practice-clients a:hover,.hx-practice-clients a:focus-visible { outline-color:var(--signal-deep); }
 .hx-practice-link { margin-top:auto; padding-top:22px; align-self:flex-start; }
-.hx-practice-count { margin:0 0 14px; font:600 14px/1.2 var(--mono); color:var(--ink-soft); }
-.hx-practice-count strong { margin-right:6px; font:800 40px/1 var(--display); letter-spacing:-.02em; color:var(--signal-deep); }
-.hx-practices-total { margin:14px 0 0; font-size:17px; line-height:1.5; color:var(--ink-soft); }
-.hx-practices-total strong { color:var(--ink); font-weight:800; }
+.hx-practice-count { display:flex; flex-wrap:wrap; align-items:baseline; gap:0 10px; margin:0 0 20px; font:600 14px/1.2 var(--mono); color:var(--ink-soft); }
+.hx-practice-count strong { font:800 56px/1 var(--display); letter-spacing:-.04em; color:var(--signal-deep); }
+/* Share of all case studies: a track with the filled part set by --share (a percentage, kept in step by the page script). */
+.hx-practice-count::after { content:""; flex-basis:100%; height:4px; margin-top:14px; border-radius:2px; background:linear-gradient(90deg,var(--signal-deep) calc(var(--share,0) * 1%),var(--line) 0); }
+.hx-practice h3 { margin-bottom:2px; }
+.hx-practices-total { margin:16px 0 0; font-size:18px; line-height:1.5; color:var(--ink-soft); }
+.hx-practices-total strong { margin-right:4px; font:800 30px/1 var(--display); letter-spacing:-.03em; color:var(--signal-deep); vertical-align:-3px; }
+.hx-practice-link::after { content:"\2192"; display:inline-block; margin-left:8px; text-decoration:none; transition:transform .2s ease; }
+.hx-practice-link:hover::after,.hx-practice-link:focus-visible::after { transform:translateX(4px); }
+@media (prefers-reduced-motion:reduce) { .hx-practice-link::after { transition:none; } }
 .hx-products {
   display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:28px 0 0; padding-top:22px;
   border-top:1px solid var(--line); font-size:14px;
