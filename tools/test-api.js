@@ -699,6 +699,22 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['purge is not offered for site content', async () => {
       eq((await post({ type: 'job', action: 'purge', id: 'x' })).statusCode, 400);
     }],
+    // A fresh handler instance per request: the handler caches the console's case list for a few seconds.
+    ['unpublished original case study → PDF request refused, nothing emailed', async () => {
+      const fresh = () => { delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))]; return require(path.join(REPO, 'api/send-whitepaper.js')); };
+      const unpublish = await post({ type: 'caseStudy', action: 'toggle', id: 'balaji', value: false });
+      eq(unpublish.statusCode, 200, JSON.stringify(unpublish.body));
+      const before = sent.length;
+      const r = await call(fresh(), req('POST', { email: 'unpub@example.com', name: 'Lead', caseId: 'balaji', formStart: stale() }));
+      eq(r.statusCode, 400); eq(r.body.error, 'Unknown case study.'); eq(sent.length, before, 'mail sent for an unpublished case study');
+      // other original case studies are unaffected
+      const other = await call(fresh(), req('POST', { email: 'still@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
+      eq(other.statusCode, 200, JSON.stringify(other.body));
+      // publishing it again makes it deliverable again
+      eq((await post({ type: 'caseStudy', action: 'toggle', id: 'balaji', value: true })).statusCode, 200);
+      const again = await call(fresh(), req('POST', { email: 'again@example.com', name: 'Lead', caseId: 'balaji', formStart: stale() }));
+      eq(again.statusCode, 200, JSON.stringify(again.body));
+    }],
   ]);
   console.error = errLog;
 
