@@ -622,7 +622,15 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     const out = execFileSync(cmd, args, { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 << 20 });
     assert(out.includes(expect), `missing "${expect}"`);
   };
+  const hiddenSource = () => {
+    const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).redirects.find(r => r.source.startsWith('/api/'));
+    assert(rule, 'no redirect hiding api source files');
+    const re = new RegExp(`^${rule.source}$`);
+    for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
+    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console']) assert(!re.test(p), `${p} endpoint would be redirected`);
+  };
   await area('7. Build & contract integrity', [
+    ['api source files are hidden, endpoints stay reachable (vercel.json)', hiddenSource],
     ['check-links.py', run('python3', ['tools/check-links.py'], 'OK')],
     ['check-ui-contract.py', run('python3', ['tools/check-ui-contract.py'], 'OK')],
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],
