@@ -81,7 +81,7 @@
   </style>
   <script src="assets/refined.min.js?v=3aacd55749" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=a4977abd3b">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=c6fb772740">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
@@ -237,6 +237,11 @@
               <button type="button" role="tab" id="case-tab-network" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="network" onclick="filterCases('network')"><i data-lucide="network" class="w-4 h-4"></i><span>Network &amp; IT Infrastructure</span><b>16</b></button>
               <button type="button" role="tab" id="case-tab-services" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="services" onclick="filterCases('services')"><i data-lucide="life-buoy" class="w-4 h-4"></i><span>Managed Services (FMS &amp; AMC)</span><b>14</b></button>
               <button type="button" role="tab" id="case-tab-safety" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="safety" onclick="filterCases('safety')"><i data-lucide="shield-check" class="w-4 h-4"></i><span>Safety, Communication &amp; Automation</span><b>11</b></button>
+            </div>
+
+            <div class="cs-brands" id="cs-brands" hidden>
+              <span class="cs-brands-label" id="cs-brands-label">Filter by brand</span>
+              <div class="cs-brands-list" id="cs-brands-list" role="group" aria-labelledby="cs-brands-label"></div>
             </div>
 
             <div id="case-grid" class="cs-grid" role="tabpanel" aria-labelledby="case-tab-all">
@@ -819,7 +824,7 @@
         // Cards stay in the DOM (so deep links, modals and no-JS all keep working);
         // filtering and paging only toggle their visibility.
         const CASES_PER_PAGE = 12;
-        const caseView = { cat: 'all', query: '', limit: CASES_PER_PAGE };
+        const caseView = { cat: 'all', brand: '', query: '', limit: CASES_PER_PAGE };
         const caseText = new WeakMap();
 
         function caseHaystack(card) {
@@ -838,6 +843,7 @@
           const tokens = caseView.query.toLowerCase().split(/\s+/).filter(Boolean);
           const matched = cards.filter(card =>
             (caseView.cat === 'all' || card.dataset.category === caseView.cat) &&
+            (!caseView.brand || brandOf(card).key === caseView.brand) &&
             tokens.every(t => caseHaystack(card).includes(t)));
           const matchSet = new Set(matched);
           const shownSet = new Set(matched.slice(0, caseView.limit));
@@ -865,10 +871,99 @@
           more.hidden = remaining <= 0;
           if (!more.hidden) more.textContent = 'Load More Case Studies';
           if (focusStatus && more.hidden) document.getElementById('cs-status').focus({ preventScroll: true });
+          syncBrandChips();
+        }
+
+        // ---- Brand filter: one button per client, biggest brand first (the grid's order) ----
+        const BRAND_SHORT = {
+          'honda-motorcycle-scooter-india': 'Honda', 'l-t-mhi-boilers': 'L&T-MHI', 'grasim-industries': 'Grasim',
+          'ultratech-wires-and-cables': 'UltraTech', 'petronet-lng': 'Petronet LNG', 'mrf': 'MRF', 'kohler-india': 'Kohler',
+          'coromandel-international': 'Coromandel', 'adama-india': 'ADAMA', 'cadila-pharmaceuticals': 'Cadila',
+          'jb-pharma': 'JB Pharma', 'bostik-india': 'Bostik', 'continental-carbon': 'Continental Carbon',
+          'indofil-industries': 'Indofil', 'dic-fine-chemicals': 'DIC', 'balaji-wafers': 'Balaji Wafers',
+          'filatex-group': 'Filatex', 'krystal-ingredients': 'Krystal', 'rajashree-polyfil': 'Rajashree',
+          'dahej-sez': 'Dahej SEZ', 'regenta-nhp': 'Regenta', 'alchemie-finechem': 'Alchemie'
+        };
+        const BRANDS_COLLAPSED = 12;
+        let brandsExpanded = false;
+
+        // { key, label } for a card, from its client name without the legal suffix.
+        function brandOf(card) {
+          if (!card.dataset.brandKey) {
+            let name = (card.querySelector('.cs-client')?.textContent || '').trim();
+            let prev;
+            do { prev = name; name = name.replace(/[\s,]+(private limited|pvt\.? ?ltd\.?|limited|pvt\.?)$/i, '').trim(); } while (name !== prev);
+            const key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            card.dataset.brandKey = key;
+            card.dataset.brandLabel = BRAND_SHORT[key] || name;
+          }
+          return { key: card.dataset.brandKey, label: card.dataset.brandLabel };
+        }
+
+        function renderBrandFilter() {
+          const box = document.getElementById('cs-brands');
+          const list = document.getElementById('cs-brands-list');
+          if (!box || !list) return;
+          const brands = new Map();
+          document.querySelectorAll('#case-grid .case-card').forEach(card => {
+            const b = brandOf(card);
+            if (!b.key) return;
+            if (!brands.has(b.key)) brands.set(b.key, { label: b.label, count: 0 });
+            brands.get(b.key).count++;
+          });
+          if (caseView.brand && !brands.has(caseView.brand)) caseView.brand = '';
+          list.textContent = '';
+          let i = 0;
+          brands.forEach((b, key) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cs-brand';
+            btn.dataset.brand = key;
+            btn.setAttribute('aria-pressed', 'false');
+            btn.hidden = !brandsExpanded && i >= BRANDS_COLLAPSED && key !== caseView.brand;
+            btn.append(b.label, Object.assign(document.createElement('b'), { textContent: b.count }));
+            btn.addEventListener('click', () => filterBrand(key));
+            list.appendChild(btn);
+            i++;
+          });
+          if (brands.size > BRANDS_COLLAPSED) {
+            const more = document.createElement('button');
+            more.type = 'button';
+            more.className = 'cs-brand cs-brand-more';
+            more.id = 'cs-brand-more';
+            more.textContent = brandsExpanded ? 'Show fewer brands' : `Show all ${brands.size} brands`;
+            more.setAttribute('aria-expanded', brandsExpanded ? 'true' : 'false');
+            more.addEventListener('click', () => { brandsExpanded = !brandsExpanded; renderBrandFilter(); syncBrandChips(); });
+            list.appendChild(more);
+          }
+          box.hidden = brands.size < 2;
+          syncBrandChips();
+        }
+
+        function syncBrandChips() {
+          document.querySelectorAll('#cs-brands-list .cs-brand[data-brand]').forEach(btn => {
+            btn.setAttribute('aria-pressed', btn.dataset.brand === caseView.brand ? 'true' : 'false');
+          });
+        }
+
+        // Clicking a brand shows every case study of that client, whatever its category; clicking it again clears it.
+        function filterBrand(key) {
+          const on = caseView.brand !== key;
+          caseView.brand = on ? key : '';
+          caseView.cat = 'all';
+          caseView.query = '';
+          caseView.limit = CASES_PER_PAGE;
+          const input = document.getElementById('cs-search-input');
+          if (input) input.value = '';
+          const clear = document.getElementById('cs-search-clear');
+          if (clear) clear.hidden = true;
+          try { history.replaceState(null, '', on ? '#brand-' + key : location.pathname + location.search); } catch (e) { /* hash is only a convenience */ }
+          renderCases();
         }
 
         function filterCases(key) {
           caseView.cat = key;
+          caseView.brand = '';
           caseView.limit = CASES_PER_PAGE;
           renderCases();
         }
@@ -888,6 +983,7 @@
           document.getElementById('cs-search-clear').hidden = true;
           caseView.query = '';
           caseView.cat = 'all';
+          caseView.brand = '';
           const idx = [...document.querySelectorAll('#case-grid .case-card')].indexOf(card);
           caseView.limit = Math.max(CASES_PER_PAGE, idx + 1);
           renderCases();
@@ -933,6 +1029,11 @@
           const h = decodeURIComponent(location.hash.slice(1));
           if (!h) return;
           if (document.querySelector(`.case-tab[data-filter="${CSS.escape(h)}"]`)) { filterCases(h); return; }
+          if (h.startsWith('brand-')) {
+            const key = h.slice(6);
+            if (document.querySelector(`#cs-brands-list .cs-brand[data-brand="${CSS.escape(key)}"]`)) { caseView.brand = ''; filterBrand(key); }
+            return;
+          }
           const card = document.getElementById(h);
           if (card && card.classList.contains('case-card')) revealCase(card, scroll);
         }
@@ -951,6 +1052,7 @@
         document.addEventListener("DOMContentLoaded", () => {
           prefillGateForm();
           initCaseSearch();
+          renderBrandFilter();
           renderCases();
           applyCaseHash(true);
         });
@@ -1298,6 +1400,7 @@
             });
             const lede = document.querySelector('.cs-head p');
             if (lede) lede.textContent = lede.textContent.replace(/^\d+ documented/, cards.length + ' documented');
+            renderBrandFilter();
             document.querySelectorAll('[data-case-total]').forEach(el => { el.textContent = cards.length; });
           }
           document.getElementById('case-grid').addEventListener('click', e => {
