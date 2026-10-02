@@ -59,13 +59,40 @@
   ];
 
   /* ---- Build a single logo element ------------------------------------- */
-  function buildItem(brand) {
+  function buildItem(brand, repeat) {
     var tag = brand.link ? 'a' : 'div';
     var href = brand.link ? ' href="' + brand.link + '"' : '';
+    /* Extra copies only exist to fill the row, so keep them out of the tab order and screen readers */
+    var hidden = repeat ? ' aria-hidden="true"' + (brand.link ? ' tabindex="-1"' : '') : '';
     var logo = brand.logo
       ? '<img src="' + brand.logo + '" alt="' + brand.name + '" width="' + brand.width + '" height="' + brand.height + '" loading="lazy" decoding="async">'
       : brand.name;
-    return '<' + tag + href + ' class="brand-marquee-item">' + logo + '</' + tag + '>';
+    return '<' + tag + href + hidden + ' class="brand-marquee-item">' + logo + '</' + tag + '>';
+  }
+
+  /* The brand list repeated `copies` times, as one set's markup */
+  function logosHtmlFor(brands, copies) {
+    var html = '';
+    for (var c = 0; c < copies; c++) {
+      for (var i = 0; i < brands.length; i++) { html += buildItem(brands[i], c > 0); }
+    }
+    return html;
+  }
+
+  /* A row loops by scrolling one set past while its twin follows, so one set must be
+     at least as wide as the row or an empty gap shows before the loop restarts
+     (the 7-logo middle row is far narrower than a desktop screen). Grow, never shrink. */
+  function fillRow(row) {
+    var sets = row.querySelectorAll('.marquee-set');
+    var copies = Number(row.getAttribute('data-copies')) || 1;
+    var oneCopy = sets[0].getBoundingClientRect().width / copies;
+    if (!(oneCopy > 0)) return;
+    var needed = Math.min(8, Math.max(1, Math.ceil(row.clientWidth * 1.1 / oneCopy)));
+    if (needed <= copies) return;
+    var html = logosHtmlFor(row._brands, needed);
+    sets[0].innerHTML = html;
+    sets[1].innerHTML = html;
+    row.setAttribute('data-copies', needed);
   }
 
   /* ---- Build a single auto-scrolling marquee row ----------------------- */
@@ -90,8 +117,9 @@
     track.classList.add(dirClass);
 
     /* Build the logo set twice for the infinite-loop illusion */
-    var logosHtml = '';
-    for (var i = 0; i < brands.length; i++) { logosHtml += buildItem(brands[i]); }
+    var logosHtml = logosHtmlFor(brands, 1);
+    row._brands = brands;
+    row.setAttribute('data-copies', 1);
     track.innerHTML = '<div class="marquee-set">' + logosHtml + '</div>'
                     + '<div class="marquee-set" aria-hidden="true">' + logosHtml + '</div>';
 
@@ -144,6 +172,17 @@
     } else if (footer && footer.parentNode) {
       footer.parentNode.insertBefore(section, footer);
     }
+
+    /* Fill each row to the screen width now, once images have loaded, and on resize */
+    var rows = section.querySelectorAll('.brand-marquee-row');
+    function fillAll() { for (var r = 0; r < rows.length; r++) { fillRow(rows[r]); } }
+    fillAll();
+    window.addEventListener('load', fillAll);
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(fillAll, 200);
+    });
   }
 
   if (document.readyState === 'loading') {

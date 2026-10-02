@@ -95,6 +95,10 @@
 }
 .hx-practice-clients a:hover,.hx-practice-clients a:focus-visible { outline-color:var(--signal-deep); }
 .hx-practice-link { margin-top:auto; padding-top:22px; align-self:flex-start; }
+.hx-practice-count { margin:0 0 14px; font:600 14px/1.2 var(--mono); color:var(--ink-soft); }
+.hx-practice-count strong { margin-right:6px; font:800 40px/1 var(--display); letter-spacing:-.02em; color:var(--signal-deep); }
+.hx-practices-total { margin:14px 0 0; font-size:17px; line-height:1.5; color:var(--ink-soft); }
+.hx-practices-total strong { color:var(--ink); font-weight:800; }
 .hx-products {
   display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:28px 0 0; padding-top:22px;
   border-top:1px solid var(--line); font-size:14px;
