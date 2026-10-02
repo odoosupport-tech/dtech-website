@@ -102,6 +102,23 @@ html body[data-page="about"] main>section:last-child a:not(.bg-white):hover {
 .case-tab[data-filter="services"] svg { color:var(--c-green); }
 .case-tab[data-filter="safety"] svg { color:var(--c-orange); }
 .case-tab.active svg { color:#fff; }
+/* Brand filter: one pill per client, under the category tabs */
+.cs-brands { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 14px; margin:-12px 0 28px; }
+.cs-brands[hidden] { display:none; }
+.cs-brands-label { font:700 12px/1.2 var(--mono); color:var(--muted); }
+.cs-brands-list { display:flex; flex-wrap:wrap; gap:8px; }
+.cs-brand {
+  display:inline-flex; align-items:center; gap:8px; padding:7px 12px; border-radius:999px;
+  font:700 12px/1.2 var(--text-face); color:var(--ink-soft);
+  background:var(--surface); border:1px solid var(--line);
+}
+.cs-brand[hidden] { display:none; }
+.cs-brand b { font:700 10px/1 var(--mono); padding:3px 6px; border-radius:999px; background:var(--well); color:var(--muted); }
+.cs-brand:hover { color:var(--signal-deep); background:var(--c-cyan-wash); border-color:var(--signal-deep); }
+.cs-brand:focus-visible { outline:2px solid var(--signal-deep); outline-offset:2px; }
+.cs-brand[aria-pressed="true"] { color:#fff; background:var(--signal-deep); border-color:var(--signal-deep); }
+.cs-brand[aria-pressed="true"] b { background:rgba(255,255,255,.24); color:#fff; }
+.cs-brand-more { color:var(--signal-deep); border-style:dashed; background:transparent; }
 @media (max-width:640px) {
   .case-tabs { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
   .case-tabs::-webkit-scrollbar { display:none; }
