@@ -39,11 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const current = location.pathname.split('/').pop() || 'index.html';
-  if (current === 'solutions.html') {
-    document.querySelectorAll('.nav-dropdown summary').forEach(summary => {
-      if (summary.textContent.trim().startsWith('Solutions')) summary.setAttribute('aria-current', 'page');
-    });
-  }
   menu?.querySelectorAll('a').forEach(link => {
     if (link.getAttribute('href') === current) link.setAttribute('aria-current','page');
   });
