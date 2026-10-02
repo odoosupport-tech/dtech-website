@@ -63,7 +63,8 @@
   width:auto; height:auto; max-width:78%; max-height:var(--logo-h,36px); object-fit:contain;
 }
 .hx-brand-wall img { flex:none; }
-.hx-brand-sector { font-size:11.5px; font-weight:600; line-height:1.2; color:#64748b; text-align:center; }
+.hx-brand-sector { font-size:11.5px; font-weight:600; line-height:1.2; color:#64748b; text-align:center; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; transition:opacity .4s ease, color .15s ease; }
+.hx-brand-wall img { transition:opacity .4s ease, transform .4s ease; }
 .hx-brand-wall a:hover .hx-brand-sector { color:#0075ae; }
 .hx-brands-foot {
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 20px;

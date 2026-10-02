@@ -105,7 +105,7 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
     <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
-    <link rel="stylesheet" href="assets/home.min.css?v=f6ff07a297">
+    <link rel="stylesheet" href="assets/home.min.css?v=db6318ff5a">
     <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
 </head>
 <body data-page="home" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
@@ -356,6 +356,106 @@
         });
       })
       .catch(function (err) { console.warn('Case list not refreshed:', err.message); });
+  })();
+</script>
+<script>
+  // Home brand wall: swaps one client logo at a time for another premier brand
+  // from data/case-studies.json (the same curated tier as the case-studies wall),
+  // never showing a brand twice. Paused while hovered, focused, off screen or
+  // in a background tab, and off entirely for visitors who prefer reduced motion.
+  (function () {
+    var wall = document.querySelector('.hx-brand-wall');
+    if (!wall) return;
+    try { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { /* matchMedia unsupported */ }
+    var ROTATE_MS = 4500, FADE_MS = 400, MAX_LOGO_W = 124, MIN_LOGO_H = 16, MAX_LOGO_H = 56;
+    var BEST_BRAND_IDS = [
+      'lt-mhi-cisco-amc', 'honda-cctv-network', 'petronet-fms', 'mrf', 'grasim-cctv-network',
+      'ultratech-endpoint-fms', 'cadila-server-infra', 'gnfc-fms', 'rockwool', 'kohler-cisco-network',
+      'avantor-it-infra', 'bostik', 'coromandel-hazarea-cctv', 'continental-network-workplace',
+      'wago-assembly-it', 'adama-fms', 'indofil', 'jb-pharma-fms'
+    ];
+    var pool = [], hovering = false, inView = true;
+    wall.addEventListener('mouseenter', function () { hovering = true; });
+    wall.addEventListener('mouseleave', function () { hovering = false; });
+    wall.addEventListener('focusin', function () { hovering = true; });
+    wall.addEventListener('focusout', function () { hovering = false; });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) { inView = entries[0].isIntersecting; }, { threshold: 0 }).observe(wall);
+    }
+    function tiles() { return Array.prototype.slice.call(wall.querySelectorAll('li > a')); }
+    function idOf(tile) {
+      var href = tile.getAttribute('href') || '';
+      var at = href.indexOf('#');
+      return at < 0 ? '' : href.slice(at + 1);
+    }
+    function sectorOf(c) {
+      var parts = String(c.industry || '').split('·');
+      return parts[parts.length - 1].trim();
+    }
+    // Wide wordmarks need a short logo, squarer marks a taller one, so every brand fills about the same width.
+    function logoHeight(c) {
+      var ratio = c.ratio || 3;
+      return Math.max(MIN_LOGO_H, Math.min(MAX_LOGO_H, Math.round(MAX_LOGO_W / ratio)));
+    }
+    function tick() {
+      if (document.hidden || hovering || !inView || !pool.length) return;
+      var active = document.activeElement;
+      var slots = tiles().filter(function (t) { return !t.matches(':hover') && !(active && t.contains(active)); });
+      if (!slots.length) return;
+      var shownIds = {}, shownLogos = {};
+      tiles().forEach(function (t) {
+        shownIds[idOf(t)] = true;
+        var img = t.querySelector('img');
+        if (img) shownLogos[img.getAttribute('src')] = true;
+      });
+      var candidates = pool.filter(function (c) { return !shownIds[c.id] && !shownLogos[c.logo]; });
+      if (!candidates.length) return;
+      // Swap out a tile that is not one of the premier brands first.
+      var weak = slots.filter(function (t) { return BEST_BRAND_IDS.indexOf(idOf(t)) === -1; });
+      var from = weak.length ? weak : slots;
+      var tile = from[Math.floor(Math.random() * from.length)];
+      var pick = candidates[Math.floor(Math.random() * candidates.length)];
+      var img = tile.querySelector('img');
+      var label = tile.querySelector('.hx-brand-sector');
+      if (!img) return;
+      img.style.opacity = '0';
+      img.style.transform = 'scale(0.85) translateY(-6px)';
+      if (label) label.style.opacity = '0';
+      setTimeout(function () {
+        if (!tile.isConnected) return;
+        img.src = pick.logo;
+        img.alt = pick.client;
+        img.style.setProperty('--logo-h', logoHeight(pick) + 'px');
+        tile.setAttribute('href', 'case-studies.html#' + pick.id);
+        tile.setAttribute('data-case', pick.id);
+        tile.setAttribute('title', pick.client);
+        if (label) label.textContent = sectorOf(pick);
+        img.style.transition = 'none';
+        img.style.transform = 'scale(0.85) translateY(6px)';
+        void img.offsetWidth;
+        img.style.transition = '';
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1) translateY(0)';
+        if (label) label.style.opacity = '1';
+      }, FADE_MS);
+    }
+    fetch('/data/case-studies.json', { headers: { Accept: 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (list) {
+        var byId = {};
+        (Array.isArray(list) ? list : []).forEach(function (c) {
+          if (c && c.id && c.client && c.logo && c.published !== false) byId[c.id] = c;
+        });
+        pool = BEST_BRAND_IDS.map(function (id) { return byId[id]; }).filter(Boolean);
+        // Preload each logo and note its shape so the swap does not flash an unsized image.
+        pool.forEach(function (c) {
+          var probe = new Image();
+          probe.onload = function () { if (probe.naturalHeight) c.ratio = probe.naturalWidth / probe.naturalHeight; };
+          probe.src = c.logo;
+        });
+        if (pool.length > tiles().length) setInterval(tick, ROTATE_MS);
+      })
+      .catch(function (err) { console.warn('Brand wall rotation unavailable:', err.message); });
   })();
 </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
