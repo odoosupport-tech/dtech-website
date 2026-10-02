@@ -81,7 +81,7 @@
   </style>
   <script src="assets/refined.min.js?v=3aacd55749" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=93dcef909b">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=d90a8d0dfa">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=713ca21130">
@@ -240,8 +240,12 @@
             </div>
 
             <div class="cs-brands" id="cs-brands" hidden>
-              <span class="cs-brands-label" id="cs-brands-label">Filter by brand</span>
+              <div class="cs-brands-head">
+                <span class="cs-brands-label" id="cs-brands-label">Filter by brand</span>
+                <span class="cs-brands-hint">Pick a brand to see all of its case studies</span>
+              </div>
               <div class="cs-brands-list" id="cs-brands-list" role="group" aria-labelledby="cs-brands-label"></div>
+              <button type="button" class="cs-brands-more" id="cs-brand-more" aria-expanded="false" hidden></button>
             </div>
 
             <div id="case-grid" class="cs-grid" role="tabpanel" aria-labelledby="case-tab-all">
@@ -884,7 +888,6 @@
           'filatex-group': 'Filatex', 'krystal-ingredients': 'Krystal', 'rajashree-polyfil': 'Rajashree',
           'dahej-sez': 'Dahej SEZ', 'regenta-nhp': 'Regenta', 'alchemie-finechem': 'Alchemie'
         };
-        const BRANDS_COLLAPSED = 12;
         let brandsExpanded = false;
 
         // { key, label } for a card, from its client name without the legal suffix.
@@ -897,45 +900,56 @@
             card.dataset.brandKey = key;
             card.dataset.brandLabel = BRAND_SHORT[key] || name;
           }
-          return { key: card.dataset.brandKey, label: card.dataset.brandLabel };
+          return { key: card.dataset.brandKey, label: card.dataset.brandLabel, logo: card.querySelector('.cs-logo')?.getAttribute('src') || '' };
         }
 
         function renderBrandFilter() {
           const box = document.getElementById('cs-brands');
           const list = document.getElementById('cs-brands-list');
+          const more = document.getElementById('cs-brand-more');
           if (!box || !list) return;
           const brands = new Map();
           document.querySelectorAll('#case-grid .case-card').forEach(card => {
             const b = brandOf(card);
             if (!b.key) return;
-            if (!brands.has(b.key)) brands.set(b.key, { label: b.label, count: 0 });
+            if (!brands.has(b.key)) brands.set(b.key, { label: b.label, logo: b.logo, count: 0 });
             brands.get(b.key).count++;
           });
           if (caseView.brand && !brands.has(caseView.brand)) caseView.brand = '';
           list.textContent = '';
-          let i = 0;
           brands.forEach((b, key) => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'cs-brand';
             btn.dataset.brand = key;
             btn.setAttribute('aria-pressed', 'false');
-            btn.hidden = !brandsExpanded && i >= BRANDS_COLLAPSED && key !== caseView.brand;
-            btn.append(b.label, Object.assign(document.createElement('b'), { textContent: b.count }));
+            btn.setAttribute('aria-label', `${b.label}, ${b.count} case ${b.count === 1 ? 'study' : 'studies'}`);
+            const logo = document.createElement('span');
+            logo.className = 'cs-brand-logo';
+            if (b.logo) {
+              const img = document.createElement('img');
+              img.src = b.logo;
+              img.alt = '';
+              img.decoding = 'async';
+              logo.appendChild(img);
+            } else {
+              logo.appendChild(Object.assign(document.createElement('span'), { textContent: b.label }));
+            }
+            const name = Object.assign(document.createElement('span'), { className: 'cs-brand-name', textContent: b.label });
+            const count = Object.assign(document.createElement('span'), { className: 'cs-brand-count', textContent: b.count });
+            count.setAttribute('aria-hidden', 'true');
+            btn.append(logo, name, count);
             btn.addEventListener('click', () => filterBrand(key));
             list.appendChild(btn);
-            i++;
           });
-          if (brands.size > BRANDS_COLLAPSED) {
-            const more = document.createElement('button');
-            more.type = 'button';
-            more.className = 'cs-brand cs-brand-more';
-            more.id = 'cs-brand-more';
+          // More brands than two rows hold: offer the rest behind one button.
+          more.hidden = brands.size <= 6;
+          if (!more.hidden) {
             more.textContent = brandsExpanded ? 'Show fewer brands' : `Show all ${brands.size} brands`;
             more.setAttribute('aria-expanded', brandsExpanded ? 'true' : 'false');
-            more.addEventListener('click', () => { brandsExpanded = !brandsExpanded; renderBrandFilter(); syncBrandChips(); });
-            list.appendChild(more);
+            more.onclick = () => { brandsExpanded = !brandsExpanded; renderBrandFilter(); };
           }
+          box.classList.toggle('expanded', brandsExpanded);
           box.hidden = brands.size < 2;
           syncBrandChips();
         }
