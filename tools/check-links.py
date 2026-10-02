@@ -41,15 +41,20 @@ def check_file(path):
             continue
         if nofrag.startswith('/'):
             continue  # root-absolute; resolves on the server
-        if not os.path.exists(nofrag):
+        if nofrag.endswith('.html'):
+            problems.append(f'{path}: link keeps the .html extension (clean URLs are on): {u}')
+            continue
+        # clean URLs: "about" is served from about.html
+        page = nofrag if os.path.exists(nofrag) else nofrag + '.html'
+        if not os.path.exists(page):
             problems.append(f'{path}: missing target {u}')
-        elif frag and nofrag.endswith('.html'):
+        elif frag and page.endswith('.html'):
             try:
-                target = open(nofrag, encoding='utf-8').read()
+                target = open(page, encoding='utf-8').read()
                 # case-studies.html#services etc. open a filter tab (see applyCaseHash there)
                 target_ids = set(re.findall(r'id="([^"]+)"', target)) | set(re.findall(r'data-filter="([^"]+)"', target))
                 # case-studies.html adds the console-published cards at load time from data/case-studies.json
-                if nofrag.endswith('case-studies.html'):
+                if page.endswith('case-studies.html'):
                     target_ids |= {c['id'] for c in json.load(open('data/case-studies.json', encoding='utf-8')) if c.get('id')}
                 if frag not in target_ids:
                     problems.append(f'{path}: dead anchor {u}')
