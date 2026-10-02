@@ -388,9 +388,19 @@
       var at = href.indexOf('#');
       return at < 0 ? '' : href.slice(at + 1);
     }
+    // Hand-written labels: the free-text "industry" sometimes ends in a place name (Vilayat, Jhagadia).
+    var SECTOR_LABELS = {
+      'lt-mhi-cisco-amc': 'Heavy engineering', 'honda-cctv-network': 'Two-wheelers', 'petronet-fms': 'LNG terminal',
+      'mrf': 'Tyres', 'grasim-cctv-network': 'Cellulosic fibres', 'ultratech-endpoint-fms': 'Cables',
+      'cadila-server-infra': 'Pharmaceuticals', 'gnfc-fms': 'Fertilizers', 'rockwool': 'Insulation',
+      'kohler-cisco-network': 'Manufacturing', 'avantor-it-infra': 'Life sciences',
+      'bostik': 'Adhesives', 'coromandel-hazarea-cctv': 'Fertilizers', 'continental-network-workplace': 'Carbon materials',
+      'wago-assembly-it': 'Industrial electronics', 'adama-fms': 'Agrochemicals', 'indofil': 'Specialty chemicals',
+      'jb-pharma-fms': 'Pharmaceuticals'
+    };
     function sectorOf(c) {
-      var parts = String(c.industry || '').split('·');
-      return parts[parts.length - 1].trim();
+      if (SECTOR_LABELS[c.id]) return SECTOR_LABELS[c.id];
+      return String(c.industry || '').split('·')[0].trim();
     }
     // Wide wordmarks need a short logo, squarer marks a taller one, so every brand fills about the same width.
     function logoHeight(c) {
