@@ -1,856 +1,81 @@
 [
   {
-    "id": "petronet-fms",
-    "client": "Petronet LNG Limited",
+    "id": "honda-cctv-network",
+    "client": "Honda Motorcycle & Scooter India Pvt. Ltd.",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/petronet-lng.webp",
-    "category": "services",
-    "industry": "Energy · LNG Terminal",
-    "location": "Dahej LNG Terminal, Bharuch, Gujarat",
-    "period": "Awarded Sep 2026 · 01 Oct 2026 – 31 May 2028",
-    "arch_tag": "24×7 Onsite Enterprise FMS",
-    "summary": "A newly awarded 20-month facility-management mandate placing two L1 engineers on 24×7 rotational shifts at India's LNG gateway, backed by D-TECH's L1/L2/L3 escalation.",
-    "challenge": "An LNG terminal needs responsive user support and controlled data-centre operations every day of the year — including Sundays and national holidays — delivered by pre-approved, safety-cleared people inside a governed industrial site.",
-    "solution": "Two L1 FMS engineers cover desktop support (OS, mail, LAN/WAN, VPN, peripherals), data-centre support (servers, switches, routers, firewalls, racks, logs, SOPs, MIS reports) and help-desk control, with escalation to D-TECH's in-house L2/L3 team, OEMs and ISPs, and replacements drawn from an approved backup pool.",
-    "outcomes": [
-      "Service Order 4700007881 issued 07 Sep 2026; go-live 01 Oct 2026",
-      "Pre-deployment checks: interview, medical, police verification, PPE and induction",
-      "Capture → diagnose → resolve → escalate → validate operating model",
-      "Continuity through a pre-approved engineer backup pool"
-    ],
-    "metrics": [
-      [
-        "Engagement",
-        "20 Months"
-      ],
-      [
-        "Onsite Team",
-        "2 L1 Engineers"
-      ],
-      [
-        "Coverage",
-        "24×7 Shifts"
-      ],
-      [
-        "Escalation",
-        "L1 / L2 / L3"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/petronet-lng-enterprise-fms-2026.pdf",
-    "published": true
-  },
-  {
-    "id": "rockwool",
-    "client": "ROCKWOOL",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/rockwool.svg",
-    "category": "safety",
-    "industry": "Manufacturing · Plant Safety",
-    "location": "ROCKWOOL plant",
-    "period": "Completion certified 29 May 2026",
-    "arch_tag": "Safety Training & Work Permit Kiosk",
-    "summary": "A turnkey touch kiosk that moves safety induction, biometric verification, safety-pass printing and digital work-permit approvals from paper to one traceable platform.",
-    "challenge": "Manual safety-training records, slow work-permit approvals, paper handoffs and difficult audit preparation made it hard to give employees, contractors and supervisors a consistent, traceable safety process.",
-    "solution": "D-TECH delivered a touch-enabled kiosk with audio/video training, fingerprint verification, integrated safety-pass printing, a group-training mode and a role-based digital work-permit workflow (create → safety review → approve/reject → track), with content in English, Hindi, Gujarati and other regional languages.",
-    "outcomes": [
-      "16 safety modules including fire, electrical, LOTO, hot work and work at height",
-      "Supervisor, safety-manager and approver roles with recorded decisions",
-      "Safety Training Kiosk, Group Training Kiosk and Work Permit Module delivered",
-      "Signed appreciation letter and work completion certificate (29 May 2026)"
-    ],
-    "metrics": [
-      [
-        "Training Modules",
-        "16 Topics"
-      ],
-      [
-        "Languages",
-        "EN · HI · GU +"
-      ],
-      [
-        "Verification",
-        "Biometric"
-      ],
-      [
-        "Customer Sign-off",
-        "May 2026"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/rockwool-safety-training-work-permit-kiosk.pdf",
-    "published": true
-  },
-  {
-    "id": "gnfc-fms",
-    "client": "GNFC Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/gnfc.webp",
-    "category": "services",
-    "industry": "Chemicals & Fertilizers",
-    "location": "Head Office, Bharuch & TDI-II, Dahej",
-    "period": "2023 – 2026 · three completed cycles",
-    "arch_tag": "Enterprise IT FMS & Helpdesk",
-    "summary": "Resident helpdesk, field engineering, LAN/fibre operations and asset control for roughly 1,720 PCs and laptops across two GNFC sites — renewed and completion-certified three years running.",
-    "challenge": "A large, mixed estate of desktops, all-in-ones and laptops across two separated sites, with plant access and safety constraints, network dependencies, after-hours events and a need to document every complaint and asset change.",
-    "solution": "One FMS operating layer covering PC hardware and software, OS and applications (including SAP and AutoCAD), data backup before reinstall, LAN and Wi-Fi, UTP and fibre testing with OTDR, collaboration rooms, asset tagging and printer AMC — run through an online complaint system with spares stocked at Bharuch and Dahej.",
-    "outcomes": [
-      "Four GNFC completion certificates confirming no services pending",
-      "Mon–Sat on-site coverage, 08:00–17:00, with holiday support within 1 hour",
-      "OTDR arranged within 24 hours for optical-fibre faults",
-      "Monthly complaint analysis and quarterly spare-replacement reporting"
-    ],
-    "metrics": [
-      [
-        "Endpoints",
-        "~1,720 PCs & Laptops"
-      ],
-      [
-        "Sites",
-        "Bharuch + Dahej"
-      ],
-      [
-        "On-site Coverage",
-        "6 Days / Week"
-      ],
-      [
-        "Continuity",
-        "3 Service Years"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/gnfc-enterprise-it-fms-2023-2026.pdf",
-    "published": true
-  },
-  {
-    "id": "veer-pharma",
-    "client": "Veer Pharma",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/veer-pharmachem.webp",
+    "logo": "assets/case-studies/logos/custom/honda.png",
     "category": "network",
-    "industry": "Pharmaceuticals",
-    "location": "Jhagadia, Gujarat",
-    "period": "Turnkey IT & ELV programme",
-    "arch_tag": "Redundant Turnkey IT Infrastructure",
-    "summary": "A secure, redundant, centrally managed IT backbone — servers, SAN/NAS, VMware HA, dual-core network, firewall HA, Wi-Fi, CCTV, IP-PBX and access control — delivered as one programme.",
-    "challenge": "Veer Pharma needed endpoints, servers, storage, applications and user access under central control, without single points of failure, and with laboratory, CCTV, voice, guest and business traffic kept apart.",
-    "solution": "Three Dell PowerEdge hosts on VMware ESXi/vCenter HA with Dell SAN, QNAP NAS and Veritas backup; dual Dell core switches with ten PoE+ access switches and ten segmented VLANs; Sophos firewalls in HA; Aruba Wi-Fi; Hikvision CCTV; Matrix IP-PBX and COSEC access control — engineered, installed, configured, tested and documented by D-TECH.",
-    "outcomes": [
-      "Up to 99.3% design availability through redundant firewall, core, compute and storage",
-      "Ten VLANs isolate business, lab/QC, security, voice and guest traffic",
-      "Domain, SAP/HANA, file, QC, email, antivirus and COSEC services hosted",
-      "Architecture ready for more users, devices and plant expansion"
-    ],
-    "metrics": [
-      [
-        "Dell Servers",
-        "3 · VMware HA"
-      ],
-      [
-        "Segmented VLANs",
-        "10"
-      ],
-      [
-        "Wi-Fi Access Points",
-        "8"
-      ],
-      [
-        "Design Availability",
-        "99.3%"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/veer-pharma-turnkey-it-infrastructure.pdf",
-    "published": true
-  },
-  {
-    "id": "krystal",
-    "client": "Krystal Ingredients Pvt. Ltd.",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/krystal.webp",
-    "category": "safety",
-    "industry": "Chemicals · Hazardous Area",
-    "location": "Dahej, Gujarat",
-    "period": "Designed, integrated & commissioned by D-TECH",
-    "arch_tag": "IP PA System & FLP Telephones",
-    "summary": "Plant-wide IP public-address paging integrated with the existing Matrix PABX, with flameproof telephones in the MPP plant and zone-wise or all-call announcements.",
-    "challenge": "Teams across admin, security, utilities and process areas lacked one way to reach personnel; the MPP plant needed flameproof phones; and the system had to reuse the installed Matrix PABX and LAN with controlled, authorised announcements.",
-    "solution": "Authorised calls from telephones, FLP phones or paging microphones route through the Matrix GENX12SAC PABX over SIP to indoor and outdoor IP speakers, with zone mapping, all-call codes and PABX-based access control — surveyed, installed, programmed, tested and documented by D-TECH.",
-    "outcomes": [
-      "Coverage from admin, security and OHC to boiler, ETP and warehouse",
-      "MPP plant covered at 0, 6, 12, 19 and 26 m levels plus terrace",
-      "Zone-wise paging and an all-call facility for urgent announcements",
-      "Spare indoor and outdoor speakers held for resilience"
-    ],
-    "metrics": [
-      [
-        "IP Speakers",
-        "27"
-      ],
-      [
-        "Outdoor Speakers",
-        "18"
-      ],
-      [
-        "FLP Telephones",
-        "12"
-      ],
-      [
-        "Paging Consoles",
-        "3"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/krystal-ingredients-ip-pa-flp-telephone.pdf",
-    "published": true
-  },
-  {
-    "id": "mrf",
-    "client": "MRF Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/mrf.svg",
-    "image": null,
-    "category": "network",
-    "industry": "Automotive Tyre Manufacturing",
-    "location": "MRF plant · ITS permanent network",
-    "period": "Delivered 2019",
-    "arch_tag": "Fibre, Copper & Aruba Switching",
-    "summary": "A structured fibre, copper and Aruba switching backbone for MRF's ITS permanent network, linking the Wheel Test Lab, LMC Zone-4 and BIAS DC with fully tagged, serviceable infrastructure.",
-    "challenge": "MRF needed dependable high-speed links between critical plant zones, a documented physical layer, and new Aruba switching integrated with the existing network — all while plant operations continued.",
-    "solution": "Survey and route planning, 1,387 m of optical-fibre backbone in 1,525 m of HDPE pathway, 1,238 m of FTP cabling, 60 splices across 4 LIUs, patch panels and a 15U rack, three Aruba switch locations with stacking, and tagging of cables, panels, LIUs and 29 racks — rolled out in controlled phases.",
-    "outcomes": [
-      "Fibre-and-copper network spanning the identified operational zones",
-      "Planned pathways and tested components replace ad-hoc links",
-      "Tagged cables, panels, LIUs and racks speed up troubleshooting",
-      "Scalable backbone ready for additional devices and services"
-    ],
-    "metrics": [
-      [
-        "OFC Backbone",
-        "1,387 m"
-      ],
-      [
-        "HDPE Pathway",
-        "1,525 m"
-      ],
-      [
-        "FTP Cabling",
-        "1,238 m"
-      ],
-      [
-        "Racks Tagged",
-        "29"
-      ]
-    ],
-    "quote": "The professionalism, expertise and meticulous planning exhibited by the D-TECH team ensured the successful enhancement of our IT infrastructure.",
-    "quote_author": "Mr. Kevin Mathew, MRF Limited",
-    "pdf_file": "assets/case-studies/pdf/mrf-its-network-infrastructure.pdf",
-    "published": true
-  },
-  {
-    "id": "indofil",
-    "client": "Indofil Industries Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/indofil.webp",
-    "image": null,
-    "category": "network",
-    "industry": "Specialty Chemicals",
-    "location": "Indofil Synthesis Plant, Dahej, Gujarat",
-    "period": "Greenfield plant rollout",
-    "arch_tag": "Complete Greenfield Plant IT",
-    "summary": "A turnkey IT foundation for Indofil's new Dahej synthesis plant — fibre, copper, switching, Wi-Fi, data centre, servers, AV boardroom and PA — won through e-auction and delivered on schedule.",
-    "challenge": "The new plant needed connectivity, compute, communication and collaboration built together, with dependencies across domains managed in one plan and delivery on the committed schedule after competitive sourcing.",
-    "solution": "D-TECH surveyed the upcoming facility, consolidated networking, indoor Wi-Fi, data-centre activities, servers, AV boardroom and public-address requirements into one engineered bill of material, competed through an e-auction, and delivered the accepted scope as a single accountable integrator.",
-    "outcomes": [
-      "Accepted multi-domain scope completed within the committed timeframe",
-      "Network, Wi-Fi, data centre, servers, AV and PA delivered as one programme",
-      "One partner removed cross-vendor coordination across seven domains",
-      "Infrastructure base for future plant systems and digital initiatives"
-    ],
-    "metrics": [
-      [
-        "Solution Domains",
-        "7"
-      ],
-      [
-        "Site",
-        "Greenfield Plant"
-      ],
-      [
-        "Sourcing",
-        "Won via e-Auction"
-      ],
-      [
-        "Delivery",
-        "On Committed Date"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/indofil-complete-it-infrastructure.pdf",
-    "published": true
-  },
-  {
-    "id": "bostik",
-    "client": "Bostik India Pvt. Ltd.",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/bostik.svg",
-    "image": null,
-    "category": "network",
-    "industry": "Adhesives & Sealants",
-    "location": "Jhagadia, Bharuch, Gujarat",
-    "period": "Greenfield plant delivery",
-    "arch_tag": "Plant-wide Network & EPABX",
-    "summary": "Fibre, copper, Cisco Layer-3 switching and EPABX telephony for Bostik's new Jhagadia plant — mobilised within a week of the order and completed within a month.",
-    "challenge": "The new plant needed plant-wide fibre and copper connectivity, a Layer-3 switching foundation and plant telephony on an urgent schedule.",
-    "solution": "A full-site survey with the customer's IT team, a practical bill of material, expedited OEM supply, then installation and commissioning of the fibre backbone, structured copper, Cisco Layer-3 network and EPABX system — all through one delivery team.",
-    "outcomes": [
-      "Installation started within one week of order receipt",
-      "Recorded scope completed within one month",
-      "Passive, active and telephony workstreams under one partner",
-      "Layer-3 network ready for future users, devices and applications"
-    ],
-    "metrics": [
-      [
-        "Mobilisation",
-        "< 1 Week"
-      ],
-      [
-        "Completion",
-        "1 Month"
-      ],
-      [
-        "Network Core",
-        "Cisco Layer-3"
-      ],
-      [
-        "Telephony",
-        "EPABX"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/bostik-plant-network-epabx.pdf",
-    "published": true
-  },
-  {
-    "id": "gnfc-amc",
-    "client": "GNFC Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/gnfc.webp",
-    "category": "services",
-    "industry": "Chemicals & Fertilizers",
-    "location": "Bharuch, Gujarat · multiple campuses",
-    "period": "2013 – 2018 · four work orders",
-    "arch_tag": "Network, PC & Dell Server AMC",
-    "summary": "Five documented years supporting GNFC's enterprise IT — plant-wide networks, 1,500+ PCs, software support and eight VMware-connected Dell servers — with a resident 12-engineer team.",
-    "challenge": "Support was needed across the factory, TDI complex, township, corporate building, labs and training sites, covering legacy desktops, software, fibre-linked networks and Dell servers on EMC SAN storage within VMware.",
-    "solution": "A six-tower AMC model: network operations, PC hardware, software support, server and virtualization, spares and restoration, and governance and safety — run by 12 on-site engineers with help-desk monitoring, asset tagging and OEM back-to-back server coverage.",
-    "outcomes": [
-      "2013–14 network AMC, 2015–16 PC hardware & software, 2016–18 Dell server AMC",
-      "Server AMC renewed in 2017 on the same scope and terms",
-      "24×7 server support with four-hour attendance and 24-hour resolution",
-      "Asset database, complaint records and periodic trend reporting"
-    ],
-    "metrics": [
-      [
-        "PC Estate",
-        "1,500+ Units"
-      ],
-      [
-        "Dell Servers",
-        "8"
-      ],
-      [
-        "On-site Team",
-        "12 Engineers"
-      ],
-      [
-        "Documented Span",
-        "2013 – 2018"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/gnfc-enterprise-amc-2013-2018.pdf",
-    "published": true
-  },
-  {
-    "id": "petronet-amc",
-    "client": "Petronet LNG Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/petronet-lng.webp",
-    "category": "services",
-    "industry": "Energy · LNG Terminal",
-    "location": "Dahej LNG Terminal, Gujarat",
-    "period": "1 Jul 2014 – 30 Jun 2015",
-    "arch_tag": "Dell Systems Warranty & Support",
-    "summary": "Warranty extension and service support for 13 mission-critical Dell servers and workstations across ESVT, OPC, FGS and BAS systems, with a contractual 24-hour resolution commitment.",
-    "challenge": "A mixed estate of Dell servers and control-room workstations supporting ESVT, OPC, fire-and-gas and building-automation systems needed one accountable support plan inside a strict safety and work-permit regime.",
-    "solution": "A helpline-to-resolution framework — log, assign, diagnose, resolve — with competent engineers, Dell-certified replacement parts, repair or replacement at no cost to Petronet LNG within 24 hours of diagnosis, and site work aligned to PPE and permit rules.",
-    "outcomes": [
-      "5 core servers, 6 control workstations and 2 BAS servers covered",
-      "Every replacement part Dell certified",
-      "Nominated D-TECH site in-charge for coordination",
-      "Service Order 4700000088 dated 2 June 2014"
-    ],
-    "metrics": [
-      [
-        "Systems Covered",
-        "13"
-      ],
-      [
-        "Resolution",
-        "≤ 24 Hours"
-      ],
-      [
-        "Parts",
-        "Dell Certified"
-      ],
-      [
-        "Warranty Term",
-        "2 Years"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/petronet-lng-dell-systems-amc-2014.pdf",
-    "published": true
-  },
-  {
-    "id": "balaji",
-    "client": "Balaji Wafers Private Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/balaji.svg",
-    "image": null,
-    "category": "safety",
-    "industry": "Food Processing & High-Speed FMCG",
-    "location": "Food Manufacturing Hub, Gujarat",
-    "period": "Submitted 2019",
-    "arch_tag": "AI Vision QC Reject & RFID Dispatch",
-    "summary": "Integrated high-speed inline AI vision reject sorting and RFID weighbridge dispatch to slash shipping discrepancies and streamline shift meal queues.",
-    "challenge": "High-speed snack packaging operations running 24/7 faced manual packaging inspection bottlenecks, warehouse shipping discrepancies across multi-state distribution hubs, and cafeteria queuing delays across three manufacturing shifts of 3,500+ workers.",
-    "solution": "Deployed automated AI vision quality reject sorting on high-speed conveyors, automated RFID boom barriers and terminal weighbridge dispatch, alongside contactless Cafeteria CMS RFID terminals synced to payroll. Fully integrated into corporate SAP ERP for paperless dispatch.",
-    "outcomes": [],
-    "metrics": [
-      [
-        "Shipping Accuracy",
-        "99.8% Match"
-      ],
-      [
-        "Meal Tap Speed",
-        "< 0.4 Seconds"
-      ],
-      [
-        "Daily Shift Volume",
-        "3,500+ Workers"
-      ],
-      [
-        "Food Waste Drop",
-        "28% Reduction"
-      ]
-    ],
-    "quote": "The automation delivered by D-TECH eliminated dispatch errors and modernized our plant workforce operations without disrupting daily production.",
-    "quote_author": "Head of Plant Automation & Logistics",
-    "pdf_file": "assets/case-studies/balaji-wafers-case-study.pdf",
-    "published": false
-  },
-  {
-    "id": "adama-fms",
-    "client": "ADAMA India Pvt. Ltd.",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/adama.png",
-    "category": "services",
-    "industry": "Agrochemicals",
-    "location": "Dahej facility, Gujarat",
-    "period": "AMC → CAMC renewal → 12-month FMS",
-    "arch_tag": "AMC to FMS Trust",
-    "summary": "Two years of dependable AMC/CAMC delivery earned D-TECH a new 12-month FMS engagement at ADAMA India's Dahej facility — continuity, responsiveness and earned trust told as a service-relationship case study.",
+    "industry": "Automotive · Two-Wheelers",
+    "location": "Narsapura Industrial Area, Karnataka",
+    "period": "Multi-order programme",
+    "arch_tag": "Industrial CCTV & Network",
+    "summary": "A multi-order CCTV and network programme integrating 135 5 MP video endpoints, enterprise recording, structured cabling and fibre connectivity with professional commissioning under one delivery partner.",
     "challenge": "",
     "solution": "",
     "outcomes": [
-      "2+ years AMC relationship",
-      "5 systems under CAMC",
-      "24h complaint attendance, 48h parts replacement"
-    ],
-    "metrics": [
-      [
-        "AMC Relationship",
-        "2+ Years"
-      ],
-      [
-        "Systems under CAMC",
-        "5"
-      ],
-      [
-        "Complaint Attendance",
-        "24h"
-      ],
-      [
-        "Parts Replacement",
-        "48h"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/adama-fms.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "alchemie-hazarea-cctv",
-    "client": "Alchemie Finechem",
-    "wordmark": null,
-    "logo": null,
-    "category": "safety",
-    "industry": "Chemicals · Hazardous Area",
-    "location": "Block 11, Saykha GIDC, Bharuch",
-    "period": "Order dated 17 Apr 2026",
-    "arch_tag": "Hazardous-Area CCTV + PABX Roadmap",
-    "summary": "A documented hazardous-area CCTV deployment for Block 11 at the Saykha manufacturing facility — flameproof surveillance with a clear path toward integrated PABX and emergency communication.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "5 Matrix bullet cameras at defined observation points",
-      "5 PESO-certified FLP aluminium enclosures",
-      "Flameproof conduits and IP66 sealed termination"
+      "135 5 MP cameras with 3 64-channel NVRs",
+      "3.04 km Cat6 supplied",
+      "5 coordinated orders"
     ],
     "metrics": [
       [
         "Cameras",
-        "5 Bullet"
+        "135 × 5 MP"
       ],
       [
-        "FLP Enclosures",
+        "NVRs",
+        "3 × 64-ch"
+      ],
+      [
+        "Cat6",
+        "3.04 km"
+      ],
+      [
+        "Orders",
         "5"
-      ],
-      [
-        "Site",
-        "Block 11 · Saykha"
-      ],
-      [
-        "Order",
-        "Apr 2026"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/alchemie-hazarea-cctv.pdf",
+    "pdf_file": "assets/case-studies/pdf/custom/honda-cctv-network.pdf",
     "published": true,
     "custom": true
   },
   {
-    "id": "avantor-it-infra",
-    "client": "Avantor",
+    "id": "lt-mhi-cisco-amc",
+    "client": "L&T-MHI Boilers Private Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/avantor.png",
-    "category": "network",
-    "industry": "Life-Sciences Manufacturing",
-    "location": "Panoli, Ankleshwar, Gujarat",
-    "period": "Order dated 9 Oct 2017",
-    "arch_tag": "Integrated IT Infrastructure",
-    "summary": "D-TECH integrated compute, backup, cybersecurity, managed switching, structured cabling, rack and power into one enterprise-ready infrastructure platform for Avantor's Panoli facility.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "2 Dell servers with backup and cybersecurity",
-      "5 Cisco managed switches",
-      "610 m Cat6 structured cabling across 24 validated nodes"
-    ],
-    "metrics": [
-      [
-        "Compute",
-        "2 Dell Servers"
-      ],
-      [
-        "Switching",
-        "5 Cisco Switches"
-      ],
-      [
-        "Cabling",
-        "610 m Cat6"
-      ],
-      [
-        "Validation",
-        "24 Nodes"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/avantor-it-infra.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "balaji-cctv",
-    "client": "Balaji Wafers Private Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/balaji.svg",
-    "category": "safety",
-    "industry": "Food Processing & FMCG",
-    "location": "Main factory, Jamnagar and head office",
-    "period": "Repeat-order modernization",
-    "arch_tag": "600+ Camera CCTV Modernization",
-    "summary": "D-TECH transformed an unsatisfactory legacy camera estate into a 600+ camera security platform across the main factory, Jamnagar and the head office — resilient fibre, structured recording and controlled access.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "600+ cameras on one security platform",
-      "Resilient fibre backbone with structured recording",
-      "Repeat orders across three locations"
-    ],
-    "metrics": [
-      [
-        "Camera Platform",
-        "600+ Cameras"
-      ],
-      [
-        "Locations",
-        "3 Sites"
-      ],
-      [
-        "Backbone",
-        "Fibre + Recording"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/balaji-cctv.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "bostik-fms",
-    "client": "Bostik India Pvt. Ltd.",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/bostik.svg",
+    "logo": "assets/case-studies/logos/custom/larsen-toubro.png",
     "category": "services",
-    "industry": "Adhesives & Sealants",
-    "location": "Jhagadia, Bharuch, Gujarat",
-    "period": "Greenfield build → 12+ years FMS · renewed 2025",
-    "arch_tag": "12-Year FMS Lifecycle",
-    "summary": "From greenfield fibre, copper, Cisco Layer-3 and EPABX foundation to more than 12 years of IT facility-management partnership at Bostik's Jhagadia plant — design, deliver, operate, evolve.",
+    "industry": "Heavy Engineering · Boilers",
+    "location": "Hazira, Surat, Gujarat",
+    "period": "1-year AMC from 18 Apr 2014",
+    "arch_tag": "Cisco Network & Wireless AMC",
+    "summary": "A comprehensive Cisco-backed maintenance programme protecting the switching and wireless infrastructure of a major boiler manufacturing complex — 52 devices including 41 switches, 10 access points and WLAN control.",
     "challenge": "",
     "solution": "",
     "outcomes": [
-      "Greenfield infrastructure completed within one month",
-      "12+ years continuous FMS support",
-      "Support contract renewed in 2025"
+      "41 switches and 10 access points covered",
+      "WLAN controller under AMC",
+      "Cisco-backed 1-year coverage"
     ],
     "metrics": [
       [
-        "Partnership",
-        "12+ Years"
-      ],
-      [
-        "Mobilisation",
-        "< 1 Week"
-      ],
-      [
-        "Build",
-        "1 Month"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/bostik-fms.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "cadila-server-infra",
-    "client": "Cadila Pharmaceuticals",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/cadila.png",
-    "category": "network",
-    "industry": "Pharmaceuticals",
-    "location": "Ankleshwar, Gujarat",
-    "period": "Order dated 15 Jun 2026",
-    "arch_tag": "Enterprise Server Infrastructure",
-    "summary": "D-TECH delivered and supported enterprise server infrastructure for business-critical digital initiatives across Cadila's Ankleshwar operations — an HPE DL360 Windows + SQL platform for the paper-to-paperless programme, on schedule.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "HPE DL360 platform with Windows + SQL",
-      "5-year support coverage",
-      "Delivered on schedule to client appreciation"
-    ],
-    "metrics": [
-      [
-        "Platform",
-        "HPE DL360"
-      ],
-      [
-        "Support",
-        "5-Year"
-      ],
-      [
-        "Outcome",
-        "On Schedule"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/cadila-server-infra.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "continental-network-workplace",
-    "client": "Continental Carbon",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/continental-carbon.png",
-    "category": "network",
-    "industry": "Manufacturing · Carbon Materials",
-    "location": "Dahej Industrial Estate, Gujarat",
-    "period": "Order 2022-23",
-    "arch_tag": "Secure Network & Digital Workplace",
-    "summary": "Delivery, installation and commissioning of Fortinet security, enterprise wireless, Microsoft productivity and operational IT endpoints — one accountable partner for secure connectivity and reliable site operations.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "Fortinet-secured core with 20 wireless APs",
-      "43 users on Microsoft productivity",
-      "Integrated endpoints for site operations"
-    ],
-    "metrics": [
-      [
-        "Access Points",
-        "20"
-      ],
-      [
-        "Users",
-        "43"
-      ],
-      [
-        "Security",
-        "Fortinet"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/continental-network-workplace.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "coromandel-hazarea-cctv",
-    "client": "Coromandel International",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/coromandel.png",
-    "category": "safety",
-    "industry": "Fertilizers & Chemicals",
-    "location": "Dahej SEZ II, Gujarat",
-    "period": "Documented order",
-    "arch_tag": "Hazardous-Area CCTV Infrastructure",
-    "summary": "A plant-wide CCTV platform engineered for scale at the Dahej site — 57 cameras with flameproof field assembly, fibre backbone, central recording and control-room visualization.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "57 cameras with 20 FLP enclosures",
-      "Fibre backbone with central recording",
-      "Control-room visualization"
-    ],
-    "metrics": [
-      [
-        "Cameras",
-        "57"
-      ],
-      [
-        "FLP Enclosures",
-        "20"
-      ],
-      [
-        "Backbone",
-        "Fibre"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/coromandel-hazarea-cctv.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "dic-amc",
-    "client": "DIC Fine Chemicals Pvt. Ltd.",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/dic.png",
-    "category": "services",
-    "industry": "Chemicals",
-    "location": "Plot Z-3, Dahej SEZ, Gujarat",
-    "period": "Renewed 26 Jun 2017 · 3+ years",
-    "arch_tag": "3-Year Comprehensive AMC",
-    "summary": "A multi-year managed maintenance relationship supporting end-user systems, network and servers at the Dahej SEZ manufacturing site — desktops, laptops, printers and Cisco switching under one comprehensive AMC.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "40 desktops, 14 laptops and 14 printers maintained",
-      "4 Cisco 48-port switches under AMC",
-      "Renewed for 3+ years"
-    ],
-    "metrics": [
-      [
-        "Desktops",
-        "40 Systems"
-      ],
-      [
-        "Laptops",
-        "14 Systems"
-      ],
-      [
-        "Printers",
-        "14"
+        "Devices",
+        "52"
       ],
       [
         "Switches",
-        "4 × 48-Port"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/dic-amc.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "dahej-sez-amc",
-    "client": "Dahej SEZ Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/dahej-sez.png",
-    "category": "services",
-    "industry": "Industrial Estate Administration",
-    "location": "Dahej, Bharuch, Gujarat",
-    "period": "Effective 1 Jul 2016 · 1-year AMC",
-    "arch_tag": "Workplace Technology AMC",
-    "summary": "Annual maintenance keeping workplace technology ready across two Dahej SEZ admin buildings — computers, printers, fax, EPABX, router and network infrastructure on a monthly + breakdown rhythm.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "Two admin buildings covered",
-      "Monthly preventive + breakdown service",
-      "Computers to EPABX under one AMC"
-    ],
-    "metrics": [
+        "41"
+      ],
       [
-        "Engagement",
+        "Access Points",
+        "10"
+      ],
+      [
+        "Term",
         "1-Year AMC"
-      ],
-      [
-        "Coverage",
-        "2 Buildings"
-      ],
-      [
-        "Rhythm",
-        "Monthly + Breakdown"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/dahej-sez-amc.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "filatex-fms",
-    "client": "Filatex Group",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/filatex.png",
-    "category": "services",
-    "industry": "Textiles · Multi-Location Plants",
-    "location": "Delhi, Surat and Dahej plants and offices",
-    "period": "Dedicated FMS engagement",
-    "arch_tag": "Multi-Location FMS Operations",
-    "summary": "A dedicated FMS engineering engagement for hardware, networking and server operations across Filatex plants and offices — 100+ servers and VMs across 5 locations covering security, identity, virtualisation, backup, cloud and Microsoft 365.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "100+ servers and VMs monitored and supported",
-      "5 supported locations",
-      "Enterprise security, backup and network coordination"
-    ],
-    "metrics": [
-      [
-        "Servers & VMs",
-        "100+"
-      ],
-      [
-        "Locations",
-        "5"
-      ],
-      [
-        "Engineer",
-        "Dedicated FMS"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/filatex-fms.pdf",
+    "pdf_file": "assets/case-studies/pdf/custom/lt-mhi-cisco-amc.pdf",
     "published": true,
     "custom": true
   },
@@ -931,240 +156,124 @@
     "custom": true
   },
   {
-    "id": "honda-cctv-network",
-    "client": "Honda Motorcycle & Scooter India Pvt. Ltd.",
+    "id": "ultratech-endpoint-fms",
+    "client": "UltraTech Wires and Cables",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/honda.png",
-    "category": "network",
-    "industry": "Automotive · Two-Wheelers",
-    "location": "Narsapura Industrial Area, Karnataka",
-    "period": "Multi-order programme",
-    "arch_tag": "Industrial CCTV & Network",
-    "summary": "A multi-order CCTV and network programme integrating 135 5 MP video endpoints, enterprise recording, structured cabling and fibre connectivity with professional commissioning under one delivery partner.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "135 5 MP cameras with 3 64-channel NVRs",
-      "3.04 km Cat6 supplied",
-      "5 coordinated orders"
-    ],
-    "metrics": [
-      [
-        "Cameras",
-        "135 × 5 MP"
-      ],
-      [
-        "NVRs",
-        "3 × 64-ch"
-      ],
-      [
-        "Cat6",
-        "3.04 km"
-      ],
-      [
-        "Orders",
-        "5"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/honda-cctv-network.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "jb-pharma-fms",
-    "client": "JB Pharma",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/jb-pharma.png",
+    "logo": "assets/case-studies/logos/custom/ultratech.webp",
     "category": "services",
-    "industry": "Pharmaceuticals",
-    "location": "Panoli, Ankleshwar and Bharuch",
-    "period": "1 Sep 2017 – 31 Mar 2018",
-    "arch_tag": "Multi-Location FMS + Hospital Support",
-    "summary": "Four-engineer FMS support across JB Pharma's Panoli, Ankleshwar and Bharuch operations covering 1,188+ assets — with free-of-cost IT support extended to Jayaben Mody Hospital.",
+    "industry": "Building Materials · Cables",
+    "location": "Mumbai office and Jhagadia plant",
+    "period": "10-day readiness · 8-month FMS",
+    "arch_tag": "Endpoint Delivery & FMS",
+    "summary": "Powering a new business from day one — 110 devices across the Mumbai office and Jhagadia plant delivered against a 10-day readiness target, backed by an eight-month on-site FMS engagement.",
     "challenge": "",
     "solution": "",
     "outcomes": [
-      "4 engineers across 3 regions",
-      "1,188+ listed assets",
-      "Free hospital IT support with social impact"
-    ],
-    "metrics": [
-      [
-        "Engineers",
-        "4"
-      ],
-      [
-        "Assets",
-        "1,188+"
-      ],
-      [
-        "Regions",
-        "3"
-      ],
-      [
-        "Hospital IT",
-        "Free of Cost"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/jb-pharma-fms.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "kohler-cisco-network",
-    "client": "Kohler India",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/kohler.png",
-    "category": "network",
-    "industry": "Manufacturing · Jhagadia",
-    "location": "Jhagadia, Gujarat",
-    "period": "Installation + handover",
-    "arch_tag": "Cisco Enterprise Network Installation",
-    "summary": "Cisco enterprise network micro-level installation for Kohler's Jhagadia operations — Catalyst switching, PoE access layer, Wi-Fi 6 coverage, OM3 fibre backbone, structured outlets and Axis video, commissioned with operational handover.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "3 Catalyst 9200L switches, 7 Wi-Fi 6 APs",
-      "300 m armoured OM3 fibre, 50 data outlets",
-      "Converged connectivity, video and display endpoints"
-    ],
-    "metrics": [
-      [
-        "Switches",
-        "3 × 9200L"
-      ],
-      [
-        "Wi-Fi 6 APs",
-        "7"
-      ],
-      [
-        "Fibre",
-        "300 m OM3"
-      ],
-      [
-        "Outlets",
-        "50 Data"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/kohler-cisco-network.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "lt-mhi-cisco-amc",
-    "client": "L&T-MHI Boilers Private Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/larsen-toubro.png",
-    "category": "services",
-    "industry": "Heavy Engineering · Boilers",
-    "location": "Hazira, Surat, Gujarat",
-    "period": "1-year AMC from 18 Apr 2014",
-    "arch_tag": "Cisco Network & Wireless AMC",
-    "summary": "A comprehensive Cisco-backed maintenance programme protecting the switching and wireless infrastructure of a major boiler manufacturing complex — 52 devices including 41 switches, 10 access points and WLAN control.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "41 switches and 10 access points covered",
-      "WLAN controller under AMC",
-      "Cisco-backed 1-year coverage"
+      "110 devices across 2 locations",
+      "10-day technology-readiness target",
+      "8-month on-site FMS"
     ],
     "metrics": [
       [
         "Devices",
-        "52"
+        "110"
       ],
       [
-        "Switches",
-        "41"
+        "Locations",
+        "2"
       ],
       [
-        "Access Points",
-        "10"
-      ],
-      [
-        "Term",
-        "1-Year AMC"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/lt-mhi-cisco-amc.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "mrf-cctv",
-    "client": "MRF Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/mrf.svg",
-    "category": "safety",
-    "industry": "Automotive Tyre Manufacturing",
-    "location": "MRF Dahej",
-    "period": "Two integrated projects",
-    "arch_tag": "CCTV Design, Deployment & Service",
-    "summary": "Industrial IP video surveillance for MRF Dahej — 87 documented cameras across two integrated projects in a mixed 8 MP / 5 MP design, from coverage design to searchable video evidence with structured lifecycle support.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "87 documented cameras",
-      "Mixed 8 MP / 5 MP design",
-      "Searchable video evidence with lifecycle support"
-    ],
-    "metrics": [
-      [
-        "Cameras",
-        "87"
-      ],
-      [
-        "Projects",
-        "2 Integrated"
-      ],
-      [
-        "Design",
-        "8 / 5 MP"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/mrf-cctv.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "mrf-dahej-network-fms",
-    "client": "MRF Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/mrf.svg",
-    "category": "network",
-    "industry": "Automotive Tyre Manufacturing",
-    "location": "MRF Dahej",
-    "period": "Greenfield build → 7 years FMS",
-    "arch_tag": "Industrial IT/OT Network & FMS",
-    "summary": "Plant network transformation at MRF Dahej — 25.3 km single-mode fibre, 33.5 km shielded copper and 51 core + access switches engineered as one resilient voice, data and industrial foundation, supported through seven years of network FMS.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "25.3 km fibre, 33.5 km copper",
-      "51 core + access switches",
-      "7 years network FMS continuity"
-    ],
-    "metrics": [
-      [
-        "Fibre",
-        "25.3 km SM"
-      ],
-      [
-        "Copper",
-        "33.5 km"
-      ],
-      [
-        "Switches",
-        "51"
+        "Target",
+        "10-Day"
       ],
       [
         "FMS",
-        "7 Years"
+        "8-Month"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/mrf-dahej-network-fms.pdf",
+    "pdf_file": "assets/case-studies/pdf/custom/ultratech-endpoint-fms.pdf",
     "published": true,
     "custom": true
+  },
+  {
+    "id": "petronet-fms",
+    "client": "Petronet LNG Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/petronet-lng.webp",
+    "category": "services",
+    "industry": "Energy · LNG Terminal",
+    "location": "Dahej LNG Terminal, Bharuch, Gujarat",
+    "period": "Awarded Sep 2026 · 01 Oct 2026 – 31 May 2028",
+    "arch_tag": "24×7 Onsite Enterprise FMS",
+    "summary": "A newly awarded 20-month facility-management mandate placing two L1 engineers on 24×7 rotational shifts at India's LNG gateway, backed by D-TECH's L1/L2/L3 escalation.",
+    "challenge": "An LNG terminal needs responsive user support and controlled data-centre operations every day of the year — including Sundays and national holidays — delivered by pre-approved, safety-cleared people inside a governed industrial site.",
+    "solution": "Two L1 FMS engineers cover desktop support (OS, mail, LAN/WAN, VPN, peripherals), data-centre support (servers, switches, routers, firewalls, racks, logs, SOPs, MIS reports) and help-desk control, with escalation to D-TECH's in-house L2/L3 team, OEMs and ISPs, and replacements drawn from an approved backup pool.",
+    "outcomes": [
+      "Service Order 4700007881 issued 07 Sep 2026; go-live 01 Oct 2026",
+      "Pre-deployment checks: interview, medical, police verification, PPE and induction",
+      "Capture → diagnose → resolve → escalate → validate operating model",
+      "Continuity through a pre-approved engineer backup pool"
+    ],
+    "metrics": [
+      [
+        "Engagement",
+        "20 Months"
+      ],
+      [
+        "Onsite Team",
+        "2 L1 Engineers"
+      ],
+      [
+        "Coverage",
+        "24×7 Shifts"
+      ],
+      [
+        "Escalation",
+        "L1 / L2 / L3"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/petronet-lng-enterprise-fms-2026.pdf",
+    "published": true
+  },
+  {
+    "id": "petronet-amc",
+    "client": "Petronet LNG Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/petronet-lng.webp",
+    "category": "services",
+    "industry": "Energy · LNG Terminal",
+    "location": "Dahej LNG Terminal, Gujarat",
+    "period": "1 Jul 2014 – 30 Jun 2015",
+    "arch_tag": "Dell Systems Warranty & Support",
+    "summary": "Warranty extension and service support for 13 mission-critical Dell servers and workstations across ESVT, OPC, FGS and BAS systems, with a contractual 24-hour resolution commitment.",
+    "challenge": "A mixed estate of Dell servers and control-room workstations supporting ESVT, OPC, fire-and-gas and building-automation systems needed one accountable support plan inside a strict safety and work-permit regime.",
+    "solution": "A helpline-to-resolution framework — log, assign, diagnose, resolve — with competent engineers, Dell-certified replacement parts, repair or replacement at no cost to Petronet LNG within 24 hours of diagnosis, and site work aligned to PPE and permit rules.",
+    "outcomes": [
+      "5 core servers, 6 control workstations and 2 BAS servers covered",
+      "Every replacement part Dell certified",
+      "Nominated D-TECH site in-charge for coordination",
+      "Service Order 4700000088 dated 2 June 2014"
+    ],
+    "metrics": [
+      [
+        "Systems Covered",
+        "13"
+      ],
+      [
+        "Resolution",
+        "≤ 24 Hours"
+      ],
+      [
+        "Parts",
+        "Dell Certified"
+      ],
+      [
+        "Warranty Term",
+        "2 Years"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/petronet-lng-dell-systems-amc-2014.pdf",
+    "published": true
   },
   {
     "id": "petronet-anpr",
@@ -1383,114 +492,353 @@
     "custom": true
   },
   {
-    "id": "rajashree-polyfil",
-    "client": "Rajashree Polyfil",
+    "id": "mrf",
+    "client": "MRF Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/century-enka.png",
-    "category": "services",
-    "industry": "Textiles · Polyester Fibre",
-    "location": "Bharuch, Gujarat",
-    "period": "17+ years · orders in 2025-26",
-    "arch_tag": "17-Year Technology Relationship",
-    "summary": "More than 17 years of continuous trust with Century Enka's Rajashree Polyfil unit — long-term support evolving through network, CCTV and IP video modernization, with 2025-26 orders demonstrating the relationship continues.",
-    "challenge": "",
-    "solution": "",
+    "logo": "assets/case-studies/logos/mrf.svg",
+    "image": null,
+    "category": "network",
+    "industry": "Automotive Tyre Manufacturing",
+    "location": "MRF plant · ITS permanent network",
+    "period": "Delivered 2019",
+    "arch_tag": "Fibre, Copper & Aruba Switching",
+    "summary": "A structured fibre, copper and Aruba switching backbone for MRF's ITS permanent network, linking the Wheel Test Lab, LMC Zone-4 and BIAS DC with fully tagged, serviceable infrastructure.",
+    "challenge": "MRF needed dependable high-speed links between critical plant zones, a documented physical layer, and new Aruba switching integrated with the existing network — all while plant operations continued.",
+    "solution": "Survey and route planning, 1,387 m of optical-fibre backbone in 1,525 m of HDPE pathway, 1,238 m of FTP cabling, 60 splices across 4 LIUs, patch panels and a 15U rack, three Aruba switch locations with stacking, and tagging of cables, panels, LIUs and 29 racks — rolled out in controlled phases.",
     "outcomes": [
-      "17+ years continuous support",
-      "Network, CCTV and IP video evolution",
-      "Current 2025-26 orders"
+      "Fibre-and-copper network spanning the identified operational zones",
+      "Planned pathways and tested components replace ad-hoc links",
+      "Tagged cables, panels, LIUs and racks speed up troubleshooting",
+      "Scalable backbone ready for additional devices and services"
     ],
     "metrics": [
       [
-        "Relationship",
-        "17+ Years"
+        "OFC Backbone",
+        "1,387 m"
       ],
       [
-        "Scope",
-        "Network + CCTV"
+        "HDPE Pathway",
+        "1,525 m"
       ],
       [
-        "Recent Orders",
-        "2025–26"
+        "FTP Cabling",
+        "1,238 m"
+      ],
+      [
+        "Racks Tagged",
+        "29"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/rajashree-polyfil.pdf",
+    "quote": "The professionalism, expertise and meticulous planning exhibited by the D-TECH team ensured the successful enhancement of our IT infrastructure.",
+    "quote_author": "Mr. Kevin Mathew, MRF Limited",
+    "pdf_file": "assets/case-studies/pdf/mrf-its-network-infrastructure.pdf",
+    "published": true
+  },
+  {
+    "id": "mrf-cctv",
+    "client": "MRF Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/mrf.svg",
+    "category": "safety",
+    "industry": "Automotive Tyre Manufacturing",
+    "location": "MRF Dahej",
+    "period": "Two integrated projects",
+    "arch_tag": "CCTV Design, Deployment & Service",
+    "summary": "Industrial IP video surveillance for MRF Dahej — 87 documented cameras across two integrated projects in a mixed 8 MP / 5 MP design, from coverage design to searchable video evidence with structured lifecycle support.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "87 documented cameras",
+      "Mixed 8 MP / 5 MP design",
+      "Searchable video evidence with lifecycle support"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "87"
+      ],
+      [
+        "Projects",
+        "2 Integrated"
+      ],
+      [
+        "Design",
+        "8 / 5 MP"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/mrf-cctv.pdf",
     "published": true,
     "custom": true
   },
   {
-    "id": "regenta-fms",
-    "client": "Regenta NHP",
+    "id": "mrf-dahej-network-fms",
+    "client": "MRF Limited",
     "wordmark": null,
-    "logo": null,
-    "category": "services",
-    "industry": "Hospitality",
-    "location": "Bharuch, Gujarat",
-    "period": "Engagement May–Jul 2025",
-    "arch_tag": "Hotel IT Operations & FMS",
-    "summary": "One hospitality IT partner for Regenta Central Harimangla and the NHP group — 12 months on-site FMS with 2 dedicated resources, group-wide consultancy across 5 companies and a 30-line infrastructure modernization.",
+    "logo": "assets/case-studies/logos/mrf.svg",
+    "category": "network",
+    "industry": "Automotive Tyre Manufacturing",
+    "location": "MRF Dahej",
+    "period": "Greenfield build → 7 years FMS",
+    "arch_tag": "Industrial IT/OT Network & FMS",
+    "summary": "Plant network transformation at MRF Dahej — 25.3 km single-mode fibre, 33.5 km shielded copper and 51 core + access switches engineered as one resilient voice, data and industrial foundation, supported through seven years of network FMS.",
     "challenge": "",
     "solution": "",
     "outcomes": [
-      "12 months on-site FMS",
-      "5 group companies covered",
-      "30-line infrastructure modernization"
+      "25.3 km fibre, 33.5 km copper",
+      "51 core + access switches",
+      "7 years network FMS continuity"
     ],
     "metrics": [
       [
-        "On-site FMS",
-        "12 Months"
+        "Fibre",
+        "25.3 km SM"
       ],
       [
-        "Team",
-        "2 Resources"
+        "Copper",
+        "33.5 km"
       ],
       [
-        "Group Coverage",
-        "5 Companies"
-      ]
-    ],
-    "pdf_file": "assets/case-studies/pdf/custom/regenta-fms.pdf",
-    "published": true,
-    "custom": true
-  },
-  {
-    "id": "ultratech-endpoint-fms",
-    "client": "UltraTech Wires and Cables",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/ultratech.webp",
-    "category": "services",
-    "industry": "Building Materials · Cables",
-    "location": "Mumbai office and Jhagadia plant",
-    "period": "10-day readiness · 8-month FMS",
-    "arch_tag": "Endpoint Delivery & FMS",
-    "summary": "Powering a new business from day one — 110 devices across the Mumbai office and Jhagadia plant delivered against a 10-day readiness target, backed by an eight-month on-site FMS engagement.",
-    "challenge": "",
-    "solution": "",
-    "outcomes": [
-      "110 devices across 2 locations",
-      "10-day technology-readiness target",
-      "8-month on-site FMS"
-    ],
-    "metrics": [
-      [
-        "Devices",
-        "110"
-      ],
-      [
-        "Locations",
-        "2"
-      ],
-      [
-        "Target",
-        "10-Day"
+        "Switches",
+        "51"
       ],
       [
         "FMS",
-        "8-Month"
+        "7 Years"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/ultratech-endpoint-fms.pdf",
+    "pdf_file": "assets/case-studies/pdf/custom/mrf-dahej-network-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "kohler-cisco-network",
+    "client": "Kohler India",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/kohler.png",
+    "category": "network",
+    "industry": "Manufacturing · Jhagadia",
+    "location": "Jhagadia, Gujarat",
+    "period": "Installation + handover",
+    "arch_tag": "Cisco Enterprise Network Installation",
+    "summary": "Cisco enterprise network micro-level installation for Kohler's Jhagadia operations — Catalyst switching, PoE access layer, Wi-Fi 6 coverage, OM3 fibre backbone, structured outlets and Axis video, commissioned with operational handover.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "3 Catalyst 9200L switches, 7 Wi-Fi 6 APs",
+      "300 m armoured OM3 fibre, 50 data outlets",
+      "Converged connectivity, video and display endpoints"
+    ],
+    "metrics": [
+      [
+        "Switches",
+        "3 × 9200L"
+      ],
+      [
+        "Wi-Fi 6 APs",
+        "7"
+      ],
+      [
+        "Fibre",
+        "300 m OM3"
+      ],
+      [
+        "Outlets",
+        "50 Data"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/kohler-cisco-network.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "avantor-it-infra",
+    "client": "Avantor",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/avantor.png",
+    "category": "network",
+    "industry": "Life-Sciences Manufacturing",
+    "location": "Panoli, Ankleshwar, Gujarat",
+    "period": "Order dated 9 Oct 2017",
+    "arch_tag": "Integrated IT Infrastructure",
+    "summary": "D-TECH integrated compute, backup, cybersecurity, managed switching, structured cabling, rack and power into one enterprise-ready infrastructure platform for Avantor's Panoli facility.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "2 Dell servers with backup and cybersecurity",
+      "5 Cisco managed switches",
+      "610 m Cat6 structured cabling across 24 validated nodes"
+    ],
+    "metrics": [
+      [
+        "Compute",
+        "2 Dell Servers"
+      ],
+      [
+        "Switching",
+        "5 Cisco Switches"
+      ],
+      [
+        "Cabling",
+        "610 m Cat6"
+      ],
+      [
+        "Validation",
+        "24 Nodes"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/avantor-it-infra.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "coromandel-hazarea-cctv",
+    "client": "Coromandel International",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/coromandel.png",
+    "category": "safety",
+    "industry": "Fertilizers & Chemicals",
+    "location": "Dahej SEZ II, Gujarat",
+    "period": "Documented order",
+    "arch_tag": "Hazardous-Area CCTV Infrastructure",
+    "summary": "A plant-wide CCTV platform engineered for scale at the Dahej site — 57 cameras with flameproof field assembly, fibre backbone, central recording and control-room visualization.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "57 cameras with 20 FLP enclosures",
+      "Fibre backbone with central recording",
+      "Control-room visualization"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "57"
+      ],
+      [
+        "FLP Enclosures",
+        "20"
+      ],
+      [
+        "Backbone",
+        "Fibre"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/coromandel-hazarea-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "rockwool",
+    "client": "ROCKWOOL",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/rockwool.svg",
+    "category": "safety",
+    "industry": "Manufacturing · Plant Safety",
+    "location": "ROCKWOOL plant",
+    "period": "Completion certified 29 May 2026",
+    "arch_tag": "Safety Training & Work Permit Kiosk",
+    "summary": "A turnkey touch kiosk that moves safety induction, biometric verification, safety-pass printing and digital work-permit approvals from paper to one traceable platform.",
+    "challenge": "Manual safety-training records, slow work-permit approvals, paper handoffs and difficult audit preparation made it hard to give employees, contractors and supervisors a consistent, traceable safety process.",
+    "solution": "D-TECH delivered a touch-enabled kiosk with audio/video training, fingerprint verification, integrated safety-pass printing, a group-training mode and a role-based digital work-permit workflow (create → safety review → approve/reject → track), with content in English, Hindi, Gujarati and other regional languages.",
+    "outcomes": [
+      "16 safety modules including fire, electrical, LOTO, hot work and work at height",
+      "Supervisor, safety-manager and approver roles with recorded decisions",
+      "Safety Training Kiosk, Group Training Kiosk and Work Permit Module delivered",
+      "Signed appreciation letter and work completion certificate (29 May 2026)"
+    ],
+    "metrics": [
+      [
+        "Training Modules",
+        "16 Topics"
+      ],
+      [
+        "Languages",
+        "EN · HI · GU +"
+      ],
+      [
+        "Verification",
+        "Biometric"
+      ],
+      [
+        "Customer Sign-off",
+        "May 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/rockwool-safety-training-work-permit-kiosk.pdf",
+    "published": true
+  },
+  {
+    "id": "adama-fms",
+    "client": "ADAMA India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/adama.png",
+    "category": "services",
+    "industry": "Agrochemicals",
+    "location": "Dahej facility, Gujarat",
+    "period": "AMC → CAMC renewal → 12-month FMS",
+    "arch_tag": "AMC to FMS Trust",
+    "summary": "Two years of dependable AMC/CAMC delivery earned D-TECH a new 12-month FMS engagement at ADAMA India's Dahej facility — continuity, responsiveness and earned trust told as a service-relationship case study.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "2+ years AMC relationship",
+      "5 systems under CAMC",
+      "24h complaint attendance, 48h parts replacement"
+    ],
+    "metrics": [
+      [
+        "AMC Relationship",
+        "2+ Years"
+      ],
+      [
+        "Systems under CAMC",
+        "5"
+      ],
+      [
+        "Complaint Attendance",
+        "24h"
+      ],
+      [
+        "Parts Replacement",
+        "48h"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/adama-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "cadila-server-infra",
+    "client": "Cadila Pharmaceuticals",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/cadila.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "location": "Ankleshwar, Gujarat",
+    "period": "Order dated 15 Jun 2026",
+    "arch_tag": "Enterprise Server Infrastructure",
+    "summary": "D-TECH delivered and supported enterprise server infrastructure for business-critical digital initiatives across Cadila's Ankleshwar operations — an HPE DL360 Windows + SQL platform for the paper-to-paperless programme, on schedule.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "HPE DL360 platform with Windows + SQL",
+      "5-year support coverage",
+      "Delivered on schedule to client appreciation"
+    ],
+    "metrics": [
+      [
+        "Platform",
+        "HPE DL360"
+      ],
+      [
+        "Support",
+        "5-Year"
+      ],
+      [
+        "Outcome",
+        "On Schedule"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/cadila-server-infra.pdf",
     "published": true,
     "custom": true
   },
@@ -1571,6 +919,658 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/wago-multi-location.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "gnfc-fms",
+    "client": "GNFC Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/gnfc.webp",
+    "category": "services",
+    "industry": "Chemicals & Fertilizers",
+    "location": "Head Office, Bharuch & TDI-II, Dahej",
+    "period": "2023 – 2026 · three completed cycles",
+    "arch_tag": "Enterprise IT FMS & Helpdesk",
+    "summary": "Resident helpdesk, field engineering, LAN/fibre operations and asset control for roughly 1,720 PCs and laptops across two GNFC sites — renewed and completion-certified three years running.",
+    "challenge": "A large, mixed estate of desktops, all-in-ones and laptops across two separated sites, with plant access and safety constraints, network dependencies, after-hours events and a need to document every complaint and asset change.",
+    "solution": "One FMS operating layer covering PC hardware and software, OS and applications (including SAP and AutoCAD), data backup before reinstall, LAN and Wi-Fi, UTP and fibre testing with OTDR, collaboration rooms, asset tagging and printer AMC — run through an online complaint system with spares stocked at Bharuch and Dahej.",
+    "outcomes": [
+      "Four GNFC completion certificates confirming no services pending",
+      "Mon–Sat on-site coverage, 08:00–17:00, with holiday support within 1 hour",
+      "OTDR arranged within 24 hours for optical-fibre faults",
+      "Monthly complaint analysis and quarterly spare-replacement reporting"
+    ],
+    "metrics": [
+      [
+        "Endpoints",
+        "~1,720 PCs & Laptops"
+      ],
+      [
+        "Sites",
+        "Bharuch + Dahej"
+      ],
+      [
+        "On-site Coverage",
+        "6 Days / Week"
+      ],
+      [
+        "Continuity",
+        "3 Service Years"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/gnfc-enterprise-it-fms-2023-2026.pdf",
+    "published": true
+  },
+  {
+    "id": "gnfc-amc",
+    "client": "GNFC Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/gnfc.webp",
+    "category": "services",
+    "industry": "Chemicals & Fertilizers",
+    "location": "Bharuch, Gujarat · multiple campuses",
+    "period": "2013 – 2018 · four work orders",
+    "arch_tag": "Network, PC & Dell Server AMC",
+    "summary": "Five documented years supporting GNFC's enterprise IT — plant-wide networks, 1,500+ PCs, software support and eight VMware-connected Dell servers — with a resident 12-engineer team.",
+    "challenge": "Support was needed across the factory, TDI complex, township, corporate building, labs and training sites, covering legacy desktops, software, fibre-linked networks and Dell servers on EMC SAN storage within VMware.",
+    "solution": "A six-tower AMC model: network operations, PC hardware, software support, server and virtualization, spares and restoration, and governance and safety — run by 12 on-site engineers with help-desk monitoring, asset tagging and OEM back-to-back server coverage.",
+    "outcomes": [
+      "2013–14 network AMC, 2015–16 PC hardware & software, 2016–18 Dell server AMC",
+      "Server AMC renewed in 2017 on the same scope and terms",
+      "24×7 server support with four-hour attendance and 24-hour resolution",
+      "Asset database, complaint records and periodic trend reporting"
+    ],
+    "metrics": [
+      [
+        "PC Estate",
+        "1,500+ Units"
+      ],
+      [
+        "Dell Servers",
+        "8"
+      ],
+      [
+        "On-site Team",
+        "12 Engineers"
+      ],
+      [
+        "Documented Span",
+        "2013 – 2018"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/gnfc-enterprise-amc-2013-2018.pdf",
+    "published": true
+  },
+  {
+    "id": "jb-pharma-fms",
+    "client": "JB Pharma",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/jb-pharma.png",
+    "category": "services",
+    "industry": "Pharmaceuticals",
+    "location": "Panoli, Ankleshwar and Bharuch",
+    "period": "1 Sep 2017 – 31 Mar 2018",
+    "arch_tag": "Multi-Location FMS + Hospital Support",
+    "summary": "Four-engineer FMS support across JB Pharma's Panoli, Ankleshwar and Bharuch operations covering 1,188+ assets — with free-of-cost IT support extended to Jayaben Mody Hospital.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "4 engineers across 3 regions",
+      "1,188+ listed assets",
+      "Free hospital IT support with social impact"
+    ],
+    "metrics": [
+      [
+        "Engineers",
+        "4"
+      ],
+      [
+        "Assets",
+        "1,188+"
+      ],
+      [
+        "Regions",
+        "3"
+      ],
+      [
+        "Hospital IT",
+        "Free of Cost"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/jb-pharma-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "bostik",
+    "client": "Bostik India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/bostik.svg",
+    "image": null,
+    "category": "network",
+    "industry": "Adhesives & Sealants",
+    "location": "Jhagadia, Bharuch, Gujarat",
+    "period": "Greenfield plant delivery",
+    "arch_tag": "Plant-wide Network & EPABX",
+    "summary": "Fibre, copper, Cisco Layer-3 switching and EPABX telephony for Bostik's new Jhagadia plant — mobilised within a week of the order and completed within a month.",
+    "challenge": "The new plant needed plant-wide fibre and copper connectivity, a Layer-3 switching foundation and plant telephony on an urgent schedule.",
+    "solution": "A full-site survey with the customer's IT team, a practical bill of material, expedited OEM supply, then installation and commissioning of the fibre backbone, structured copper, Cisco Layer-3 network and EPABX system — all through one delivery team.",
+    "outcomes": [
+      "Installation started within one week of order receipt",
+      "Recorded scope completed within one month",
+      "Passive, active and telephony workstreams under one partner",
+      "Layer-3 network ready for future users, devices and applications"
+    ],
+    "metrics": [
+      [
+        "Mobilisation",
+        "< 1 Week"
+      ],
+      [
+        "Completion",
+        "1 Month"
+      ],
+      [
+        "Network Core",
+        "Cisco Layer-3"
+      ],
+      [
+        "Telephony",
+        "EPABX"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/bostik-plant-network-epabx.pdf",
+    "published": true
+  },
+  {
+    "id": "bostik-fms",
+    "client": "Bostik India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/bostik.svg",
+    "category": "services",
+    "industry": "Adhesives & Sealants",
+    "location": "Jhagadia, Bharuch, Gujarat",
+    "period": "Greenfield build → 12+ years FMS · renewed 2025",
+    "arch_tag": "12-Year FMS Lifecycle",
+    "summary": "From greenfield fibre, copper, Cisco Layer-3 and EPABX foundation to more than 12 years of IT facility-management partnership at Bostik's Jhagadia plant — design, deliver, operate, evolve.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Greenfield infrastructure completed within one month",
+      "12+ years continuous FMS support",
+      "Support contract renewed in 2025"
+    ],
+    "metrics": [
+      [
+        "Partnership",
+        "12+ Years"
+      ],
+      [
+        "Mobilisation",
+        "< 1 Week"
+      ],
+      [
+        "Build",
+        "1 Month"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/bostik-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "continental-network-workplace",
+    "client": "Continental Carbon",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/continental-carbon.png",
+    "category": "network",
+    "industry": "Manufacturing · Carbon Materials",
+    "location": "Dahej Industrial Estate, Gujarat",
+    "period": "Order 2022-23",
+    "arch_tag": "Secure Network & Digital Workplace",
+    "summary": "Delivery, installation and commissioning of Fortinet security, enterprise wireless, Microsoft productivity and operational IT endpoints — one accountable partner for secure connectivity and reliable site operations.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Fortinet-secured core with 20 wireless APs",
+      "43 users on Microsoft productivity",
+      "Integrated endpoints for site operations"
+    ],
+    "metrics": [
+      [
+        "Access Points",
+        "20"
+      ],
+      [
+        "Users",
+        "43"
+      ],
+      [
+        "Security",
+        "Fortinet"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/continental-network-workplace.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "indofil",
+    "client": "Indofil Industries Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/indofil.webp",
+    "image": null,
+    "category": "network",
+    "industry": "Specialty Chemicals",
+    "location": "Indofil Synthesis Plant, Dahej, Gujarat",
+    "period": "Greenfield plant rollout",
+    "arch_tag": "Complete Greenfield Plant IT",
+    "summary": "A turnkey IT foundation for Indofil's new Dahej synthesis plant — fibre, copper, switching, Wi-Fi, data centre, servers, AV boardroom and PA — won through e-auction and delivered on schedule.",
+    "challenge": "The new plant needed connectivity, compute, communication and collaboration built together, with dependencies across domains managed in one plan and delivery on the committed schedule after competitive sourcing.",
+    "solution": "D-TECH surveyed the upcoming facility, consolidated networking, indoor Wi-Fi, data-centre activities, servers, AV boardroom and public-address requirements into one engineered bill of material, competed through an e-auction, and delivered the accepted scope as a single accountable integrator.",
+    "outcomes": [
+      "Accepted multi-domain scope completed within the committed timeframe",
+      "Network, Wi-Fi, data centre, servers, AV and PA delivered as one programme",
+      "One partner removed cross-vendor coordination across seven domains",
+      "Infrastructure base for future plant systems and digital initiatives"
+    ],
+    "metrics": [
+      [
+        "Solution Domains",
+        "7"
+      ],
+      [
+        "Site",
+        "Greenfield Plant"
+      ],
+      [
+        "Sourcing",
+        "Won via e-Auction"
+      ],
+      [
+        "Delivery",
+        "On Committed Date"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/indofil-complete-it-infrastructure.pdf",
+    "published": true
+  },
+  {
+    "id": "dic-amc",
+    "client": "DIC Fine Chemicals Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/dic.png",
+    "category": "services",
+    "industry": "Chemicals",
+    "location": "Plot Z-3, Dahej SEZ, Gujarat",
+    "period": "Renewed 26 Jun 2017 · 3+ years",
+    "arch_tag": "3-Year Comprehensive AMC",
+    "summary": "A multi-year managed maintenance relationship supporting end-user systems, network and servers at the Dahej SEZ manufacturing site — desktops, laptops, printers and Cisco switching under one comprehensive AMC.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "40 desktops, 14 laptops and 14 printers maintained",
+      "4 Cisco 48-port switches under AMC",
+      "Renewed for 3+ years"
+    ],
+    "metrics": [
+      [
+        "Desktops",
+        "40 Systems"
+      ],
+      [
+        "Laptops",
+        "14 Systems"
+      ],
+      [
+        "Printers",
+        "14"
+      ],
+      [
+        "Switches",
+        "4 × 48-Port"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/dic-amc.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "balaji",
+    "client": "Balaji Wafers Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/balaji.svg",
+    "image": null,
+    "category": "safety",
+    "industry": "Food Processing & High-Speed FMCG",
+    "location": "Food Manufacturing Hub, Gujarat",
+    "period": "Submitted 2019",
+    "arch_tag": "AI Vision QC Reject & RFID Dispatch",
+    "summary": "Integrated high-speed inline AI vision reject sorting and RFID weighbridge dispatch to slash shipping discrepancies and streamline shift meal queues.",
+    "challenge": "High-speed snack packaging operations running 24/7 faced manual packaging inspection bottlenecks, warehouse shipping discrepancies across multi-state distribution hubs, and cafeteria queuing delays across three manufacturing shifts of 3,500+ workers.",
+    "solution": "Deployed automated AI vision quality reject sorting on high-speed conveyors, automated RFID boom barriers and terminal weighbridge dispatch, alongside contactless Cafeteria CMS RFID terminals synced to payroll. Fully integrated into corporate SAP ERP for paperless dispatch.",
+    "outcomes": [],
+    "metrics": [
+      [
+        "Shipping Accuracy",
+        "99.8% Match"
+      ],
+      [
+        "Meal Tap Speed",
+        "< 0.4 Seconds"
+      ],
+      [
+        "Daily Shift Volume",
+        "3,500+ Workers"
+      ],
+      [
+        "Food Waste Drop",
+        "28% Reduction"
+      ]
+    ],
+    "quote": "The automation delivered by D-TECH eliminated dispatch errors and modernized our plant workforce operations without disrupting daily production.",
+    "quote_author": "Head of Plant Automation & Logistics",
+    "pdf_file": "assets/case-studies/balaji-wafers-case-study.pdf",
+    "published": false
+  },
+  {
+    "id": "balaji-cctv",
+    "client": "Balaji Wafers Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/balaji.svg",
+    "category": "safety",
+    "industry": "Food Processing & FMCG",
+    "location": "Main factory, Jamnagar and head office",
+    "period": "Repeat-order modernization",
+    "arch_tag": "600+ Camera CCTV Modernization",
+    "summary": "D-TECH transformed an unsatisfactory legacy camera estate into a 600+ camera security platform across the main factory, Jamnagar and the head office — resilient fibre, structured recording and controlled access.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "600+ cameras on one security platform",
+      "Resilient fibre backbone with structured recording",
+      "Repeat orders across three locations"
+    ],
+    "metrics": [
+      [
+        "Camera Platform",
+        "600+ Cameras"
+      ],
+      [
+        "Locations",
+        "3 Sites"
+      ],
+      [
+        "Backbone",
+        "Fibre + Recording"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/balaji-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "filatex-fms",
+    "client": "Filatex Group",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/filatex.png",
+    "category": "services",
+    "industry": "Textiles · Multi-Location Plants",
+    "location": "Delhi, Surat and Dahej plants and offices",
+    "period": "Dedicated FMS engagement",
+    "arch_tag": "Multi-Location FMS Operations",
+    "summary": "A dedicated FMS engineering engagement for hardware, networking and server operations across Filatex plants and offices — 100+ servers and VMs across 5 locations covering security, identity, virtualisation, backup, cloud and Microsoft 365.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "100+ servers and VMs monitored and supported",
+      "5 supported locations",
+      "Enterprise security, backup and network coordination"
+    ],
+    "metrics": [
+      [
+        "Servers & VMs",
+        "100+"
+      ],
+      [
+        "Locations",
+        "5"
+      ],
+      [
+        "Engineer",
+        "Dedicated FMS"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/filatex-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "krystal",
+    "client": "Krystal Ingredients Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/krystal.webp",
+    "category": "safety",
+    "industry": "Chemicals · Hazardous Area",
+    "location": "Dahej, Gujarat",
+    "period": "Designed, integrated & commissioned by D-TECH",
+    "arch_tag": "IP PA System & FLP Telephones",
+    "summary": "Plant-wide IP public-address paging integrated with the existing Matrix PABX, with flameproof telephones in the MPP plant and zone-wise or all-call announcements.",
+    "challenge": "Teams across admin, security, utilities and process areas lacked one way to reach personnel; the MPP plant needed flameproof phones; and the system had to reuse the installed Matrix PABX and LAN with controlled, authorised announcements.",
+    "solution": "Authorised calls from telephones, FLP phones or paging microphones route through the Matrix GENX12SAC PABX over SIP to indoor and outdoor IP speakers, with zone mapping, all-call codes and PABX-based access control — surveyed, installed, programmed, tested and documented by D-TECH.",
+    "outcomes": [
+      "Coverage from admin, security and OHC to boiler, ETP and warehouse",
+      "MPP plant covered at 0, 6, 12, 19 and 26 m levels plus terrace",
+      "Zone-wise paging and an all-call facility for urgent announcements",
+      "Spare indoor and outdoor speakers held for resilience"
+    ],
+    "metrics": [
+      [
+        "IP Speakers",
+        "27"
+      ],
+      [
+        "Outdoor Speakers",
+        "18"
+      ],
+      [
+        "FLP Telephones",
+        "12"
+      ],
+      [
+        "Paging Consoles",
+        "3"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/krystal-ingredients-ip-pa-flp-telephone.pdf",
+    "published": true
+  },
+  {
+    "id": "rajashree-polyfil",
+    "client": "Rajashree Polyfil",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/century-enka.png",
+    "category": "services",
+    "industry": "Textiles · Polyester Fibre",
+    "location": "Bharuch, Gujarat",
+    "period": "17+ years · orders in 2025-26",
+    "arch_tag": "17-Year Technology Relationship",
+    "summary": "More than 17 years of continuous trust with Century Enka's Rajashree Polyfil unit — long-term support evolving through network, CCTV and IP video modernization, with 2025-26 orders demonstrating the relationship continues.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "17+ years continuous support",
+      "Network, CCTV and IP video evolution",
+      "Current 2025-26 orders"
+    ],
+    "metrics": [
+      [
+        "Relationship",
+        "17+ Years"
+      ],
+      [
+        "Scope",
+        "Network + CCTV"
+      ],
+      [
+        "Recent Orders",
+        "2025–26"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/rajashree-polyfil.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "dahej-sez-amc",
+    "client": "Dahej SEZ Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/dahej-sez.png",
+    "category": "services",
+    "industry": "Industrial Estate Administration",
+    "location": "Dahej, Bharuch, Gujarat",
+    "period": "Effective 1 Jul 2016 · 1-year AMC",
+    "arch_tag": "Workplace Technology AMC",
+    "summary": "Annual maintenance keeping workplace technology ready across two Dahej SEZ admin buildings — computers, printers, fax, EPABX, router and network infrastructure on a monthly + breakdown rhythm.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Two admin buildings covered",
+      "Monthly preventive + breakdown service",
+      "Computers to EPABX under one AMC"
+    ],
+    "metrics": [
+      [
+        "Engagement",
+        "1-Year AMC"
+      ],
+      [
+        "Coverage",
+        "2 Buildings"
+      ],
+      [
+        "Rhythm",
+        "Monthly + Breakdown"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/dahej-sez-amc.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "regenta-fms",
+    "client": "Regenta NHP",
+    "wordmark": null,
+    "logo": null,
+    "category": "services",
+    "industry": "Hospitality",
+    "location": "Bharuch, Gujarat",
+    "period": "Engagement May–Jul 2025",
+    "arch_tag": "Hotel IT Operations & FMS",
+    "summary": "One hospitality IT partner for Regenta Central Harimangla and the NHP group — 12 months on-site FMS with 2 dedicated resources, group-wide consultancy across 5 companies and a 30-line infrastructure modernization.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "12 months on-site FMS",
+      "5 group companies covered",
+      "30-line infrastructure modernization"
+    ],
+    "metrics": [
+      [
+        "On-site FMS",
+        "12 Months"
+      ],
+      [
+        "Team",
+        "2 Resources"
+      ],
+      [
+        "Group Coverage",
+        "5 Companies"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/regenta-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "veer-pharma",
+    "client": "Veer Pharma",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/veer-pharmachem.webp",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "location": "Jhagadia, Gujarat",
+    "period": "Turnkey IT & ELV programme",
+    "arch_tag": "Redundant Turnkey IT Infrastructure",
+    "summary": "A secure, redundant, centrally managed IT backbone — servers, SAN/NAS, VMware HA, dual-core network, firewall HA, Wi-Fi, CCTV, IP-PBX and access control — delivered as one programme.",
+    "challenge": "Veer Pharma needed endpoints, servers, storage, applications and user access under central control, without single points of failure, and with laboratory, CCTV, voice, guest and business traffic kept apart.",
+    "solution": "Three Dell PowerEdge hosts on VMware ESXi/vCenter HA with Dell SAN, QNAP NAS and Veritas backup; dual Dell core switches with ten PoE+ access switches and ten segmented VLANs; Sophos firewalls in HA; Aruba Wi-Fi; Hikvision CCTV; Matrix IP-PBX and COSEC access control — engineered, installed, configured, tested and documented by D-TECH.",
+    "outcomes": [
+      "Up to 99.3% design availability through redundant firewall, core, compute and storage",
+      "Ten VLANs isolate business, lab/QC, security, voice and guest traffic",
+      "Domain, SAP/HANA, file, QC, email, antivirus and COSEC services hosted",
+      "Architecture ready for more users, devices and plant expansion"
+    ],
+    "metrics": [
+      [
+        "Dell Servers",
+        "3 · VMware HA"
+      ],
+      [
+        "Segmented VLANs",
+        "10"
+      ],
+      [
+        "Wi-Fi Access Points",
+        "8"
+      ],
+      [
+        "Design Availability",
+        "99.3%"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/veer-pharma-turnkey-it-infrastructure.pdf",
+    "published": true
+  },
+  {
+    "id": "alchemie-hazarea-cctv",
+    "client": "Alchemie Finechem",
+    "wordmark": null,
+    "logo": null,
+    "category": "safety",
+    "industry": "Chemicals · Hazardous Area",
+    "location": "Block 11, Saykha GIDC, Bharuch",
+    "period": "Order dated 17 Apr 2026",
+    "arch_tag": "Hazardous-Area CCTV + PABX Roadmap",
+    "summary": "A documented hazardous-area CCTV deployment for Block 11 at the Saykha manufacturing facility — flameproof surveillance with a clear path toward integrated PABX and emergency communication.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "5 Matrix bullet cameras at defined observation points",
+      "5 PESO-certified FLP aluminium enclosures",
+      "Flameproof conduits and IP66 sealed termination"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "5 Bullet"
+      ],
+      [
+        "FLP Enclosures",
+        "5"
+      ],
+      [
+        "Site",
+        "Block 11 · Saykha"
+      ],
+      [
+        "Order",
+        "Apr 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/alchemie-hazarea-cctv.pdf",
     "published": true,
     "custom": true
   }
