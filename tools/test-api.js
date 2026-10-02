@@ -566,9 +566,13 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }
   }
   const storeChecks = [
-    ['409 conflict → retried, gives up after 2 attempts', () => withFakeGitHub([[409, 'conflict']], async (puts) => {
+    ['409 conflict → retried, gives up after 4 attempts', () => withFakeGitHub([[409, 'conflict']], async (puts) => {
       await assert.rejects(store.appendJson('private', 'leads.json', { id: 'x' }, 'm'), /changed too often/);
-      eq(puts.length, 2);
+      eq(puts.length, 4);
+    })],
+    ['three conflicts in a row → fourth attempt succeeds', () => withFakeGitHub([[409, 'conflict'], [409, 'conflict'], [409, 'conflict'], [201, '{}']], async (puts) => {
+      await store.appendJson('private', 'leads.json', { id: 'x' }, 'm');
+      eq(puts.length, 4);
     })],
     ['422 sha mismatch → retried, then succeeds', () => withFakeGitHub([[422, '{"message":"sha does not match"}'], [201, '{}']], async (puts) => {
       await store.appendJson('private', 'leads.json', { id: 'x' }, 'm');
@@ -624,6 +628,71 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],
   ]);
   await area('8. GitHub store retry & privacy (api/_store.js)', storeChecks);
+
+  // 9. Stopgap hardening: form timing trap, email-only CVs, permanent delete
+  console.error = (...a) => quiet.push(a.join(' '));
+  const stale = () => Date.now() - 60 * 1000;
+  await area('9. Spam trap, email-only CVs, purge', [
+    ['contact posted within 3 s of page load → 200, nothing sent or filed', async () => {
+      const before = sent.length, filed = inboxFile('requirements.json').length;
+      const r = await call(contact, req('POST', { ...validEnquiry, formStart: Date.now() }));
+      eq(r.statusCode, 200); eq(sent.length, before, 'mail sent for fast bot'); eq(inboxFile('requirements.json').length, filed);
+    }],
+    ['contact with a realistic fill time → processed normally', async () => {
+      const before = sent.length;
+      const r = await call(contact, req('POST', { ...validEnquiry, formStart: stale() }));
+      eq(r.statusCode, 200); assert(sent.length > before, 'no mail');
+    }],
+    ['apply and whitepaper also drop too-fast posts', async () => {
+      const before = sent.length;
+      eq((await call(apply, req('POST', { ...applicant, email: 'fast@example.com', formStart: Date.now() }))).statusCode, 200);
+      eq((await call(whitepaper, req('POST', { caseId: Object.keys(papers)[0] || 'x', email: 'fast@example.com', formStart: Date.now() }))).statusCode, 200);
+      eq(sent.length, before, 'mail sent for fast bot');
+    }],
+    ['CV_STORAGE=email → CV emailed, not filed, record flagged', async () => {
+      process.env.CV_STORAGE = 'email';
+      try {
+        const before = sent.length;
+        const r = await call(apply, req('POST', { ...applicant, jobId: '', jobTitle: 'Test role', email: 'emailonly@example.com', cv: { filename: 'Only Mail.pdf', type: 'application/pdf', dataBase64: pdfB64 } }));
+        eq(r.statusCode, 200, JSON.stringify(r.body));
+        eq(sent[before].attachments.length, 1, 'CV attached to the HR mail');
+        const rec = inboxFile('applicants.json').find(a => a.id === r.body.reference);
+        eq(rec.cv.emailOnly, true); eq(rec.cv.path, undefined);
+        assert(!fs.existsSync('.portal-data/cvs') || !fs.readdirSync('.portal-data/cvs').some(n => n.includes(r.body.reference)), 'CV file written');
+      } finally { delete process.env.CV_STORAGE; }
+    }],
+    ['store.deleteFile removes a file, then reports it missing', async () => {
+      await store.putFile('private', 'cvs/tmp-delete.pdf', Buffer.from('%PDF'), 'm');
+      eq(await store.deleteFile('private', 'cvs/tmp-delete.pdf', 'm'), true);
+      eq(await store.deleteFile('private', 'cvs/tmp-delete.pdf', 'm'), false);
+      await assert.rejects(store.deleteFile('private', '../escape.pdf', 'm'), /Invalid storage path/);
+    }],
+    ['purge applicant → record and CV file gone, others kept', async () => {
+      const filed = await call(apply, req('POST', { ...applicant, jobId: '', jobTitle: 'Test role', email: 'purge@example.com', cv: { filename: 'Purge Me.pdf', type: 'application/pdf', dataBase64: pdfB64 } }));
+      eq(filed.statusCode, 200);
+      const rec = inboxFile('applicants.json').find(a => a.id === filed.body.reference);
+      assert(fs.existsSync(path.join('.portal-data', rec.cv.path)), 'CV not filed');
+      const count = inboxFile('applicants.json').length;
+      const r = await post({ type: 'applicant', action: 'purge', id: rec.id });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(inboxFile('applicants.json').length, count - 1);
+      assert(!inboxFile('applicants.json').some(a => a.id === rec.id), 'record kept');
+      assert(!fs.existsSync(path.join('.portal-data', rec.cv.path)), 'CV file kept');
+    }],
+    ['purge requirement and lead → record removed', async () => {
+      const req1 = inboxFile('requirements.json')[0];
+      const r = await post({ type: 'requirement', action: 'purge', id: req1.id });
+      eq(r.statusCode, 200); assert(!inboxFile('requirements.json').some(x => x.id === req1.id));
+    }],
+    ['purge unknown id → 400; without a session → hidden 404', async () => {
+      eq((await post({ type: 'applicant', action: 'purge', id: 'no-such-id' })).statusCode, 400);
+      eq((await call(update, req('POST', { type: 'applicant', action: 'purge', id: 'x' }))).statusCode, 404);
+    }],
+    ['purge is not offered for site content', async () => {
+      eq((await post({ type: 'job', action: 'purge', id: 'x' })).statusCode, 400);
+    }],
+  ]);
+  console.error = errLog;
 
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });

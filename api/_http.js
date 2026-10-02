@@ -31,6 +31,18 @@ function allowedOrigin(req) {
     .includes(origin.replace(/\/+$/, ''));
 }
 
+// Real visitors need a few seconds to fill in a form; scripts post within milliseconds.
+// The page sends the time it loaded as "formStart" (epoch ms). A missing or
+// implausible value is allowed, so pages cached before this check keep working.
+const MIN_FILL_MS = 3000;
+
+function submittedTooFast(body) {
+  const start = Number(body && body.formStart);
+  if (!Number.isFinite(start)) return false;
+  const elapsed = Date.now() - start;
+  return elapsed >= 0 && elapsed < MIN_FILL_MS;
+}
+
 function esc(v) {
   return String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
@@ -39,4 +51,4 @@ function clean(v, max) {
   return String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
 }
 
-module.exports = { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean };
+module.exports = { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean };

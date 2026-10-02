@@ -13,12 +13,17 @@
 // Needs SMTP_HOST, SMTP_USER and SMTP_PASS (see _mail.js); HR_EMAIL optionally
 // overrides where applications go (default SALES_EMAIL). Filing needs
 // GITHUB_DATA_REPO and a token (see _store.js).
+//
+// CV_STORAGE=email keeps CV files out of the data repository: the CV only travels
+// as the email attachment to HR and the record notes that it was emailed, so
+// deleting the email deletes the CV (git history never holds a copy). Any other
+// value (the default) also files the CV in the private repository.
 
 const fs = require('fs');
 const path = require('path');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
-const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
+const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
 
 const MAX_CV_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
 const ALLOWED_CV = {
@@ -35,6 +40,8 @@ const CV_SIGNATURES = {
 };
 
 const overLimit = createRateLimiter();
+
+const emailOnlyCvs = () => String(process.env.CV_STORAGE || '').toLowerCase() === 'email';
 
 function matchesSignature(buffer, mime) {
   const sig = CV_SIGNATURES[mime];
@@ -79,7 +86,7 @@ function applicationText({ applicant, role, ip }) {
 // The CV is committed first so the record never points at a missing file.
 async function fileApplication(record, cv) {
   if (!store.isConfigured('private')) throw new Error('private storage is not configured');
-  if (cv) await store.putFile('private', record.cv.path, cv.buffer, `Add CV for ${record.name}`);
+  if (cv && record.cv.path) await store.putFile('private', record.cv.path, cv.buffer, `Add CV for ${record.name}`);
   await store.appendJson('private', 'applicants.json', record, `Add application from ${record.name} for ${record.role}`);
 }
 
@@ -101,7 +108,7 @@ module.exports = async function handler(req, res) {
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   body = body || {};
-  if (body.website) return res.status(200).json({ ok: true }); // bot trap
+  if (body.website || submittedTooFast(body)) return res.status(200).json({ ok: true }); // bot trap
 
   const applicant = {
     name: clean(body.name, 120),
@@ -145,7 +152,9 @@ module.exports = async function handler(req, res) {
   const record = {
     id, ...applicant, role, jobId: job ? job.id : '', department: job ? job.department || '' : '',
     location: job ? job.location || '' : '', date: new Date().toISOString(),
-    cv: cv ? { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, path: `cvs/${id}-${cv.filename.replace(/[^A-Za-z0-9._-]+/g, '-')}` } : null,
+    cv: !cv ? null
+      : emailOnlyCvs() ? { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, emailOnly: true }
+      : { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, path: `cvs/${id}-${cv.filename.replace(/[^A-Za-z0-9._-]+/g, '-')}` },
   };
 
   const [mailed, filed] = await Promise.allSettled([

@@ -124,6 +124,7 @@
     ]
   }
   </script>
+  <script>window.__formStart = Date.now();</script>
   <script src="assets/analytics.min.js?v=b98f1a835b" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -1099,7 +1100,7 @@
             const r = await fetch(WHITEPAPER_MAIL_CONFIG.endpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-              body: JSON.stringify({ caseId, email: toEmail, name, phone, company, website: document.getElementById('gate-website')?.value || '' }),
+              body: JSON.stringify({ caseId, email: toEmail, name, phone, company, website: document.getElementById('gate-website')?.value || '', formStart: window.__formStart }),
               signal: controller.signal
             });
             const data = await r.json().catch(() => ({}));

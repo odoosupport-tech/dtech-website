@@ -99,6 +99,7 @@
     ]
   }
   </script>
+  <script>window.__formStart = Date.now();</script>
   <script src="assets/analytics.min.js?v=b98f1a835b" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -454,6 +455,7 @@
         topic: sel?.selectedOptions[0]?.text || '',
         message: field('rfp-requirements-textarea'),
         website: field('contact-website'),
+        formStart: window.__formStart,
       };
 
       if (button) button.disabled = true;

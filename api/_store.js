@@ -34,7 +34,8 @@ const path = require('path');
 const API = 'https://api.github.com';
 const TIMEOUT_MS = 6000;
 const UPLOAD_TIMEOUT_MS = 20000; // a 3 MB PDF is a 4 MB request body
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 4;
+const RETRY_BASE_MS = 150;
 const UPLOADS_DIR = 'assets/case-studies/pdf/custom';
 const LOGOS_DIR = 'assets/case-studies/logos/custom';
 
@@ -175,6 +176,34 @@ async function writeRaw(cfg, file, buffer, sha, message) {
   throw new Error(`GitHub write of ${file} failed: HTTP ${res.status} ${detail.slice(0, 200)}`);
 }
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// Deletes a file; resolves false when it does not exist. Git history still holds
+// earlier versions of a deleted file, so this removes it from the working tree only.
+async function deleteRaw(cfg, file, message) {
+  if (cfg.mode === 'local') {
+    try {
+      fs.unlinkSync(path.join(process.cwd(), cfg.localDir, safePath(file)));
+      return true;
+    } catch (err) {
+      if (err.code === 'ENOENT') return false;
+      throw err;
+    }
+  }
+  if (cfg.name === 'private') await assertPrivateRepo(cfg);
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const hit = await readRaw(cfg, file);
+    if (!hit) return false;
+    const res = await gh(cfg, 'DELETE', file, { body: { message, sha: hit.sha, branch: cfg.branch } });
+    if (res.ok) return true;
+    const detail = await res.text().catch(() => '');
+    const lostRace = res.status === 409 || (res.status === 422 && /\bsha\b/i.test(detail));
+    if (!lostRace) throw new Error(`GitHub delete of ${file} failed: HTTP ${res.status} ${detail.slice(0, 200)}`);
+    await sleep(RETRY_BASE_MS * attempt * (1 + Math.random()));
+  }
+  throw new Error(`${file} changed too often while deleting; please try again`);
+}
+
 async function readJson(storeName, file, fallback) {
   const hit = await readRaw(requireStore(storeName), file);
   if (!hit) return fallback;
@@ -197,6 +226,8 @@ async function updateJson(storeName, file, fallback, mutate, message) {
     const buffer = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8');
     const text = typeof message === 'function' ? message(next) : message;
     if (await writeRaw(cfg, file, buffer, hit && hit.sha, text)) return next;
+    // Jittered back-off so simultaneous writers do not collide again in lockstep.
+    if (attempt < MAX_ATTEMPTS) await sleep(RETRY_BASE_MS * attempt * (1 + Math.random()));
   }
   throw new Error(`${file} changed too often while saving; please try again`);
 }
@@ -211,6 +242,10 @@ async function putFile(storeName, file, buffer, message) {
   if (!(await writeRaw(cfg, file, buffer, null, message))) throw new Error(`${file} already exists`);
 }
 
+async function deleteFile(storeName, file, message) {
+  return deleteRaw(requireStore(storeName), file, message);
+}
+
 async function readFile(storeName, file) {
   const hit = await readRaw(requireStore(storeName), file);
   return hit ? hit.buffer : null;
@@ -220,4 +255,4 @@ function newId() {
   return `${Date.now().toString(36)}-${require('crypto').randomBytes(4).toString('hex')}`;
 }
 
-module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, readFile, newId };
+module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, deleteFile, readFile, newId };
