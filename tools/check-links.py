@@ -10,6 +10,7 @@ Usage: python3 tools/check-links.py
 Exit code 1 when problems are found (CI-friendly).
 """
 import glob
+import json
 import os
 import re
 import sys
@@ -44,6 +45,9 @@ def check_file(path):
                 target = open(nofrag, encoding='utf-8').read()
                 # case-studies.html#services etc. open a filter tab (see applyCaseHash there)
                 target_ids = set(re.findall(r'id="([^"]+)"', target)) | set(re.findall(r'data-filter="([^"]+)"', target))
+                # case-studies.html adds the console-published cards at load time from data/case-studies.json
+                if nofrag.endswith('case-studies.html'):
+                    target_ids |= {c['id'] for c in json.load(open('data/case-studies.json', encoding='utf-8')) if c.get('id')}
                 if frag not in target_ids:
                     problems.append(f'{path}: dead anchor {u}')
             except OSError:
