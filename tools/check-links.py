@@ -24,6 +24,9 @@ problems = []
 def check_file(path):
     html = open(path, encoding='utf-8').read()
     ids = set(re.findall(r'id="([^"]+)"', html))
+    # case-studies.html adds the console-published cards at load time from data/case-studies.json
+    if path.endswith('case-studies.html'):
+        ids |= {c['id'] for c in json.load(open('data/case-studies.json', encoding='utf-8')) if c.get('id')}
     for m in re.finditer(r'(?:src|href)=["\']([^"\']+)["\']', html):
         u = m.group(1)
         if u.startswith(SKIP_PREFIXES) or '${' in u:

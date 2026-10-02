@@ -175,14 +175,14 @@
         </div>
         <nav class="cs-wall" aria-label="Clients featured in these case studies">
             <a class="cs-wall-tile" href="#petronet-fms" title="Petronet LNG Limited"><img class="cs-wall-logo" width="429" height="600" src="assets/case-studies/logos/petronet-lng.webp" alt="Petronet LNG Limited logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#rockwool" title="ROCKWOOL"><img class="cs-wall-logo" width="165" height="30" src="assets/case-studies/logos/rockwool.svg" alt="ROCKWOOL logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#gnfc-fms" title="GNFC Limited"><img class="cs-wall-logo" width="556" height="567" src="assets/case-studies/logos/gnfc.webp" alt="GNFC Limited logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#veer-pharma" title="Veer Pharma"><img class="cs-wall-logo" width="198" height="145" src="assets/case-studies/logos/veer-pharmachem.webp" alt="Veer Pharma logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#krystal" title="Krystal Ingredients Pvt. Ltd."><img class="cs-wall-logo" width="431" height="276" src="assets/case-studies/logos/krystal.webp" alt="Krystal Ingredients Pvt. Ltd. logo" decoding="async"></a>
             <a class="cs-wall-tile" href="#mrf" title="MRF Limited"><img class="cs-wall-logo" width="353" height="71" src="assets/case-studies/logos/mrf.svg" alt="MRF Limited logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#indofil" title="Indofil Industries Limited"><img class="cs-wall-logo" width="150" height="50" src="assets/case-studies/logos/indofil.webp" alt="Indofil Industries Limited logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#bostik" title="Bostik India Pvt. Ltd."><img class="cs-wall-logo" width="300" height="122" src="assets/case-studies/logos/bostik.svg" alt="Bostik India Pvt. Ltd. logo" decoding="async"></a>
-            <a class="cs-wall-tile" href="#balaji" title="Balaji Wafers Private Limited"><img class="cs-wall-logo" width="110" height="85" src="assets/case-studies/logos/balaji.svg" alt="Balaji Wafers Private Limited logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#honda-cctv-network" title="Honda Motorcycle &amp; Scooter India Pvt. Ltd."><img class="cs-wall-logo" width="1200" height="154" src="assets/case-studies/logos/custom/honda.png" alt="Honda Motorcycle &amp; Scooter India Pvt. Ltd. logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#lt-mhi-cisco-amc" title="L&amp;T-MHI Boilers Private Limited"><img class="cs-wall-logo" width="531" height="531" src="assets/case-studies/logos/custom/larsen-toubro.png" alt="L&amp;T-MHI Boilers Private Limited logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#grasim-cctv-network" title="Grasim Industries Limited"><img class="cs-wall-logo" width="1200" height="1171" src="assets/case-studies/logos/custom/grasim.webp" alt="Grasim Industries Limited logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#ultratech-endpoint-fms" title="UltraTech Wires and Cables"><img class="cs-wall-logo" width="1200" height="1167" src="assets/case-studies/logos/custom/ultratech.webp" alt="UltraTech Wires and Cables logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#cadila-server-infra" title="Cadila Pharmaceuticals"><img class="cs-wall-logo" width="1200" height="448" src="assets/case-studies/logos/custom/cadila.png" alt="Cadila Pharmaceuticals logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#gnfc-fms" title="GNFC Limited"><img class="cs-wall-logo" width="556" height="567" src="assets/case-studies/logos/gnfc.webp" alt="GNFC Limited logo" decoding="async"></a>
+            <a class="cs-wall-tile" href="#rockwool" title="ROCKWOOL"><img class="cs-wall-logo" width="165" height="30" src="assets/case-studies/logos/rockwool.svg" alt="ROCKWOOL logo" decoding="async"></a>
         </nav>
       </div>
     </section>
@@ -1349,6 +1349,7 @@
           if (!wall) return;
           if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
           var ROTATE_MS = 4500, FADE_MS = 400;
+          // Major brands only: smaller names (Bostik, Indofil, Balaji) are left out of the wall.
           var BEST_BRAND_IDS = [
             'lt-mhi-cisco-amc',               // Larsen & Toubro (L&T)
             'honda-cctv-network',              // Honda Motorcycle & Scooter India
@@ -1361,13 +1362,10 @@
             'rockwool',                        // ROCKWOOL
             'kohler-cisco-network',            // Kohler India
             'avantor-it-infra',                // Avantor
-            'bostik',                          // Bostik India
             'coromandel-hazarea-cctv',         // Coromandel International
             'continental-network-workplace',   // Continental Carbon
-            'balaji',                          // Balaji Wafers
             'wago-assembly-it',                // WAGO
             'adama-fms',                       // ADAMA India
-            'indofil',                         // Indofil Industries
             'jb-pharma-fms'                    // JB Pharma
           ];
           var pool = [], hovering = false, inView = true;
