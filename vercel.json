@@ -32,6 +32,16 @@
   },
   "redirects": [
     {
+      "source": "/solutions.html",
+      "destination": "/tfms.html",
+      "permanent": true
+    },
+    {
+      "source": "/solutions",
+      "destination": "/tfms.html",
+      "permanent": true
+    },
+    {
       "source": "/api/(.+)\\.(js|json)",
       "destination": "/404.html",
       "permanent": false
@@ -48,12 +58,12 @@
     },
     {
       "source": "/products.html",
-      "destination": "/solutions.html",
+      "destination": "/tfms.html",
       "permanent": true
     },
     {
       "source": "/products",
-      "destination": "/solutions.html",
+      "destination": "/tfms.html",
       "permanent": true
     },
     {
@@ -198,12 +208,12 @@
     },
     {
       "source": "/shop",
-      "destination": "/solutions.html",
+      "destination": "/tfms.html",
       "permanent": true
     },
     {
       "source": "/shop/:path*",
-      "destination": "/solutions.html",
+      "destination": "/tfms.html",
       "permanent": true
     },
     {
