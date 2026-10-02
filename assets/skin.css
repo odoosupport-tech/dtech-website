@@ -540,6 +540,13 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .utility-phones { display:flex; align-items:center; gap:18px; }
 .utility-phones a+a span { margin-left:0; }
 .utility-bar a span.utility-lead { margin-left:0; color:inherit; }
+.utility-phones { flex-wrap:wrap; justify-content:flex-end; }
+.utility-bar a span.utility-tag { margin-left:0; margin-right:6px; color:inherit; }
+@media (max-width:1280px) {
+  .utility-bar .executive-container>span { display:none; }
+  .utility-bar .executive-container { justify-content:center; }
+  .utility-phones { justify-content:center; row-gap:6px; padding:6px 0; }
+}
 
 /* ==================== 5 · CHROME · HEADER ====================
    The deck runs a solid navy band across the top of every page. The site
