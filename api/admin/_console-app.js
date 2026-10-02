@@ -789,7 +789,7 @@
         var pdfUrl = c.pdf_file ? (c.pdf_file.startsWith('http') ? c.pdf_file : '/' + c.pdf_file) : '';
         var viewBtn = '<button type="button" class="dc-btn" data-view-cs="' + esc(c.id) + '">👁 View</button>';
         var pdfBtn = pdfUrl ? '<a class="dc-btn" href="' + esc(pdfUrl) + '" target="_blank" rel="noopener">📄 PDF</a>' : '';
-        var siteBtn = '<a class="dc-btn" href="/case-studies.html#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Live</a>';
+        var siteBtn = '<a class="dc-btn" href="/case-studies#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Live</a>';
         var custom = c.custom
           ? '<button type="button" class="dc-btn" data-edit-cs="' + esc(c.id) + '"' + disabledUnless(can) + '>Edit</button>' +
             '<button type="button" class="dc-btn dc-btn-danger" data-delete="caseStudy" data-id="' + esc(c.id) + '"' + disabledUnless(can) + '>Delete</button>'
@@ -968,7 +968,7 @@
       (outcomes.length ? '<p class="dc-sub">Outcomes:</p><div class="dc-msg"><ul>' + outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul></div>' : '') +
       (metrics.length ? '<p class="dc-sub">Metrics:</p><div class="dc-msg"><ul>' + metrics.map(function (m) { return '<li>' + esc(Array.isArray(m) ? m.join(': ') : m) + '</li>'; }).join('') + '</ul></div>' : '');
     var footHtml = (pdfUrl ? '<a class="dc-btn dc-btn-primary" href="' + esc(pdfUrl) + '" target="_blank" rel="noopener">📄 Open Full PDF</a>' : '') +
-      '<a class="dc-btn" href="/case-studies.html#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Open on Live Site</a>' +
+      '<a class="dc-btn" href="/case-studies#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Open on Live Site</a>' +
       (c.custom ? '<button type="button" class="dc-btn" data-edit-cs="' + esc(c.id) + '">Edit</button>' : '') +
       '<button type="button" class="dc-btn" data-close>Close</button>';
     openModal(c.client + ' — Case Study', bodyHtml, footHtml, { wide: true, size: 'wide' });
@@ -1163,7 +1163,7 @@
     if (/^https:\/\//i.test(value)) {
       try { new URL(value); return /\s/.test(value) ? 'Links cannot contain spaces.' : ''; } catch (e) { return 'That link is not a valid web address.'; }
     }
-    return SITE_PATH_RE.test(value) || CONTACT_LINK_RE.test(value) ? '' : 'Use a page on this site (e.g. careers.html), a full link starting with https://, or tel:/mailto:';
+    return SITE_PATH_RE.test(value) || CONTACT_LINK_RE.test(value) ? '' : 'Use a page on this site (e.g. careers), a full link starting with https://, or tel:/mailto:';
   }
 
   function lines(value) {
@@ -1408,7 +1408,7 @@
         placeholder: 'e.g. Our offices are closed 20–24 Oct for Diwali. Emergency support: +91 99980 26089.' }) +
       choices('tone', 'Style', tones, TONES[b.tone] ? b.tone : 'info', true) +
       input({ name: 'linkLabel', label: 'Link text', max: 40, value: b.linkLabel, placeholder: 'e.g. See open roles', hint: 'Optional.' }) +
-      input({ name: 'linkUrl', label: 'Link goes to', max: 500, value: b.linkUrl, placeholder: 'careers.html or https://…', hint: 'A page on this site, a full https:// link, or tel:/mailto:' }) +
+      input({ name: 'linkUrl', label: 'Link goes to', max: 500, value: b.linkUrl, placeholder: 'careers or https://…', hint: 'A page on this site, a full https:// link, or tel:/mailto:' }) +
       input({ name: 'startsOn', label: 'Show from', type: 'date', value: b.startsOn, hint: 'Optional. Empty means straight away.' }) +
       input({ name: 'endsOn', label: 'Show until (inclusive)', type: 'date', value: b.endsOn, hint: 'Optional. Empty means until you switch it off.' }) +
       switchField('isActive', 'Status', b.isActive !== false, 'Active: shown on the website (within the dates above)', 'Off: saved, but not shown') +

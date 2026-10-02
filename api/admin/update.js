@@ -48,7 +48,7 @@ const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
 const PDF_REQUIRED = 'Please upload a PDF or enter a valid PDF link.';
 const MAX_LOGO_BYTES = 300 * 1024; // kept small so a logo plus a 3 MB PDF still fit in one request
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-// Pages on this site (careers.html, /contact.html?subject=x, #section); no schemes, no //host.
+// Pages on this site (careers, /contact?subject=x, #section); no schemes, no //host.
 const SITE_PATH_RE = /^(\/?[A-Za-z0-9][A-Za-z0-9._\/-]*)?(\?[A-Za-z0-9._~=&%+-]*)?(#[A-Za-z0-9._-]*)?$/;
 const CONTACT_LINK_RE = /^(tel:\+?[0-9 ()-]{3,20}|mailto:[^\s@<>"'()]+@[^\s@<>"'()]+\.[A-Za-z]{2,})$/i;
 
@@ -171,7 +171,7 @@ function siteLink(value) {
     return url.href;
   }
   if (SITE_PATH_RE.test(raw) || CONTACT_LINK_RE.test(raw)) return raw;
-  throw new InputError('Use a page on this site (e.g. careers.html), a full link starting with https://, or tel:/mailto:', 'linkUrl');
+  throw new InputError('Use a page on this site (e.g. careers), a full link starting with https://, or tel:/mailto:', 'linkUrl');
 }
 
 function day(input, key, label) {

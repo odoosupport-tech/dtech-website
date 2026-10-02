@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window[open[0][1]]();
   });
 
-  const current = location.pathname.split('/').pop() || 'index.html';
+  const current = location.pathname.split('/').pop() || '/';
   menu?.querySelectorAll('a').forEach(link => {
     if (link.getAttribute('href') === current) link.setAttribute('aria-current','page');
   });
