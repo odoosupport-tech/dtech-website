@@ -23,7 +23,7 @@ const path = require('path');
 const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
-const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
+const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
 
 const overLimit = createRateLimiter();
 
@@ -162,7 +162,7 @@ module.exports = async function handler(req, res) {
   body = body || {};
 
   // Honeypot: real visitors never see or fill this field.
-  if (body.website) return res.status(200).json({ ok: true });
+  if (body.website || submittedTooFast(body)) return res.status(200).json({ ok: true });
 
   const lead = {
     email: clean(body.email, 254),

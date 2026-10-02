@@ -103,6 +103,7 @@
     ]
   }
   </script>
+  <script>window.__formStart = Date.now();</script>
   <script src="assets/analytics.min.js?v=b98f1a835b" defer></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -445,6 +446,7 @@
                 phone: document.getElementById('apply-phone').value.trim(),
                 message: document.getElementById('apply-message').value.trim(),
                 website: document.getElementById('apply-website').value,
+                formStart: window.__formStart,
                 cv: cv
               })
             });

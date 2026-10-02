@@ -462,6 +462,7 @@
           '<div class="dc-wide"><button type="button" class="dc-btn dc-btn-primary" data-add-note="' + type + '" data-id="' + esc(r.id) + '">Add Note</button></div>' +
           '</form><p class="dc-error" id="dc-form-error" role="alert" hidden></p>'
         : '<p class="dc-note">Statuses and notes cannot be saved until the private storage setup is finished.</p>') +
+      (can ? '<p class="dc-sub"><button type="button" class="dc-link-btn" data-purge="' + type + '" data-id="' + esc(r.id) + '">Delete permanently</button></p>' : '') +
       '</section>';
   }
 
@@ -743,9 +744,9 @@
       var list = all.filter(function (a) { return shown(a) && matches(a, ['name', 'role', 'email', 'phone', 'location'], q); });
       return bar('Job Applicants', q, showFilter() + '<button type="button" class="dc-btn" data-export="applicants">' + icon('file-spreadsheet') + 'Export List</button>') +
         table(['Candidate Name', 'Role Applied For', 'Phone', 'Email', 'Date', 'Status', ''], list.map(function (a) {
-          var cv = a.cv
+          var cv = a.cv && a.cv.path
             ? '<a class="dc-btn dc-btn-primary" href="/api/admin/data?cv=' + encodeURIComponent(a.id) + '" download>' + '📄 Download CV</a>'
-            : '<span class="dc-sub">No CV attached</span>';
+            : '<span class="dc-sub">' + (a.cv ? 'CV sent by email' : 'No CV attached') + '</span>';
           return '<tr><td><div class="dc-strong">' + esc(a.name) + '</div>' + noteCount(a) + '</td><td>' + esc(a.role) + (a.location ? '<div class="dc-sub">' + esc(a.location) + '</div>' : '') + '</td>' +
             '<td>' + tel(a.phone) + '</td><td>' + mail(a.email) + '</td><td class="dc-sub">' + esc(fmtDate(a.date)) + '</td>' +
             '<td>' + statusSelect('applicant', a) + '</td>' +
@@ -933,7 +934,7 @@
       '<dl class="dc-dl"><dt>Role</dt><dd>' + esc(a.role) + '</dd><dt>Phone</dt><dd>' + tel(a.phone) + '</dd><dt>Email</dt><dd>' + mail(a.email) + '</dd>' +
       '<dt>Applied</dt><dd>' + esc(fmtDate(a.date)) + '</dd></dl><p class="dc-sub">The candidate’s note:</p><div class="dc-msg">' + esc(a.message || 'The candidate did not add a note.') + '</div>' +
       followUp('applicant', a),
-      (a.cv ? '<a class="dc-btn dc-btn-primary" href="/api/admin/data?cv=' + encodeURIComponent(a.id) + '" download>' + '📄 Download CV</a>' : '') +
+      (a.cv && a.cv.path ? '<a class="dc-btn dc-btn-primary" href="/api/admin/data?cv=' + encodeURIComponent(a.id) + '" download>' + '📄 Download CV</a>' : '') +
       '<button type="button" class="dc-btn" data-close>Close</button>',
       { form: true });
   }
@@ -1016,6 +1017,17 @@
         if (err.message === 'Signed out') return;
         if (document.getElementById('dc-form-error')) formError(err.message); else toast(err.message, 'bad');
       });
+  }
+
+  function purgeRecord(type, id) {
+    confirmBox('Delete permanently?',
+      'This removes the record' + (type === 'applicant' ? ' and the stored CV file' : '') + ' from the inbox. It cannot be undone.',
+      'Delete permanently').then(function (ok) {
+      if (!ok) return;
+      save(type, 'purge', { id: id }, { done: 'Deleted permanently.' }).catch(function (err) {
+        if (err.message !== 'Signed out') toast(err.message, 'bad');
+      });
+    });
   }
 
   function saveStatus(select) {
@@ -1518,6 +1530,7 @@
     if (d.viewCs) return showCaseStudy(d.viewCs);
     if (d.addNote) return submitNote(d.addNote, d.id);
     if (d.removeNote) return removeNote(t);
+    if (d.purge) return purgeRecord(d.purge, d.id);
     if (d.export === 'requirements') {
       return downloadCsv('client-requirements-' + today() + '.csv', ['Date', 'Client Name', 'Company', 'Topic', 'Phone', 'Email', 'Full Scope', 'Status', 'Internal Notes'],
         state.data.requirements.map(function (r) { return [fmtDate(r.date), r.name, r.company, r.topic, r.phone, r.email, r.message, STATUSES[statusOf(r)], notesText(r)]; }));

@@ -16,6 +16,9 @@
 //                                                value: new|contacted|review|archived
 //   { type, action: "note", id, note }           adds an internal note (up to 1000 characters)
 //   { type, action: "deleteNote", id, noteId }
+//   { type, action: "purge", id }                deletes the record and, for an applicant, the stored CV file.
+//                                                Git history keeps older commits of the repository;
+//                                                purge removes the data from the current files only.
 //
 // A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it (every case study needs one):
 //   { mode: "keep" }                           leave it as it is (the default)
@@ -39,7 +42,7 @@ const CATEGORIES = ['network', 'services', 'safety'];
 const TONES = ['info', 'highlight', 'warning'];
 const STATUSES = ['new', 'contacted', 'review', 'archived'];
 const SITE_ACTIONS = ['save', 'toggle', 'delete', 'reorder'];
-const INBOX_ACTIONS = ['status', 'note', 'deleteNote'];
+const INBOX_ACTIONS = ['status', 'note', 'deleteNote', 'purge'];
 const MAX_NOTES = 50;
 const MAX_PDF_BYTES = 3 * 1024 * 1024; // Vercel caps the request body at 4.5 MB
 const PDF_REQUIRED = 'Please upload a PDF or enter a valid PDF link.';
@@ -324,6 +327,10 @@ function followUp(type, body, list) {
   const notes = Array.isArray(current.notes) ? current.notes : [];
   let record, summary;
 
+  if (body.action === 'purge') {
+    return { next: items.filter((_, i) => i !== index), summary: `Permanently delete ${cfg.label} ${id}`, purged: current };
+  }
+
   if (body.action === 'status') {
     const value = clean(body.value, 20);
     if (!STATUSES.includes(value)) throw new InputError('Please choose a status.', 'status');
@@ -377,11 +384,18 @@ module.exports = async function handler(req, res) {
       logoFile = await resolveLogo(input);
     }
     let summary = '';
+    let purged = null;
     const items = await store.updateJson(cfg.store, cfg.file, [], list => {
       const result = cfg.store === 'site' ? apply(body.type, body, list, pdfFile, logoFile) : followUp(body.type, body, list);
       summary = result.summary;
+      purged = result.purged || null;
       return result.next;
     }, () => `${cfg.store === 'site' ? 'content' : 'inbox'}: ${summary} (management console)`);
+    // The record is gone; now remove its CV file. A failure here only leaves an orphan file, so log it.
+    if (purged && purged.cv && purged.cv.path) {
+      await store.deleteFile('private', purged.cv.path, `inbox: delete CV of ${body.type} ${purged.id} (management console)`)
+        .catch(err => console.error('Deleting CV file failed:', err.message));
+    }
     console.log('Console change:', summary);
     return res.status(200).json({ ok: true, items });
   } catch (err) {

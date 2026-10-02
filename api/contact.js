@@ -13,7 +13,7 @@
 
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
-const { EMAIL_RE, createRateLimiter, allowedOrigin, esc, clean } = require('./_http');
+const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
 
 const overLimit = createRateLimiter();
 
@@ -104,7 +104,7 @@ module.exports = async function handler(req, res) {
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   body = body || {};
-  if (body.website) return res.status(200).json({ ok: true }); // bot trap
+  if (body.website || submittedTooFast(body)) return res.status(200).json({ ok: true }); // bot trap
 
   const enquiry = {
     name: clean(body.name, 120),
