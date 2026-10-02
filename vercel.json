@@ -1,5 +1,6 @@
 {
   "outputDirectory": ".",
+  "cleanUrls": true,
   "buildCommand": "echo 'static prebuilt site: CSS/JS committed, nothing to build'",
   "functions": {
     "api/send-whitepaper.js": {
@@ -33,12 +34,12 @@
   "redirects": [
     {
       "source": "/solutions.html",
-      "destination": "/tfms.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
       "source": "/solutions",
-      "destination": "/tfms.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
@@ -58,12 +59,12 @@
     },
     {
       "source": "/products.html",
-      "destination": "/tfms.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
       "source": "/products",
-      "destination": "/tfms.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
@@ -83,147 +84,92 @@
     },
     {
       "source": "/about-us-2",
-      "destination": "/about.html",
+      "destination": "/about",
       "permanent": true
     },
     {
       "source": "/compliance",
-      "destination": "/about.html",
-      "permanent": true
-    },
-    {
-      "source": "/ai-supervisor",
-      "destination": "/ai-supervisor.html",
-      "permanent": true
-    },
-    {
-      "source": "/ai-video-analytics",
-      "destination": "/ai-video-analytics.html",
-      "permanent": true
-    },
-    {
-      "source": "/cafeteria",
-      "destination": "/cafeteria.html",
-      "permanent": true
-    },
-    {
-      "source": "/kiosk",
-      "destination": "/kiosk.html",
-      "permanent": true
-    },
-    {
-      "source": "/tfms",
-      "destination": "/tfms.html",
+      "destination": "/about",
       "permanent": true
     },
     {
       "source": "/forklift-ai-solution",
-      "destination": "/forklift-ai.html",
-      "permanent": true
-    },
-    {
-      "source": "/jiva",
-      "destination": "/jiva.html",
+      "destination": "/forklift-ai",
       "permanent": true
     },
     {
       "source": "/engineering-services",
-      "destination": "/jiva-engineering-services.html",
+      "destination": "/jiva-engineering-services",
       "permanent": true
     },
     {
       "source": "/heavy-lifting",
-      "destination": "/jiva-heavy-lifting.html",
+      "destination": "/jiva-heavy-lifting",
       "permanent": true
     },
     {
       "source": "/special-purpose-automation",
-      "destination": "/jiva-special-purpose-machines.html",
+      "destination": "/jiva-special-purpose-machines",
       "permanent": true
     },
     {
       "source": "/system-integration",
-      "destination": "/jiva-system-integration.html",
+      "destination": "/jiva-system-integration",
       "permanent": true
     },
     {
       "source": "/turnkey-solutions",
-      "destination": "/jiva-turnkey-solutions.html",
-      "permanent": true
-    },
-    {
-      "source": "/dell",
-      "destination": "/dell.html",
-      "permanent": true
-    },
-    {
-      "source": "/hp",
-      "destination": "/hp.html",
-      "permanent": true
-    },
-    {
-      "source": "/motorola",
-      "destination": "/motorola.html",
+      "destination": "/jiva-turnkey-solutions",
       "permanent": true
     },
     {
       "source": "/dtech-intro",
-      "destination": "/presentation.html",
-      "permanent": true
-    },
-    {
-      "source": "/case-studies",
-      "destination": "/case-studies.html",
+      "destination": "/presentation",
       "permanent": true
     },
     {
       "source": "/showcase",
-      "destination": "/case-studies.html",
+      "destination": "/case-studies",
       "permanent": true
     },
     {
       "source": "/career",
-      "destination": "/careers.html",
+      "destination": "/careers",
       "permanent": true
     },
     {
       "source": "/jobs",
-      "destination": "/careers.html",
+      "destination": "/careers",
       "permanent": true
     },
     {
       "source": "/jobs/:path*",
-      "destination": "/careers.html",
+      "destination": "/careers",
       "permanent": true
     },
     {
       "source": "/contactus",
-      "destination": "/contact.html",
+      "destination": "/contact",
       "permanent": true
     },
     {
       "source": "/appointment",
-      "destination": "/contact.html",
+      "destination": "/contact",
       "permanent": true
     },
     {
       "source": "/shop",
-      "destination": "/tfms.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
       "source": "/shop/:path*",
-      "destination": "/tfms.html",
-      "permanent": true
-    },
-    {
-      "source": "/privacy-policy",
-      "destination": "/privacy-policy.html",
+      "destination": "/tfms",
       "permanent": true
     },
     {
       "source": "/terms-conditions",
-      "destination": "/terms-of-service.html",
+      "destination": "/terms-of-service",
       "permanent": true
     }
   ],
@@ -253,7 +199,7 @@
       ]
     },
     {
-      "source": "/((?!(?:hp|dell|motorola)\\.html).*)",
+      "source": "/((?!(?:hp|dell|motorola)(?:\\.html)?$).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -282,7 +228,7 @@
       ]
     },
     {
-      "source": "/(hp|dell|motorola)\\.html",
+      "source": "/(hp|dell|motorola)(?:\\.html)?",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -320,7 +266,7 @@
       ]
     },
     {
-      "source": "/(portal\\.html|admin-dtech)",
+      "source": "/(portal(?:\\.html)?|admin-dtech)",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -135,7 +135,7 @@ function visitorEmail({ name, paper, siteUrl, attached }) {
         <p style="margin:0 0 14px">${greeting}</p>
         ${delivery}
         <p style="margin:0 0 22px">If you would like to discuss a similar project at your plant, simply reply to this email and our team will get in touch.</p>
-        <a href="${esc(siteUrl)}/case-studies.html" style="display:inline-block;background:#f0561d;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Explore more case studies</a>
+        <a href="${esc(siteUrl)}/case-studies" style="display:inline-block;background:#f0561d;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px">Explore more case studies</a>
       </td></tr>
       <tr><td style="padding:18px 28px;background:#f8fafc;font-size:12px;color:#64748b;line-height:1.5">
         D-TECH Solution Integrators Pvt. Ltd. · Bharuch, Gujarat<br>You received this because this address was entered on the D-TECH website to request a case study.
