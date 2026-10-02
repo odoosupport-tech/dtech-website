@@ -61,6 +61,19 @@ async function consolePaper(caseId) {
   return null;
 }
 
+// True when the console has switched an original (built-in) case study to Draft, so its PDF is no
+// longer offered. If the list cannot be read the study stays available rather than failing the request.
+async function isUnpublishedBuiltIn(caseId) {
+  if (!store.isConfigured('site')) return false;
+  try {
+    const list = await consoleCaseStudies(CONSOLE_LIST_RETRY_MS);
+    return list.some(x => x && x.id === caseId && x.published === false);
+  } catch (err) {
+    console.error('Checking published state failed:', err.message);
+    return false;
+  }
+}
+
 // The visitor's name is echoed in an email we send to the address they typed,
 // so keep it to plain name characters — no links or markup for spammers to plant.
 function safeGreetingName(name) {
@@ -180,6 +193,8 @@ module.exports = async function handler(req, res) {
   if (overLimit('ip:' + ip, 5, 10 * 60 * 1000) || overLimit('to:' + lead.email.toLowerCase(), 3, 60 * 60 * 1000)) {
     return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
   }
+
+  if (builtIn && await isUnpublishedBuiltIn(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 
   let paper = builtIn;
   if (!paper) {
