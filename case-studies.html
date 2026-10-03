@@ -1113,15 +1113,9 @@
               return;
             }
           }
-          const verifiedEmail = localStorage.getItem('dtech_user_email');
-
-          if (!verifiedEmail) {
-            // Ask for corporate email first!
-            openEmailGate('download_pdf', caseId);
-          } else {
-            // Already verified: email it to the stored address (no download).
-            sendStoredWhitepaper(caseId);
-          }
+          // Every PDF request goes through the form, so each one is a confirmed
+          // lead. Returning visitors find their last details already filled in.
+          openEmailGate('download_pdf', caseId);
         }
 
         // Focus and scroll handling for the two dialogs on this page: focus moves in
@@ -1166,6 +1160,7 @@
         function openEmailGate(action, caseId) {
           pendingAction = action;
           targetCaseId = caseId;
+          prefillGateForm();
           const c = allCases.find(x => x.id === caseId) || allCases[0];
 
           document.getElementById('gate-target-client').textContent = c.client + ' — ' + c.arch_tag;
@@ -1416,8 +1411,8 @@
           const downloadBtn = document.getElementById('detail-modal-download-btn');
           downloadBtn.classList.toggle('hidden', !c.pdf_file);
           downloadBtn.onclick = () => {
-            downloadBtn.disabled = true;
-            sendStoredWhitepaper(caseId).finally(() => { downloadBtn.disabled = false; });
+            closeCaseModal();
+            handleDownloadPdfClick(caseId);
           };
 
           showDialog('case-detail-modal');
