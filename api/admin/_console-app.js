@@ -348,6 +348,7 @@
   // Reloads the sign-in page with a note (see portal.html).
   function backToSignIn(note) {
     state.leaving = true;
+    try { localStorage.removeItem('dtech-console'); } catch (e) {}
     history.replaceState(null, '', location.pathname + '#' + note);
     location.reload();
   }
