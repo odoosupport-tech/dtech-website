@@ -15,7 +15,9 @@
 // optionally MAIL_FROM, SALES_EMAIL) as described there. Also reads:
 //
 //   SITE_URL        optional  public site address used in email links, e.g.
-//                             https://www.dtechindia.com (default: this deployment)
+//                             https://www.dtechindia.com (default: the project's
+//                             production address that Vercel provides; the request's
+//                             Host header is only trusted off Vercel, in local runs)
 //   ALLOWED_ORIGINS optional  extra comma-separated origins allowed to call this
 //                             endpoint; the deployment's own origin is always allowed
 
@@ -85,6 +87,19 @@ function safeGreetingName(name) {
 // served from this site's static assets.
 function downloadUrlFor(paper, siteUrl) {
   return paper.url || `${siteUrl}/${paper.file.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+// The address used for email links and for fetching this site's own PDFs. It never
+// comes from the request on Vercel, so a forged Host header cannot point either one
+// at another server.
+function siteUrlFor(req) {
+  const production = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const requestHost = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+  const url = process.env.SITE_URL
+    || (production && HOST_RE.test(production) ? `https://${production}` : '')
+    || (!process.env.VERCEL && HOST_RE.test(requestHost) ? `https://${requestHost}` : '')
+    || 'https://www.dtechindia.com';
+  return url.replace(/\/+$/, '');
 }
 
 // The PDF's bytes from this site's static files, or null (logged) when it cannot
@@ -208,8 +223,7 @@ module.exports = async function handler(req, res) {
   }
 
   const sales = salesEmail();
-  const requestHost = String(req.headers['x-forwarded-host'] || req.headers.host || '');
-  const siteUrl = (process.env.SITE_URL || (HOST_RE.test(requestHost) ? `https://${requestHost}` : 'https://www.dtechindia.com')).replace(/\/+$/, '');
+  const siteUrl = siteUrlFor(req);
 
   const pdf = paper.file ? await fetchPdf(downloadUrlFor(paper, siteUrl)) : null;
   const attached = pdf !== null;

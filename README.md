@@ -52,7 +52,7 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 | `SMTP_SECURE` | no | `true`/`false`; defaults to `true` on port 465 only |
 | `MAIL_FROM` | no | Sender shown to recipients (default `D-TECH <SMTP_USER>`). Most providers reject a From address the login does not own. |
 | `SALES_EMAIL` | no | Receives enquiries and lead notifications (default `sales@dtechindia.com`) |
-| `SITE_URL` | no | Public address used in email links, e.g. `https://www.dtechindia.com` (default: the deployment's own address) |
+| `SITE_URL` | no | Public address used in email links, e.g. `https://www.dtechindia.com` (default: the production address Vercel provides in `VERCEL_PROJECT_PRODUCTION_URL`; the request's Host header is never trusted on Vercel) |
 | `ALLOWED_ORIGINS` | no | Extra comma-separated site origins allowed to call the functions (their own origin is always allowed) |
 
 **Google Workspace / Gmail:** `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` = the full mailbox address, and `SMTP_PASS` = a 16-character [app password](https://myaccount.google.com/apppasswords) (the account needs 2-Step Verification on; Google rejects the normal password over SMTP). Gmail sends as `SMTP_USER`; a different `MAIL_FROM` address only works if it is added under Gmail → Settings → Accounts → "Send mail as". Workspace allows about 2,000 messages a day per mailbox.
@@ -85,6 +85,8 @@ Open roles live in `data/jobs.json` (`id`, `title`, `department`, `location`, `p
 | Endpoint | What it does |
 |---|---|
 | `GET /api/jobs` | The roles in `data/jobs.json` with `isActive: true`, cached by browsers for 1 minute. |
+| `GET /api/content?list=case-studies` | `data/case-studies.json` for the public pages: published case studies in full, a draft only as `{ id, published: false }`. |
+| `GET /api/content?list=banners` | The active banners from `data/banners.json`. |
 | `POST /api/apply` | Emails the application to `HR_EMAIL` (default `SALES_EMAIL`) with the CV attached and Reply-To set to the candidate, and files it for the console. |
 
 Protections on `/api/apply`: same-origin JSON only, a hidden bot-trap field, 5 applications per hour per IP and 3 per day per email address, CVs limited to PDF or Word and 3 MB.
@@ -117,7 +119,7 @@ Setup:
 | `GITHUB_DATA_BRANCH` | no | Default `main` |
 | `HR_EMAIL` | no | Receives job applications (default `SALES_EMAIL`) |
 
-Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job, case study or banner commits to `data/`, which redeploys the site, so the public pages show the change 1–2 minutes later.
+Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job, case study or banner commits to `data/`, which redeploys the site, so the public pages show the change 1–2 minutes later. The raw `data/*.json` files are not served (`/data/*` goes to the 404 page), so drafts and hidden items never reach visitors: pages read them through `/api/jobs` and `/api/content`. Built-in case studies are the exception: their cards are part of `case-studies.html`, so unpublishing one hides it on the page but its text stays in the page source.
 
 Locally (no `VERCEL` variable and no tokens), `data/` is edited in place, uploaded PDFs go to `assets/case-studies/pdf/custom/`, and submissions go to `.portal-data/`, which is git-ignored.
 
@@ -134,7 +136,8 @@ Every form is checked in the browser and again on the server. While a change sav
 
 - **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random password (at least 16 characters), then redeploy. Without it every admin endpoint answers 404. Changing it signs everyone out. Optionally set `ADMIN_USER` to the admin ID staff type with it (default `admin`, not case-sensitive).
 - **Sign in** at `/admin-dtech` (the same page is also at `/portal.html`; **Ctrl + Shift + Alt + D** on the home page opens it) with the admin ID and password.
-- After 5 wrong attempts, sign-in pauses for 15 minutes. The page shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance).
+- After 5 wrong attempts, sign-in pauses for 15 minutes. The page shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance). Every wrong attempt also waits 1.5 seconds before the answer.
+- **Shared rate limit (Vercel Firewall, free on Hobby):** the per-instance limit above resets when Vercel starts a new instance, so add one rule in the Vercel dashboard under **Firewall → Configure → New Rule**: *If* Request Path starts with `/api/` *and* Method equals `POST`, *Then* Rate Limit, Fixed Window, 60 s, 20 requests, key IP, action Default (429). Publish it. Hobby allows one rate-limit rule per project.
 - **Sign Out** in the console header ends the session and returns to the sign-in page.
 - The console script is only served (`/api/admin/console`) to a signed-in session, so its markup never appears in a public file. The sign-in page is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
 - Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The ID and password checks are timing-safe.
@@ -142,7 +145,7 @@ Every form is checked in the browser and again on the server. While a change sav
 | Endpoint | What it does |
 |---|---|
 | `GET/POST/DELETE /api/admin/auth` | Session check / sign in with `{ id, key }` (401 when wrong) / sign out |
-| `GET /api/admin/data` | All console data; `?cv=<applicant id>` downloads that CV |
+| `GET /api/admin/data` | All console data; `?cv=<applicant id>` downloads that CV; `?deployed=<file>` returns this deployment's copy of a `data/` list, so the console can tell when a change is live |
 | `POST /api/admin/update` | Add, edit, delete or switch jobs, case studies and banners (`type`: `job`, `caseStudy`, `banner`); errors name the field to fix |
 | `GET /api/admin/console` | The console app script |
 
@@ -151,5 +154,7 @@ Built-in case studies can be published or unpublished but not edited or deleted 
 ## Security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a referrer policy and a permissions policy for every page. If you add a new external script, font, image host or embed, allow its host in the CSP or the browser will block it.
+
+The CSP's `script-src` has no `'unsafe-inline'`, so an injected `<script>` or `onclick=` does not run. The pages' own inline `<script>` blocks are allowed by their SHA-256 hashes, which `npm run build` writes into `vercel.json` (`tools/csp-hashes.py`). After editing any inline script, run `npm run build` (or `npm run csp`); `npm run verify` fails if the hashes are stale. Inline event handlers (`onclick="…"`) are not allowed at all: give the element a `data-` attribute and attach the listener in a script. The hp, dell and motorola pages keep `'unsafe-inline'` because they embed HP's third-party syndication widget.
 
 The built-in case studies and their PDF files are listed in `api/_whitepapers.json`. Keep it in sync when adding a built-in case study; console case studies carry their PDF in `data/case-studies.json`. The function only runs on Vercel (or `vercel dev`), not under `python3 -m http.server`.

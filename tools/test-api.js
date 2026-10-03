@@ -52,6 +52,7 @@ mail.sendMail = async (msg) => { sent.push(msg); return { id: `mock-${sent.lengt
 
 const api = (p) => require(path.join(REPO, 'api', p));
 const jobs = api('jobs.js'), contact = api('contact.js'), apply = api('apply.js'), whitepaper = api('send-whitepaper.js');
+const content = api('content.js');
 const auth = api('admin/auth.js'), data = api('admin/data.js'), update = api('admin/update.js'), consoleApp = api('admin/console.js');
 
 // ---- tiny req/res mocks ----------------------------------------------------
@@ -101,6 +102,36 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert.deepStrictEqual(Object.keys(r.body.jobs[0]).sort(), ['department', 'id', 'location', 'positions', 'summary', 'title']);
     }],
     ['POST → 405', async () => eq((await call(jobs, req('POST'))).statusCode, 405)],
+  ]);
+
+  // 1b. Public copies of the console-edited lists
+  await area('1b. Public content (api/content.js)', [
+    ['case studies: published in full, a draft is only { id, published: false }', async () => {
+      const raw = JSON.parse(fs.readFileSync('data/case-studies.json', 'utf8'));
+      const draft = raw.find(c => c.published === false);
+      assert(draft, 'fixture needs a draft case study');
+      const r = await call(content, req('GET', null, { query: { list: 'case-studies' } }));
+      eq(r.statusCode, 200); assert(Array.isArray(r.body)); eq(r.body.length, raw.length, 'drafts keep their slot for ordering');
+      assert.deepStrictEqual(r.body.find(c => c.id === draft.id), { id: draft.id, published: false });
+      assert(!JSON.stringify(r.body).includes(draft.summary), 'draft text leaked');
+      assert(r.body.filter(c => c.published !== false).every(c => c.client), 'published entries complete');
+      assert.match(r.headers['cache-control'], /max-age=0/);
+    }],
+    ['banners: only active ones', async () => {
+      const file = 'data/banners.json';
+      const before = fs.readFileSync(file, 'utf8');
+      try {
+        fs.writeFileSync(file, JSON.stringify([{ id: 'on', message: 'Shown', isActive: true }, { id: 'off', message: 'Secret draft', isActive: false }]));
+        const r = await call(content, req('GET', null, { query: { list: 'banners' } }));
+        eq(r.statusCode, 200); assert.deepStrictEqual(r.body.map(b => b.id), ['on']);
+      } finally { fs.writeFileSync(file, before); }
+    }],
+    ['unknown or missing list → 404; jobs and private lists are not served', async () => {
+      for (const list of [undefined, '', 'jobs', 'applicants', '../package', '__proto__', 'constructor']) {
+        eq((await call(content, req('GET', null, { query: list === undefined ? {} : { list } }))).statusCode, 404, String(list));
+      }
+    }],
+    ['POST → 405', async () => eq((await call(content, req('POST', null, { query: { list: 'banners' } }))).statusCode, 405)],
   ]);
 
   // 2. Contact
@@ -199,6 +230,25 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(buf.subarray(0, 5).toString(), '%PDF-', 'PDF header');
     }]),
     ['unknown caseId → 400', async () => eq((await call(whitepaper, req('POST', { email: 'lead@example.com', caseId: 'nope' }))).statusCode, 400)],
+    ['on Vercel a forged Host cannot change the email link or the PDF fetch', async () => {
+      Object.assign(process.env, { VERCEL: '1', VERCEL_PROJECT_PRODUCTION_URL: 'dtech.test' });
+      try {
+        const before = sent.length;
+        const forged = { host: 'evil.test', 'x-forwarded-host': 'evil.test', origin: 'https://evil.test' };
+        const r = await call(whitepaper, req('POST', { email: 'host@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }));
+        eq(r.statusCode, 200, JSON.stringify(r.body));
+        const visitor = sent.slice(before).find(m => m.to === 'host@example.com');
+        assert(visitor && visitor.attachments.length === 1, 'PDF fetched from the production address');
+        assert(!visitor.html.includes('evil.test'), 'forged host in the email');
+        // Without the attachment the email carries a download link: it must point at production.
+        failPdfFetch = true;
+        const mark = sent.length;
+        eq((await call(whitepaper, req('POST', { email: 'link@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }))).statusCode, 200);
+        const linked = sent.slice(mark).find(m => m.to === 'link@example.com');
+        assert(linked.html.includes('https://dtech.test/assets/case-studies/pdf/'), 'download link on the production address');
+        assert(!linked.html.includes('evil.test'), 'forged host in the download link');
+      } finally { failPdfFetch = false; delete process.env.VERCEL; delete process.env.VERCEL_PROJECT_PRODUCTION_URL; }
+    }],
     ['petronet-fms → visitor gets the PDF attached, sales gets lead alert, lead filed', async () => {
       const before = sent.length;
       const r = await call(whitepaper, req('POST', { email: 'lead@example.com', name: 'Lead Person', company: 'Acme', caseId: 'petronet-fms' }));
@@ -292,6 +342,12 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
       eq(r.body.requirements.length, 3); eq(r.body.applicants.length, 2); // 3 = the valid enquiry plus the two area-2 auto-responder posts; // PDF + DOCX applications from area 3 eq(r.body.leads.length, 1);
+    }],
+    ['deployed copy of a site list for the console; others refused; no session → 404', async () => {
+      const r = await call(data, req('GET', null, { query: { deployed: 'case-studies.json' }, headers: { cookie } }));
+      eq(r.statusCode, 200); assert.deepStrictEqual(r.body, JSON.parse(fs.readFileSync('data/case-studies.json', 'utf8')));
+      for (const f of ['applicants.json', '../package.json', 'x']) eq((await call(data, req('GET', null, { query: { deployed: f }, headers: { cookie } }))).statusCode, 400, f);
+      eq((await call(data, req('GET', null, { query: { deployed: 'jobs.json' } }))).statusCode, 404);
     }],
     ['update toggles a role isActive (sandbox copy only)', async () => {
       const r = await call(update, req('POST', { type: 'job', action: 'toggle', id: openJob.id, value: false }, { headers: { cookie } }));
@@ -628,10 +684,23 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     assert(rule, 'no redirect hiding api source files');
     const re = new RegExp(`^${rule.source}$`);
     for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
-    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console']) assert(!re.test(p), `${p} endpoint would be redirected`);
+    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console']) assert(!re.test(p), `${p} endpoint would be redirected`);
   };
   await area('7. Build & contract integrity', [
     ['api source files are hidden, endpoints stay reachable (vercel.json)', hiddenSource],
+    ['raw data/*.json files are not served (drafts stay private)', () => {
+      const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).redirects.find(r => r.source === '/data/(.*)');
+      assert(rule && rule.destination === '/404.html', 'no redirect hiding data/');
+    }],
+    ['CSP: no unsafe-inline scripts except the HP widget pages, hashes current', () => {
+      for (const h of JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).headers) {
+        const csp = (h.headers.find(x => x.key === 'Content-Security-Policy') || {}).value;
+        if (!csp) continue;
+        const scriptSrc = csp.split(';').find(d => d.trim().startsWith('script-src'));
+        eq(scriptSrc.includes("'unsafe-inline'"), h.source.includes('hp|dell|motorola') && !h.source.startsWith('/((?!'), h.source);
+      }
+      run('python3', ['tools/csp-hashes.py', '--check'], 'OK')();
+    }],
     ['check-links.py', run('python3', ['tools/check-links.py'], 'OK')],
     ['check-ui-contract.py', run('python3', ['tools/check-ui-contract.py'], 'OK')],
     ['npm run verify → VERIFY-OK', run('npm', ['run', 'verify'], 'VERIFY-OK')],

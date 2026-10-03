@@ -598,7 +598,7 @@
 
   function pollDeploy() {
     Promise.all(Object.keys(deploy.pending).map(function (file) {
-      return fetch('/data/' + file, { cache: 'no-store', credentials: 'same-origin' })
+      return fetch('/api/admin/data?deployed=' + encodeURIComponent(file), { cache: 'no-store', credentials: 'same-origin' })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (list) {
           if (list && JSON.stringify(list) === deploy.pending[file]) delete deploy.pending[file];
