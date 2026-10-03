@@ -184,7 +184,7 @@
   "rewrites": [
     {
       "source": "/admin-dtech",
-      "destination": "/portal.html"
+      "destination": "/portal"
     }
   ],
   "headers": [
