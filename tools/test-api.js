@@ -264,6 +264,31 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(sales.to, 'sales@test.invalid'); eq(sales.replyTo, 'lead@example.com');
       eq(JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8'))[0].caseId, 'petronet-fms');
     }],
+    ['summary request → filed as a "summary" lead, nothing emailed; PDF requests are filed as "pdf"', async () => {
+      const leads = () => JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8'));
+      const before = sent.length;
+      const r = await call(whitepaper, req('POST', { request: 'summary', email: 'reader@example.com', name: 'Reader', company: 'Acme', caseId: 'mrf' }));
+      eq(r.statusCode, 200, JSON.stringify(r.body)); eq(r.body.filed, true);
+      eq(sent.length, before, 'a summary view must not send email');
+      const filed = leads().find(l => l.email === 'reader@example.com');
+      eq(filed.request, 'summary'); eq(filed.caseId, 'mrf'); assert(filed.caseTitle && filed.id && filed.date);
+      eq(leads().find(l => l.email === 'lead@example.com').request, 'pdf');
+    }],
+    ['the same visitor asking again: every request is its own record, summaries not held to the 3-PDF limit', async () => {
+      const leads = () => JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).filter(l => l.email === 'repeat@example.com');
+      for (const caseId of ['mrf', 'indofil', 'bostik', 'krystal', 'mrf']) {
+        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'repeat@example.com', name: 'Repeat', caseId }))).statusCode, 200, caseId);
+      }
+      eq(leads().length, 5, 'five summary views, five records');
+      assert.deepStrictEqual(leads().map(l => l.caseId).sort(), ['bostik', 'indofil', 'krystal', 'mrf', 'mrf']);
+    }],
+    ['summary request: bad email, unknown case, bot trap', async () => {
+      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'nope', caseId: 'mrf' }))).statusCode, 400);
+      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'x@example.com', caseId: 'does-not-exist' }))).statusCode, 400);
+      const count = JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).length;
+      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'bot@example.com', caseId: 'mrf', website: 'spam' }))).statusCode, 200);
+      eq(JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).length, count, 'bot filed a lead');
+    }],
     ['PDF cannot be fetched → visitor still gets the CDN download link, no attachment', async () => {
       failPdfFetch = true;
       try {
