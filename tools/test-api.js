@@ -135,7 +135,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   ]);
 
   // 2. Contact
-  const validEnquiry = { name: 'Test Client', email: 'test@enterprise.com', phone: '+91 99999 88888', company: 'Test Industries', topic: 'Forklift AI Safety', message: 'Testing automated proposal submission' };
+  const validEnquiry = { name: 'Test Client', email: 'test@enterprise.com', phone: '+91 99999 88888', company: 'Test Industries', subject: 'forklift', message: 'Testing automated proposal submission' };
   await area('2. Contact / requirements (api/contact.js)', [
     ['honeypot → 200, no email', async () => {
       const before = sent.length;
@@ -151,7 +151,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.statusCode, 200); eq(r.body.ok, true);
       const m = sent[before]; assert(m, 'no mail');
       eq(m.to, 'sales@test.invalid'); eq(m.replyTo, 'test@enterprise.com');
-      assert.match(m.subject, /Forklift AI Safety — Test Client/);
+      assert.match(m.subject, /AI Forklift Pedestrian Safety \(N2024G-5\) — Test Client/);
       assert(m.html.includes('Test Industries') && m.text.includes('+91 99999 88888'));
       const filed = JSON.parse(fs.readFileSync('.portal-data/requirements.json', 'utf8'));
       eq(filed[0].id, r.body.id);
@@ -164,7 +164,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c, 'no confirmation mail to the visitor');
       eq(c.subject, 'Thank you for contacting D-TECH \u2014 Requirement Received');
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
-      assert(c.html.includes('Forklift AI Safety') && c.text.includes('Forklift AI Safety'), 'topic acknowledged');
+      assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
       assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 99980 26089') && c.text.includes('Bharuch'), 'contact details');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
@@ -174,6 +174,22 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await call(contact, req('POST', { ...validEnquiry, name: 'Win <a href="http://x.test">prize</a> now' }));
       const c = sent.slice(before).find(m => m.to === validEnquiry.email);
       assert(c && !c.html.includes('x.test'), 'markup reached the visitor mail');
+    }],
+    ['auto-responder never echoes a free-text topic', async () => {
+      const before = sent.length;
+      await call(contact, req('POST', { ...validEnquiry, email: 'topic@example.com', subject: 'Claim your prize at spam.test', topic: 'Claim your prize at spam.test' }));
+      const c = sent.slice(before).find(m => m.to === 'topic@example.com');
+      assert(c, 'no confirmation mail');
+      assert(!c.html.includes('spam.test') && !c.text.includes('spam.test'), 'free-text topic reached the visitor mail');
+      assert(c.text.includes('General enquiry'), 'unknown subject filed as a general enquiry');
+    }],
+    ['auto-responses capped per address; sales still gets every enquiry', async () => {
+      const target = 'flood@example.com';
+      const before = sent.length;
+      for (let i = 0; i < 4; i++) eq((await call(contact, req('POST', { ...validEnquiry, email: target }, { headers: { 'x-real-ip': `10.9.0.${i}` } }))).statusCode, 200);
+      const mails = sent.slice(before);
+      eq(mails.filter(m => m.to === target).length, 3, 'visitor confirmations');
+      eq(mails.filter(m => m.to === 'sales@test.invalid').length, 4, 'sales notices');
     }],
   ]);
 
@@ -366,7 +382,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 3); eq(r.body.applicants.length, 2); // 3 = the valid enquiry plus the two area-2 auto-responder posts; // PDF + DOCX applications from area 3 eq(r.body.leads.length, 1);
+      eq(r.body.requirements.length, 8); // area 2: the valid enquiry, the auto-responder, markup, free-text topic and 4 flood posts
+      eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3
+      eq(r.body.leads.length, 8); // PDF and summary requests from area 4
     }],
     ['deployed copy of a site list for the console; others refused; no session → 404', async () => {
       const r = await call(data, req('GET', null, { query: { deployed: 'case-studies.json' }, headers: { cookie } }));
