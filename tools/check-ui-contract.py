@@ -66,6 +66,24 @@ def check_authored_style_policy(problems):
         problems.append(f"partner section bypasses palette tokens with {match.group(0)} utility")
 
 
+def check_public_admin_probe(problems):
+    # Public pages must not call the admin API for every visitor: it 404s in
+    # their console and costs a function call per page view. Only browsers
+    # marked by a console sign-in (localStorage "dtech-console") may ask.
+    for path in sorted(ROOT.glob("*.html")):
+        if path.name == "portal.html":
+            continue
+        html = path.read_text(encoding="utf-8")
+        if "/api/admin/auth" in html and "dtech-console" not in html:
+            problems.append(f"{path.name} probes /api/admin/auth without the console sign-in marker")
+    portal = (ROOT / "portal.html").read_text(encoding="utf-8")
+    console_app = (ROOT / "api/admin/_console-app.js").read_text(encoding="utf-8")
+    if "localStorage.setItem('dtech-console'" not in portal:
+        problems.append("portal.html no longer sets the console sign-in marker")
+    if "localStorage.removeItem('dtech-console')" not in console_app:
+        problems.append("the console no longer clears its sign-in marker on sign-out")
+
+
 def check_marquee_contract(problems):
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     script = (ROOT / "assets/brand-marquee.js").read_text(encoding="utf-8")
@@ -121,6 +139,7 @@ def main():
     check_marquee_contract(problems)
     check_cache_contract(problems)
     check_deep_link_contract(problems)
+    check_public_admin_probe(problems)
     if problems:
         print(f"{len(problems)} UI contract problem(s):")
         for problem in problems:
