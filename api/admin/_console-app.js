@@ -1437,7 +1437,7 @@
       '<div class="dc-preview-frame" id="dc-preview"></div><p class="dc-preview-note" id="dc-preview-note"></p></div>' +
       '<form class="dc-form" id="dc-form" data-kind="banner" data-id="' + esc(b.id || '') + '" novalidate>' +
       textarea({ name: 'message', label: 'Message', required: true, max: 200, rows: 2, value: b.message, wide: true,
-        placeholder: 'e.g. Our offices are closed 20–24 Oct for Diwali. Emergency support: +91 99980 26089.' }) +
+        placeholder: 'e.g. Our offices are closed 20–24 Oct for Diwali. Emergency support: +91 95588 09163.' }) +
       choices('tone', 'Style', tones, TONES[b.tone] ? b.tone : 'info', true) +
       input({ name: 'linkLabel', label: 'Link text', max: 40, value: b.linkLabel, placeholder: 'e.g. See open roles', hint: 'Optional.' }) +
       input({ name: 'linkUrl', label: 'Link goes to', max: 500, value: b.linkUrl, placeholder: 'careers or https://…', hint: 'A page on this site, a full https:// link, or tel:/mailto:' }) +
