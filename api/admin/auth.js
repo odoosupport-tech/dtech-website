@@ -12,6 +12,12 @@ const { createRateLimiter, allowedOrigin } = require('../_http');
 
 const overLimit = createRateLimiter();
 
+// Each wrong guess waits before answering. The limiter above only counts per
+// function instance; the hard, shared limit is the Vercel Firewall rate-limit
+// rule on /api/ (see README), and this delay keeps every instance slow on its own.
+const FAILED_SIGN_IN_DELAY_MS = 1500;
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
@@ -33,7 +39,10 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ ok: false, error: 'Too many attempts. Please wait 15 minutes.' });
   }
   const { id, key } = jsonBody(req);
-  if (!credentialsMatch(id, key)) return res.status(401).json({ ok: false, error: 'Incorrect admin ID or password.' });
+  if (!credentialsMatch(id, key)) {
+    await pause(FAILED_SIGN_IN_DELAY_MS);
+    return res.status(401).json({ ok: false, error: 'Incorrect admin ID or password.' });
+  }
   startSession(res);
   return res.status(200).json({ ok: true });
 };

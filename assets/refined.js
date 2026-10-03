@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
       menu.querySelector('button[aria-label="Close menu drawer"]')?.focus();
     } else returnFocus?.focus();
   };
+  // Menu buttons carry data-menu-toggle; the CSP blocks inline onclick handlers.
+  document.addEventListener('click', event => {
+    if (menu && event.target.closest('[data-menu-toggle]')) window.toggleMobileMenu();
+  });
   document.addEventListener('keydown', event => {
     if (!menu || menu.classList.contains('hidden')) return;
     if (event.key === 'Escape') window.toggleMobileMenu();
@@ -182,7 +186,7 @@ window.addEventListener('hashchange', alignHashTarget);
   if (cached) {
     try { show(pick([JSON.parse(cached)])); } catch (_) { set('sessionStorage', CACHE, null); }
   }
-  fetch('/data/banners.json', { cache: 'no-cache', headers: { Accept: 'application/json' } })
+  fetch('/api/content?list=banners', { cache: 'no-cache', headers: { Accept: 'application/json' } })
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
     .then(list => {
       const banner = pick(list);

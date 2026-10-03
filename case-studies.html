@@ -79,14 +79,14 @@
       animation: dtRadarPulse 2s infinite cubic-bezier(0.25, 1, 0.5, 1);
     }
   </style>
-  <script src="assets/refined.min.js?v=b52e734e54" defer></script>
+  <script src="assets/refined.min.js?v=3681838a08" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=88b46db620">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=393205d24b">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
-  <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-var.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InterTight-var.woff2" crossorigin>
   <script>try{var __dt='light';try{if(localStorage.getItem('dtech-theme')==='dark'){__dt='dark';}}catch(e){}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
@@ -136,15 +136,15 @@
   <header class="site-header"><div class="executive-container header-inner">
     <a class="brand-mark" href="/" aria-label="D-TECH home"><img decoding="async" fetchpriority="high" src="assets/dtech-logo-blue.webp" alt="D-TECH Solution Integrators" width="128" height="56"></a>
     <nav class="desktop-nav restored-nav" aria-label="Main navigation"><a href="/">Home</a><a href="about">About Us</a><details class="nav-dropdown"><summary>Solutions</summary><div class="nav-dropdown-panel"><a href="forklift-ai">Forklift AI</a><a href="tfms">TFMS Tanker Fleet</a><a href="jiva">JIVA Automation</a><a href="kiosk">Safety &amp; Training Kiosk</a><a href="ai-supervisor">AI Supervisor</a><a href="ai-video-analytics">AI Video Analytics</a><a href="cafeteria">Cafeteria Management</a></div></details><a href="presentation" target="_blank" rel="noopener">D-Tech Intro</a><details class="nav-dropdown"><summary>Partner</summary><div class="nav-dropdown-panel nav-dropdown-panel--plain"><a href="hp">HP</a><a href="dell">Dell Technologies</a><a href="motorola">Motorola Solutions</a></div></details><a href="case-studies" aria-current="page">Case Studies</a><a href="careers">Careers</a><a href="contact">Contact Us</a></nav>
-    <div class="header-actions"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false"><i data-lucide="sun"></i></button><a class="button button-primary header-cta" href="contact">Contact Us <span>↗</span></a><button class="menu-button" onclick="toggleMobileMenu()" aria-label="Open navigation" aria-controls="mobile-menu" aria-expanded="false"><i data-lucide="menu"></i></button></div>
+    <div class="header-actions"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false"><i data-lucide="sun"></i></button><a class="button button-primary header-cta" href="contact">Contact Us <span>↗</span></a><button class="menu-button" data-menu-toggle aria-label="Open navigation" aria-controls="mobile-menu" aria-expanded="false"><i data-lucide="menu"></i></button></div>
   </div></header>
   <!-- Mobile Drawer Menu -->
   <div id="mobile-menu" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
-    <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu" tabindex="-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
+    <button type="button" data-menu-toggle aria-label="Close menu" tabindex="-1" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs w-full h-full cursor-default focus-visible:outline-none"></button>
     <div class="fixed right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-2xl p-6 flex flex-col overflow-y-auto z-10">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <img decoding="async" width="324" height="142" src="assets/dtech-logo-blue.webp" alt="D-TECH" class="h-8 w-auto">
-        <button type="button" onclick="toggleMobileMenu()" aria-label="Close menu drawer" class="p-2 text-slate-500 hover:text-slate-800 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
+        <button type="button" data-menu-toggle aria-label="Close menu drawer" class="p-2 text-slate-500 hover:text-slate-800 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -233,10 +233,10 @@
             </div>
 
             <div class="case-tabs" role="tablist" aria-label="Filter case studies by category">
-              <button type="button" role="tab" id="case-tab-all" class="case-tab active" aria-selected="true" aria-controls="case-grid" data-filter="all" onclick="filterCases('all')"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>All Projects</span><b>40</b></button>
-              <button type="button" role="tab" id="case-tab-network" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="network" onclick="filterCases('network')"><i data-lucide="network" class="w-4 h-4"></i><span>Network &amp; IT Infrastructure</span><b>16</b></button>
-              <button type="button" role="tab" id="case-tab-services" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="services" onclick="filterCases('services')"><i data-lucide="life-buoy" class="w-4 h-4"></i><span>Managed Services (FMS &amp; AMC)</span><b>14</b></button>
-              <button type="button" role="tab" id="case-tab-safety" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="safety" onclick="filterCases('safety')"><i data-lucide="shield-check" class="w-4 h-4"></i><span>Safety, Communication &amp; Automation</span><b>10</b></button>
+              <button type="button" role="tab" id="case-tab-all" class="case-tab active" aria-selected="true" aria-controls="case-grid" data-filter="all"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>All Projects</span><b>40</b></button>
+              <button type="button" role="tab" id="case-tab-network" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="network"><i data-lucide="network" class="w-4 h-4"></i><span>Network &amp; IT Infrastructure</span><b>16</b></button>
+              <button type="button" role="tab" id="case-tab-services" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="services"><i data-lucide="life-buoy" class="w-4 h-4"></i><span>Managed Services (FMS &amp; AMC)</span><b>14</b></button>
+              <button type="button" role="tab" id="case-tab-safety" class="case-tab" aria-selected="false" aria-controls="case-grid" data-filter="safety"><i data-lucide="shield-check" class="w-4 h-4"></i><span>Safety, Communication &amp; Automation</span><b>10</b></button>
             </div>
 
             <div class="cs-brands" id="cs-brands" hidden>
@@ -261,8 +261,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Dahej LNG Terminal, Bharuch, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Awarded Sep 2026 · 01 Oct 2026 – 31 May 2028</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('petronet-fms')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('petronet-fms')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="petronet-fms"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="petronet-fms"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- ROCKWOOL (rockwool) -->
@@ -277,8 +277,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>ROCKWOOL plant</span><span class="cs-dot" aria-hidden="true">·</span><span>Completion certified 29 May 2026</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('rockwool')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('rockwool')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="rockwool"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="rockwool"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- GNFC Limited (gnfc-fms) -->
@@ -293,8 +293,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Head Office, Bharuch &amp; TDI-II, Dahej</span><span class="cs-dot" aria-hidden="true">·</span><span>2023 – 2026 · three completed cycles</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('gnfc-fms')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('gnfc-fms')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="gnfc-fms"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="gnfc-fms"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Veer Pharma (veer-pharma) -->
@@ -309,8 +309,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Jhagadia, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Turnkey IT &amp; ELV programme</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('veer-pharma')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('veer-pharma')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="veer-pharma"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="veer-pharma"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Krystal Ingredients Pvt. Ltd. (krystal) -->
@@ -325,8 +325,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Dahej, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Designed, integrated &amp; commissioned by D-TECH</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('krystal')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('krystal')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="krystal"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="krystal"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- MRF Limited (mrf) -->
@@ -341,8 +341,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>MRF plant · ITS permanent network</span><span class="cs-dot" aria-hidden="true">·</span><span>Delivered 2019</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('mrf')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('mrf')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="mrf"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="mrf"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Indofil Industries Limited (indofil) -->
@@ -357,8 +357,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Indofil Synthesis Plant, Dahej, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Greenfield plant rollout</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('indofil')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('indofil')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="indofil"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="indofil"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Bostik India Pvt. Ltd. (bostik) -->
@@ -373,8 +373,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Jhagadia, Bharuch, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Greenfield plant delivery</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('bostik')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('bostik')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="bostik"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="bostik"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- GNFC Limited (gnfc-amc) -->
@@ -389,8 +389,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Bharuch, Gujarat · multiple campuses</span><span class="cs-dot" aria-hidden="true">·</span><span>2013 – 2018 · four work orders</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('gnfc-amc')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('gnfc-amc')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="gnfc-amc"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="gnfc-amc"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Petronet LNG Limited (petronet-amc) -->
@@ -405,8 +405,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Dahej LNG Terminal, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>1 Jul 2014 – 30 Jun 2015</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('petronet-amc')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('petronet-amc')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="petronet-amc"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="petronet-amc"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
         <!-- Balaji Wafers Private Limited (balaji) -->
@@ -421,8 +421,8 @@
             <p class="cs-where"><i data-lucide="map-pin"></i><span>Food Manufacturing Hub, Gujarat</span><span class="cs-dot" aria-hidden="true">·</span><span>Submitted 2019</span></p>
           </div>
           <div class="cs-actions">
-            <button type="button" class="cs-btn cs-btn-ghost" onclick="handleViewDetailsClick('balaji')"><i data-lucide="lock"></i><span>View Case Summary</span></button>
-            <button type="button" class="cs-btn cs-btn-solid" onclick="handleDownloadPdfClick('balaji')"><i data-lucide="download"></i><span>Get Full PDF</span></button>
+            <button type="button" class="cs-btn cs-btn-ghost" data-case-view="balaji"><i data-lucide="lock"></i><span>View Case Summary</span></button>
+            <button type="button" class="cs-btn cs-btn-solid" data-case-pdf="balaji"><i data-lucide="download"></i><span>Get Full PDF</span></button>
           </div>
         </article>
             </div>
@@ -478,7 +478,7 @@
            MODAL 1: CORPORATE EMAIL ACCESS GATE (REQUIRED FOR DETAILS & PDF)
            ========================================================================= -->
       <div id="email-gate-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" role="dialog" aria-modal="true" aria-label="Corporate Email Access Verification">
-        <button type="button" onclick="closeEmailGateModal()" aria-label="Close verification modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
+        <button type="button" data-close-gate aria-label="Close verification modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
 
         <div class="relative bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 z-10 space-y-6">
 
@@ -493,7 +493,7 @@
                 <p id="gate-modal-subtitle" class="text-xs text-slate-500 mt-0.5">Please provide your work credentials to proceed.</p>
               </div>
             </div>
-            <button type="button" onclick="closeEmailGateModal()" aria-label="Close dialog" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
+            <button type="button" data-close-gate aria-label="Close dialog" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
               <i data-lucide="x" class="w-5 h-5"></i>
             </button>
           </div>
@@ -508,7 +508,7 @@
           </div>
 
           <!-- Email Gate Form -->
-          <form id="email-gate-form" onsubmit="handleEmailGateSubmit(event)" class="space-y-4">
+          <form id="email-gate-form" class="space-y-4">
             <!-- Honeypot for bots: hidden from people and assistive tech -->
             <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
               <label for="gate-website">Website</label>
@@ -586,7 +586,7 @@
            MODAL 2: DETAILED CASE STUDY VIEW ("MORE INFO") WITH REAL PHOTO HERO
            ========================================================================= -->
       <div id="case-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" role="dialog" aria-modal="true" aria-label="Detailed Case Study Information">
-        <button type="button" onclick="closeCaseModal()" aria-label="Close detailed case study modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
+        <button type="button" data-close-case aria-label="Close detailed case study modal" tabindex="-1" class="fixed inset-0 w-full h-full cursor-default focus-visible:outline-none"></button>
 
         <div class="relative bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-3xl w-full p-6 sm:p-10 z-10 space-y-6 max-h-[90vh] overflow-y-auto">
 
@@ -604,7 +604,7 @@
               <h3 id="detail-modal-client" class="text-2xl font-extrabold text-slate-900">Client Name</h3>
               <div id="detail-modal-arch" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block">Architecture</div>
             </div>
-            <button type="button" onclick="closeCaseModal()" aria-label="Close modal dialog" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
+            <button type="button" data-close-case aria-label="Close modal dialog" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">
               <i data-lucide="x" class="w-5 h-5"></i>
             </button>
           </div>
@@ -674,7 +674,6 @@
             <button 
               type="button" 
               id="detail-modal-download-btn"
-              onclick=""
               class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             >
               <i data-lucide="file-down" class="w-4 h-4"></i>
@@ -690,7 +689,7 @@
               </a>
               <button 
                 type="button" 
-                onclick="closeCaseModal()" 
+                data-close-case 
                 class="px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 font-semibold text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 Close
@@ -1470,8 +1469,19 @@
           document.getElementById('case-grid').addEventListener('click', e => {
             const btn = e.target.closest('[data-case-view]');
             if (btn) handleViewDetailsClick(btn.dataset.caseView);
+            const pdf = e.target.closest('[data-case-pdf]');
+            if (pdf) handleDownloadPdfClick(pdf.dataset.casePdf);
           });
-          fetch('/data/case-studies.json', { cache: 'no-cache', headers: { Accept: 'application/json' } })
+          // Tabs, modal close buttons and the email form are wired here rather than
+          // with inline handlers, which the Content-Security-Policy does not allow.
+          document.addEventListener('click', e => {
+            const tab = e.target.closest('.case-tab[data-filter]');
+            if (tab) filterCases(tab.dataset.filter);
+            if (e.target.closest('[data-close-case]')) closeCaseModal();
+            if (e.target.closest('[data-close-gate]')) closeEmailGateModal();
+          });
+          document.getElementById('email-gate-form').addEventListener('submit', handleEmailGateSubmit);
+          fetch('/api/content?list=case-studies', { cache: 'no-cache', headers: { Accept: 'application/json' } })
             .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(list => {
               if (!Array.isArray(list)) return;
@@ -1601,7 +1611,7 @@
               img.style.transform = 'scale(1) translateY(0)';
             }, FADE_MS);
           }
-          fetch('/data/case-studies.json', { headers: { Accept: 'application/json' } })
+          fetch('/api/content?list=case-studies', { headers: { Accept: 'application/json' } })
             .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(function (list) {
               var map = {};

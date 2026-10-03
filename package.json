@@ -7,12 +7,14 @@
     "build:tailwind": "tailwindcss -c tools/tailwind/tailwind.config.js -i tools/tailwind/input.css -o assets/tailwind.css --minify",
     "build:css": "npm run build:tailwind && for f in assets/skin.css assets/tailwind.css assets/polish.css assets/jiva.css assets/color.css assets/skin-dark.css assets/prezi.css assets/fonts.css assets/case-studies.css assets/refresh.css assets/home.css assets/sections.css; do npx -y clean-css-cli -o \"${f%.css}.min.css\" \"$f\"; done && for f in assets/skin.min.css assets/color.min.css assets/polish.min.css assets/tailwind.min.css; do cat \"$f\"; echo; done > assets/bundle.min.css && npx -y purgecss --config purgecss.config.js && cp /tmp/purged/bundle.min.css assets/bundle.min.css",
     "build:js": "for f in assets/lucide.js assets/agent-a.js assets/refined.js assets/analytics.js; do npx -y terser \"$f\" -c -m -o \"${f%.js}.min.js\"; done",
-    "build": "npm run build:css && npm run build:js && npm run stamp",
+    "build": "npm run build:css && npm run build:js && npm run stamp && npm run csp",
     "serve": "python3 -m http.server 8000",
     "check:links": "python3 tools/check-links.py",
     "check:ui": "python3 tools/check-ui-contract.py",
-    "verify": "npm ci && npm run build && npm run check:links && npm run check:ui && node --check sw.js && node --check assets/agent-a.min.js && node --check assets/brand-marquee.js && echo VERIFY-OK",
+    "verify": "npm ci && npm run build && npm run check:links && npm run check:ui && npm run check:csp && node --check sw.js && node --check assets/agent-a.min.js && node --check assets/brand-marquee.js && echo VERIFY-OK",
     "stamp": "python3 tools/stamp-assets.py",
+    "csp": "python3 tools/csp-hashes.py",
+    "check:csp": "python3 tools/csp-hashes.py --check",
     "test": "node tools/test-api.js"
   },
   "devDependencies": {
