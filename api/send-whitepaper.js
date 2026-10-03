@@ -2,6 +2,11 @@
 // requested it, notifies D-TECH sales about the lead and files the lead in
 // leads.json in the private data repository (see _store.js) when configured.
 //
+// With { request: "summary" } it only files the lead: a visitor who filled in
+// the form to read a case study's summary on the page. Nothing is emailed;
+// the management console lists it beside the PDF requests. Every request is
+// its own record, so a visitor's repeat requests all show up.
+//
 // Built-in case studies and their PDFs are listed in _whitepapers.json. Case
 // studies added from the management console carry their own PDF in
 // data/case-studies.json: an upload under assets/case-studies/pdf/custom/
@@ -26,6 +31,9 @@ const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
+
+// Copied on every case-study email sent to a visitor.
+const CASE_STUDY_CC = 'director@dtechindia.com';
 
 const overLimit = createRateLimiter();
 
@@ -180,14 +188,15 @@ module.exports = async function handler(req, res) {
     return res.status(415).json({ ok: false, error: 'Unsupported content type' });
   }
 
-  if (!isConfigured()) {
-    console.error('SMTP environment variables are missing');
-    return res.status(503).json({ ok: false, error: 'Email delivery is temporarily unavailable. Please contact sales@dtechindia.com.' });
-  }
-
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   body = body || {};
+  const summaryOnly = body.request === 'summary';
+
+  if (!summaryOnly && !isConfigured()) {
+    console.error('SMTP environment variables are missing');
+    return res.status(503).json({ ok: false, error: 'Email delivery is temporarily unavailable. Please contact sales@dtechindia.com.' });
+  }
 
   // Honeypot: real visitors never see or fill this field.
   if (body.website || submittedTooFast(body)) return res.status(200).json({ ok: true });
@@ -205,9 +214,11 @@ module.exports = async function handler(req, res) {
   if (!builtIn && !CASE_ID_RE.test(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 
   const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  if (overLimit('ip:' + ip, 5, 10 * 60 * 1000) || overLimit('to:' + lead.email.toLowerCase(), 3, 60 * 60 * 1000)) {
-    return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
-  }
+  // Summaries send no email, so they get their own, roomier counters.
+  const limited = summaryOnly
+    ? overLimit('view-ip:' + ip, 30, 10 * 60 * 1000) || overLimit('view-to:' + lead.email.toLowerCase(), 30, 60 * 60 * 1000)
+    : overLimit('ip:' + ip, 5, 10 * 60 * 1000) || overLimit('to:' + lead.email.toLowerCase(), 3, 60 * 60 * 1000);
+  if (limited) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
 
   if (builtIn && await isUnpublishedBuiltIn(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 
@@ -222,6 +233,22 @@ module.exports = async function handler(req, res) {
     if (!paper) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
   }
 
+  const record = request => ({ id: store.newId(), ...lead, caseId, caseTitle: `${paper.title} — ${paper.topic}`, request, date: new Date().toISOString() });
+
+  if (summaryOnly) {
+    if (!store.isConfigured('private')) {
+      console.error('Summary view not filed: private storage is not configured');
+      return res.status(200).json({ ok: true, filed: false });
+    }
+    try {
+      await store.appendJson('private', 'leads.json', record('summary'), `Add case-study summary view from ${lead.name || lead.email}`);
+      return res.status(200).json({ ok: true, filed: true });
+    } catch (err) {
+      console.error('Filing summary view failed:', err.message);
+      return res.status(502).json({ ok: false, error: 'We could not record your request right now.' });
+    }
+  }
+
   const sales = salesEmail();
   const siteUrl = siteUrlFor(req);
 
@@ -231,6 +258,7 @@ module.exports = async function handler(req, res) {
   try {
     const sent = await sendMail({
       to: lead.email,
+      cc: CASE_STUDY_CC,
       replyTo: sales,
       subject: `Your D-TECH case study: ${paper.title}`,
       html: visitorEmail({ name: safeGreetingName(lead.name), paper, siteUrl, attached }),
@@ -239,7 +267,6 @@ module.exports = async function handler(req, res) {
 
     // The visitor already has their PDF; a failed sales notice or filing must not
     // undo that. Awaited, because Vercel may freeze the function once the response is sent.
-    const record = { id: store.newId(), ...lead, caseId, caseTitle: `${paper.title} — ${paper.topic}`, date: new Date().toISOString() };
     await Promise.all([
       sendMail({
         to: sales,
@@ -248,7 +275,7 @@ module.exports = async function handler(req, res) {
         html: leadEmail({ lead, paper, ip, attached }),
       }).catch(err => console.error('Sales notification failed:', err.message)),
       store.isConfigured('private')
-        ? store.appendJson('private', 'leads.json', record, `Add case-study lead from ${lead.name || lead.email}`)
+        ? store.appendJson('private', 'leads.json', record('pdf'), `Add case-study lead from ${lead.name || lead.email}`)
           .catch(err => console.error('Filing lead failed:', err.message))
         : Promise.resolve(console.error('Lead not filed: private storage is not configured')),
     ]);
