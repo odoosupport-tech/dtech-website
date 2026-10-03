@@ -228,7 +228,7 @@
       ]
     },
     {
-      "source": "/(hp|dell|motorola)(?:\\.html)?",
+      "source": "/(hp|dell|motorola)(\\.html)?",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "source": "/(portal(?:\\.html)?|admin-dtech)",
+      "source": "/(portal|admin-dtech)",
       "headers": [
         {
           "key": "X-Robots-Tag",
