@@ -289,7 +289,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['vercel.json: /admin-dtech serves portal.html, noindex + no-store on both paths', () => {
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
-      assert((cfg.rewrites || []).some(r => r.source === '/admin-dtech' && r.destination === '/portal.html'), 'rewrite');
+      assert((cfg.rewrites || []).some(r => r.source === '/admin-dtech' && r.destination === '/portal'), 'rewrite');
       assert((cfg.redirects || []).some(r => r.source === '/admin-dtech/' && r.destination === '/admin-dtech'), 'trailing-slash redirect');
       for (const p of ['/portal.html', '/portal', '/admin-dtech']) {
         const keys = cfg.headers.filter(h => new RegExp(`^${h.source}$`).test(p)).flatMap(h => h.headers.map(x => `${x.key}: ${x.value}`));

@@ -135,7 +135,7 @@ A private dashboard for non-technical staff:
 Every form is checked in the browser and again on the server. While a change saves, the console shows “Committing to GitHub and deploying to Vercel…”, then watches the deployed file and shows **Live on the website** once Vercel has published it (usually 1–2 minutes).
 
 - **Switch it on** by setting `ADMIN_SECRET` in Vercel to a long random password (at least 16 characters), then redeploy. Without it every admin endpoint answers 404. Changing it signs everyone out. Optionally set `ADMIN_USER` to the admin ID staff type with it (default `admin`, not case-sensitive).
-- **Sign in** at `/admin-dtech` (the same page is also at `/portal.html`; **Ctrl + Shift + Alt + D** on the home page opens it) with the admin ID and password.
+- **Sign in** at `/admin-dtech` (the same page is also at `/portal`; **Ctrl + Shift + Alt + D** on the home page opens it) with the admin ID and password.
 - After 5 wrong attempts, sign-in pauses for 15 minutes. The page shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance). Every wrong attempt also waits 1.5 seconds before the answer.
 - **Shared rate limit (Vercel Firewall, free on Hobby):** the per-instance limit above resets when Vercel starts a new instance, so add one rule in the Vercel dashboard under **Firewall → Configure → New Rule**: *If* Request Path starts with `/api/` *and* Method equals `POST`, *Then* Rate Limit, Fixed Window, 60 s, 20 requests, key IP, action Default (429). Publish it. Hobby allows one rate-limit rule per project.
 - **Sign Out** in the console header ends the session and returns to the sign-in page.
