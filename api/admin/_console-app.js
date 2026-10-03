@@ -437,6 +437,22 @@
       Object.keys(STATUSES).map(function (k) { return '<option value="' + k + '"' + (k === s ? ' selected' : '') + '>' + esc(STATUSES[k]) + '</option>'; }).join('') +
       '</select>';
   }
+  // Case-study leads: a PDF emailed, or a summary read on the page. Records from
+  // before summaries were tracked are all PDF requests.
+  function leadRequest(l) { return l.request === 'summary' ? 'summary' : 'pdf'; }
+  function leadRequestChip(l) {
+    return leadRequest(l) === 'summary'
+      ? '<span class="dc-chip dc-chip-wait">👁 Summary viewed</span>'
+      : '<span class="dc-chip">📄 PDF emailed</span>';
+  }
+  function leadKey(l) { return String(l.email || '').trim().toLowerCase(); }
+  // Every lead from the same email address, newest first.
+  function leadHistory(l) {
+    var key = leadKey(l);
+    return key ? state.data.leads.filter(function (x) { return leadKey(x) === key; })
+      .sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }) : [l];
+  }
+
   function noteCount(r) {
     var n = notesOf(r).length;
     return n ? '<div class="dc-sub">💬 ' + n + ' internal note' + (n === 1 ? '' : 's') + '</div>' : '';
@@ -757,10 +773,14 @@
       var q = state.query.leads || '';
       var all = state.data.leads;
       var list = all.filter(function (l) { return shown(l) && matches(l, ['name', 'company', 'email', 'phone', 'caseTitle'], q); });
+      var perVisitor = {};
+      all.forEach(function (l) { var k = leadKey(l); if (k) perVisitor[k] = (perVisitor[k] || 0) + 1; });
       return bar('Case Study Leads', q, showFilter() + '<button type="button" class="dc-btn dc-btn-primary" data-export="leads">' + icon('file-spreadsheet') + 'Export Leads</button>') +
-        table(['Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested', 'Date', 'Status', ''], list.map(function (l) {
-          return '<tr><td><div class="dc-strong">' + esc(l.name || '—') + '</div>' + noteCount(l) + '</td><td>' + esc(l.company || '—') + '</td><td>' + tel(l.phone) + '</td><td>' + mail(l.email) + '</td>' +
-            '<td>' + esc(l.caseTitle || l.caseId) + '</td><td class="dc-sub">' + esc(fmtDate(l.date)) + '</td>' +
+        table(['Requester Name', 'Company', 'Phone', 'Email', 'Case Study', 'Request', 'Date', 'Status', ''], list.map(function (l) {
+          var n = perVisitor[leadKey(l)] || 1;
+          var repeat = n > 1 ? '<div class="dc-sub">🔁 ' + n + ' requests from this visitor</div>' : '';
+          return '<tr><td><div class="dc-strong">' + esc(l.name || '—') + '</div>' + repeat + noteCount(l) + '</td><td>' + esc(l.company || '—') + '</td><td>' + tel(l.phone) + '</td><td>' + mail(l.email) + '</td>' +
+            '<td>' + esc(l.caseTitle || l.caseId) + '</td><td>' + leadRequestChip(l) + '</td><td class="dc-sub">' + esc(fmtDate(l.date)) + '</td>' +
             '<td>' + statusSelect('lead', l) + '</td>' +
             '<td><div class="dc-actions"><button type="button" class="dc-btn" data-view-lead="' + esc(l.id) + '">Details &amp; Notes</button></div></td></tr>';
         }), emptyInbox(q, all, 'No case-study requests yet. New ones from the Case Studies page will appear here.'));
@@ -939,13 +959,25 @@
       { form: true });
   }
 
+  // Everything this visitor has asked for, so staff see their full interest at a glance.
+  function leadHistoryHtml(l) {
+    var history = leadHistory(l);
+    if (history.length < 2) return '';
+    return '<p class="dc-sub">All ' + history.length + ' requests from this visitor (newest first):</p>' +
+      table(['Date', 'Request', 'Case Study'], history.map(function (h) {
+        return '<tr' + (h.id === l.id ? ' class="dc-strong"' : '') + '><td class="dc-sub">' + esc(fmtDate(h.date)) + '</td><td>' + leadRequestChip(h) + '</td><td>' + esc(h.caseTitle || h.caseId) + '</td></tr>';
+      }), '');
+  }
+
   function showLead(id) {
     var l = find('leads', id);
     if (!l) return;
     openModal('Lead from ' + (l.name || l.email),
       '<dl class="dc-dl"><dt>Name</dt><dd>' + esc(l.name || '—') + '</dd><dt>Company</dt><dd>' + esc(l.company || '—') + '</dd>' +
       '<dt>Phone</dt><dd>' + tel(l.phone) + '</dd><dt>Email</dt><dd>' + mail(l.email) + '</dd>' +
-      '<dt>Case study</dt><dd>' + esc(l.caseTitle || l.caseId) + '</dd><dt>Requested</dt><dd>' + esc(fmtDate(l.date)) + '</dd></dl>' +
+      '<dt>Case study</dt><dd>' + esc(l.caseTitle || l.caseId) + '</dd><dt>Request</dt><dd>' + leadRequestChip(l) + '</dd>' +
+      '<dt>Requested</dt><dd>' + esc(fmtDate(l.date)) + '</dd></dl>' +
+      leadHistoryHtml(l) +
       followUp('lead', l),
       '<a class="dc-btn dc-btn-primary" href="mailto:' + esc(l.email) + '?subject=' + encodeURIComponent('Re: ' + (l.caseTitle || 'Your case study request')) + '">' + icon('mail') + 'Reply by Email</a><button type="button" class="dc-btn" data-close>Close</button>',
       { form: true });
@@ -1540,8 +1572,8 @@
         state.data.applicants.map(function (a) { return [fmtDate(a.date), a.name, a.role, a.location, a.phone, a.email, a.cv ? 'Yes' : 'No', a.message, STATUSES[statusOf(a)], notesText(a)]; }));
     }
     if (d.export === 'leads') {
-      return downloadCsv('case-study-leads-' + today() + '.csv', ['Date', 'Requester Name', 'Company', 'Phone', 'Email', 'Case Study Requested', 'Status', 'Internal Notes'],
-        state.data.leads.map(function (l) { return [fmtDate(l.date), l.name, l.company, l.phone, l.email, l.caseTitle || l.caseId, STATUSES[statusOf(l)], notesText(l)]; }));
+      return downloadCsv('case-study-leads-' + today() + '.csv', ['Date', 'Requester Name', 'Company', 'Phone', 'Email', 'Case Study', 'Request', 'Status', 'Internal Notes'],
+        state.data.leads.map(function (l) { return [fmtDate(l.date), l.name, l.company, l.phone, l.email, l.caseTitle || l.caseId, leadRequest(l) === 'summary' ? 'Summary viewed' : 'PDF emailed', STATUSES[statusOf(l)], notesText(l)]; }));
     }
     if (d.reorder) { state.reorder[d.reorder] = currentOrder(d.reorder); renderPanel(); return; }
     if ('reorderCancel' in d) { delete state.reorder[TAB_TYPE[state.tab]]; renderPanel(); return; }

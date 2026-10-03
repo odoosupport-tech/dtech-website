@@ -127,7 +127,7 @@ Locally (no `VERCEL` variable and no tokens), `data/` is edited in place, upload
 
 A private dashboard for non-technical staff:
 
-- **Inbox:** client requirements (with CSV export for Excel), job applicants (with CV download) and case-study leads.
+- **Inbox:** client requirements (with CSV export for Excel), job applicants (with CV download) and case-study leads. Visitors fill in the case-study form every time they open a summary or ask for a PDF (pre-filled after the first time), and every request is its own lead: the list shows whether it was a summary view or a PDF, how many requests that visitor has made, and **Details & Notes** shows their whole history. Summary views are only recorded; PDF requests also email the visitor and sales.
 - **Careers:** add, edit, close or delete openings, with a live preview of the careers-page card.
 - **Case studies:** add, edit, publish (or keep as a draft) and delete case studies, each with an optional PDF whitepaper, either uploaded (up to 3 MB) or linked (`https://`). Built-in case studies can be published or unpublished.
 - **Site banners:** a notice across the top of every page (holiday closures, hiring drives, urgent updates) in one of three styles, with an optional link and optional start and end dates. One banner shows at a time: the first active one in the list whose dates include today. Visitors can close it.
