@@ -5,8 +5,10 @@
 // requirements.json in the private data repository for the management console.
 //
 // Body (JSON):
-//   { name, email, phone, company, subject, topic, message, website }
-//   "website" is a hidden bot-trap field and must stay empty.
+//   { name, email, phone, company, subject, message, website }
+//   subject is one of the TOPICS keys (the contact.html dropdown values); anything
+//   else is filed as a general enquiry. "website" is a hidden bot-trap field and
+//   must stay empty.
 //
 // Needs SMTP_HOST, SMTP_USER and SMTP_PASS (see _mail.js). Filing the enquiry
 // needs GITHUB_DATA_REPO and a token (see _store.js); without them it is only emailed.
@@ -16,6 +18,25 @@ const store = require('./_store');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
 
 const overLimit = createRateLimiter();
+
+// The contact.html dropdown, value → label. The topic is echoed in the
+// confirmation sent to an address the visitor typed, so only these fixed labels
+// are used, never free text that could carry a spammer's message.
+const TOPICS = {
+  'it-infra': 'Turnkey Industrial IT & Optical Fiber Backbone',
+  forklift: 'AI Forklift Pedestrian Safety (N2024G-5)',
+  tfms: 'TFMS Tanker Fleet Management System',
+  jiva: 'JIVA Siemens SPM Industrial Automation',
+  kiosk: 'AT-GTS Safety & Group Training Kiosk',
+  cctv: 'CCTV Surveillance & AI Vision Analytics',
+  other: 'Other Custom Systems Integration',
+};
+const GENERAL_TOPIC = 'General enquiry';
+
+function topicFor(subject) {
+  const key = clean(subject, 40);
+  return Object.prototype.hasOwnProperty.call(TOPICS, key) ? TOPICS[key] : GENERAL_TOPIC;
+}
 
 // The message body keeps its line breaks; only strip control characters.
 function cleanMultiline(v, max) {
@@ -111,7 +132,7 @@ module.exports = async function handler(req, res) {
     email: clean(body.email, 254),
     phone: clean(body.phone, 40),
     company: clean(body.company, 160),
-    topic: clean(body.topic || body.subject, 120),
+    topic: topicFor(body.subject),
     message: cleanMultiline(body.message, 5000),
   };
 
@@ -123,6 +144,9 @@ module.exports = async function handler(req, res) {
   if (overLimit('ip:' + ip, 5, 10 * 60 * 1000)) {
     return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
   }
+  // Caps the auto-responses any one address receives, so the form cannot be used
+  // to flood a stranger's inbox. Sales still gets every enquiry.
+  const confirmVisitor = !overLimit('to:' + enquiry.email.toLowerCase(), 3, 60 * 60 * 1000);
 
   const record = { id: store.newId(), ...enquiry, date: new Date().toISOString() };
   const [mailed, filed, confirmed] = await Promise.allSettled([
@@ -136,12 +160,14 @@ module.exports = async function handler(req, res) {
     store.isConfigured('private')
       ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
       : Promise.reject(new Error('private storage is not configured')),
-    sendMail({
-      to: enquiry.email,
-      subject: CONFIRMATION_SUBJECT,
-      html: customerConfirmationEmail({ enquiry }),
-      text: customerConfirmationText({ enquiry }),
-    }),
+    confirmVisitor
+      ? sendMail({
+        to: enquiry.email,
+        subject: CONFIRMATION_SUBJECT,
+        html: customerConfirmationEmail({ enquiry }),
+        text: customerConfirmationText({ enquiry }),
+      })
+      : Promise.reject(new Error('recipient over the hourly confirmation limit')),
   ]);
   if (mailed.status === 'rejected') console.error('Contact email failed:', mailed.reason.message);
   if (filed.status === 'rejected') console.error('Filing requirement failed:', filed.reason.message);
