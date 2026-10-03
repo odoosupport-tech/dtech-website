@@ -102,6 +102,9 @@
     function start() {
       if (started) return;
       started = true;
+      // Tells public pages (case studies) this browser has a console session,
+      // so visitors who never sign in are not sent to /api/admin/auth.
+      try { localStorage.setItem('dtech-console', '1'); } catch (e) {}
       var app = document.createElement('script');
       app.src = '/api/admin/console';
       app.onerror = function () {

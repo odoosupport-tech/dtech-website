@@ -1058,10 +1058,19 @@
 
         // Admin bypass: signed-in console sessions preview details and open
         // PDFs directly, without the corporate email gate.
+        // Only browsers that have signed in to the console (portal.html sets
+        // the marker) ask; everyone else skips the request and its 404.
         var dtIsAdmin = false;
-        fetch('/api/admin/auth', { credentials: 'same-origin' })
-          .then(function (r) { if (r.ok) dtIsAdmin = true; })
-          .catch(function () {});
+        var dtConsoleHint = false;
+        try { dtConsoleHint = localStorage.getItem('dtech-console') === '1'; } catch (e) {}
+        if (dtConsoleHint) {
+          fetch('/api/admin/auth', { credentials: 'same-origin' })
+            .then(function (r) {
+              if (r.ok) dtIsAdmin = true;
+              else { try { localStorage.removeItem('dtech-console'); } catch (e) {} }
+            })
+            .catch(function () {});
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
           prefillGateForm();
