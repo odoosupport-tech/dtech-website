@@ -166,7 +166,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
-      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 99980 26089') && c.text.includes('Bharuch'), 'contact details');
+      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('Bharuch'), 'contact details');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
     }],
     ['auto-responder ignores markup planted in the name', async () => {
@@ -533,7 +533,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.statusCode, 200, JSON.stringify(r.body));
       bannerId = r.body.items[0].id;
       assert.deepStrictEqual(JSON.parse(fs.readFileSync('data/banners.json', 'utf8'))[0], { id: bannerId, ...banner });
-      eq((await post({ type: 'banner', action: 'save', id: bannerId, item: { ...banner, linkUrl: 'tel:+91 99980 26089' } })).statusCode, 200);
+      eq((await post({ type: 'banner', action: 'save', id: bannerId, item: { ...banner, linkUrl: 'tel:+91 95588 09163' } })).statusCode, 200);
       eq((await post({ type: 'banner', action: 'toggle', id: bannerId, value: false })).body.items[0].isActive, false);
       eq((await post({ type: 'banner', action: 'delete', id: bannerId })).body.items.length, 0);
     }],
