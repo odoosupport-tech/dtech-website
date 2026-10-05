@@ -12,7 +12,8 @@
     'html:has(.dc){color-scheme:light;background:#f1f5f9}',
     '.dc-top{background:var(--navy);color:#fff;border-bottom:4px solid var(--orange)}',
     '.dc-top-in{max-width:1400px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:16px}',
-    '.dc-logo{background:#fff;border-radius:10px;padding:6px 10px;display:inline-flex}',
+    '.dc-logo{background:#fff;border-radius:10px;padding:6px 10px;display:inline-flex;border:0;cursor:pointer;font:inherit}',
+    '.dc-logo:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}',
     '.dc-logo img{height:30px;width:auto;display:block}',
     '.dc-title{font-weight:800;font-size:18px;letter-spacing:-.01em}',
     '.dc-title small{display:block;font-weight:500;font-size:12px;color:#bfdbfe}',
@@ -20,12 +21,22 @@
     '.dc-count{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:12px;white-space:nowrap}',
     '.dc-count b{font-size:14px;margin-right:4px}',
     '.dc-main{max-width:1400px;margin:0 auto;padding:20px}',
-    '.dc-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px}',
+    '.dc-tabs{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;padding-bottom:4px;margin-bottom:16px}',
+    '.dc-menu-wrap{position:relative}',
+    '.dc-caret{display:inline-block;width:7px;height:7px;margin:0 2px 3px 10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .15s;vertical-align:middle}',
+    '.dc-menu-btn[aria-expanded="true"] .dc-caret{transform:rotate(-135deg);margin-bottom:-1px}',
+    '.dc-menu{position:absolute;left:0;top:calc(100% + 6px);z-index:30;min-width:260px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.16);padding:6px}',
+    '.dc-menu[hidden]{display:none}',
+    '.dc-menu-item{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;border:0;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:inherit;font-weight:600;font-size:14px;color:var(--ink);cursor:pointer}',
+    '.dc-menu-item:hover,.dc-menu-item:focus-visible{background:#f1f5f9;outline:none}',
+    '.dc-menu-item[aria-current="page"]{background:var(--navy);color:#fff}',
+    '.dc-menu-item span{background:rgba(15,23,42,.08);border-radius:999px;padding:0 8px;font-size:12px}',
+    '.dc-menu-item[aria-current="page"] span{background:rgba(255,255,255,.2)}',
     '.dc-tab{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:10px 16px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:background-color .15s,color .15s,border-color .15s}',
     '.dc-tab:hover{border-color:#94a3b8}',
-    '.dc-tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}',
+    '.dc-tab.is-active{background:var(--navy);border-color:var(--navy);color:#fff}',
     '.dc-tab span{display:inline-block;margin-left:6px;background:rgba(15,23,42,.08);border-radius:999px;padding:0 8px;font-size:12px}',
-    '.dc-tab[aria-selected="true"] span{background:rgba(255,255,255,.2)}',
+    '.dc-tab.is-active span{background:rgba(255,255,255,.2)}',
     '.dc .dc-card{padding:0;margin:0}',
     '.dc-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}',
     '.dc-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}',
@@ -688,7 +699,7 @@
   function shell() {
     root.innerHTML =
       '<header class="dc-top"><div class="dc-top-in">' +
-        '<span class="dc-logo"><img src="/assets/dtech-logo-blue.webp" width="324" height="142" alt="D-TECH"></span>' +
+        '<button type="button" class="dc-logo" data-tab="dashboard" aria-label="D-TECH: go to the Dashboard Overview"><img src="/assets/dtech-logo-blue.webp" width="324" height="142" alt=""></button>' +
         '<div class="dc-title">Management Console<small>D-TECH Solution Integrators</small></div>' +
         '<div class="dc-counts" id="dc-counts"></div>' +
         '<span class="dc-deploy" id="dc-deploy" role="status" aria-live="polite" hidden></span>' +
@@ -696,7 +707,7 @@
         '<button type="button" class="dc-btn dc-btn-light" id="dc-mail-check">Check email</button>' +
         '<button type="button" class="dc-btn dc-btn-light" id="dc-logout">' + icon('lock') + 'Sign Out</button>' +
       '</div></header>' +
-      '<main class="dc-main"><div id="dc-notes"></div><nav class="dc-tabs" role="tablist" id="dc-tabs"></nav><div id="dc-panel" class="dc-card" role="tabpanel"><div class="dc-loading">Loading the latest records…</div></div></main>';
+      '<main class="dc-main"><div id="dc-notes"></div><nav class="dc-tabs" aria-label="Console sections" id="dc-tabs"></nav><div id="dc-panel" class="dc-card" role="tabpanel"><div class="dc-loading">Loading the latest records…</div></div></main>';
     toastEl = document.createElement('div');
     toastEl.className = 'dc-toast';
     toastEl.setAttribute('role', 'status');
@@ -718,9 +729,20 @@
       '<span class="dc-count"><b>' + c.applicants + '</b>applicants</span>' +
       '<span class="dc-count"><b>' + c.leads + '</b>leads</span>' +
       '<span class="dc-count"><b>' + c.jobs + '</b>open roles</span>';
-    document.getElementById('dc-tabs').innerHTML = TABS.map(function (t) {
-      return '<button type="button" role="tab" class="dc-tab" data-tab="' + t.id + '" aria-selected="' + (t.id === state.tab) + '">' + esc(t.label) + '<span>' + c[t.id] + '</span></button>';
-    }).join('');
+    // Dashboard Overview stays one click away; the other sections live in one
+    // drop-down, whose button shows the section that is open.
+    var home = TABS[0];
+    var sections = TABS.slice(1);
+    var current = sections.filter(function (t) { return t.id === state.tab; })[0];
+    document.getElementById('dc-tabs').innerHTML =
+      '<button type="button" class="dc-tab' + (state.tab === home.id ? ' is-active' : '') + '" data-tab="' + home.id + '"' + (state.tab === home.id ? ' aria-current="page"' : '') + '>' + esc(home.label) + '<span>' + c[home.id] + '</span></button>' +
+      '<div class="dc-menu-wrap">' +
+        '<button type="button" class="dc-tab dc-menu-btn' + (current ? ' is-active' : '') + '" id="dc-menu-btn" aria-haspopup="true" aria-expanded="false" aria-controls="dc-menu">' +
+          (current ? esc(current.label) + '<span>' + c[current.id] + '</span>' : '📂 Sections') + '<i class="dc-caret" aria-hidden="true"></i></button>' +
+        '<div class="dc-menu" id="dc-menu" role="menu" hidden>' + sections.map(function (t) {
+          return '<button type="button" role="menuitem" class="dc-menu-item" data-tab="' + t.id + '"' + (t.id === state.tab ? ' aria-current="page"' : '') + '>' + esc(t.label) + '<span>' + c[t.id] + '</span></button>';
+        }).join('') + '</div>' +
+      '</div>';
     var notes = [];
     if (!state.data.hasInbox) notes.push('New client requirements, job applications and case-study leads are still emailed to sales, but they are not being saved here yet. Ask your website administrator to finish the storage setup.');
     if (!state.data.canSave) notes.push('Changes to careers and case studies cannot be saved yet. Ask your website administrator to finish the publishing setup.');
@@ -1584,12 +1606,14 @@
   // ---------- events ----------
   function onClick(event) {
     var t = event.target.closest('button, a');
+    if (!t || t.id !== 'dc-menu-btn') setMenu(false);
     if (!t) return;
     var d = t.dataset;
+    if (t.id === 'dc-menu-btn') { setMenu(t.getAttribute('aria-expanded') !== 'true'); return; }
     if (d.tab) { state.tab = d.tab; render(); return; }
     if ('close' in d) { closeModal(); return; }
     if (state.busy) return;
-    if (t.id === 'dc-refresh') { load(); return; }
+    if (t.id === 'dc-refresh') { refresh(t); return; }
     if (t.id === 'dc-mail-check' || t.id === 'dc-mail-send') { checkEmail(t, t.id === 'dc-mail-send'); return; }
     if (t.id === 'dc-logout') {
       t.disabled = true;
@@ -1680,16 +1704,42 @@
     if (box) { box.focus(); box.setSelectionRange(pos, pos); }
   }
 
+  // Resolves true when the latest records were loaded, false otherwise.
   function load() {
     return api('/api/admin/data').then(function (data) {
       data.banners = data.banners || [];
       state.data = data;
       state.reorder = {}; // an unsaved order may no longer match the reloaded lists
       render();
+      return true;
     }, function (err) {
-      if (err.message === 'Signed out') return;
+      if (err.message === 'Signed out') return false;
       document.getElementById('dc-panel').innerHTML = '<div class="dc-empty">' + esc(err.message) + ' <button type="button" class="dc-btn" id="dc-refresh">Try again</button></div>';
+      return false;
     });
+  }
+
+  // Refresh reloads every list and says so, even when nothing changed.
+  function refresh(button) {
+    if (button.disabled) return;
+    var label = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Refreshing…';
+    load().then(function (ok) {
+      var b = document.getElementById('dc-refresh');
+      if (b && b.classList.contains('dc-btn-light')) { b.disabled = false; b.textContent = label; }
+      if (ok) toast('Up to date: latest records loaded at ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '.', 'ok');
+    });
+  }
+
+  function setMenu(open) {
+    var btn = document.getElementById('dc-menu-btn');
+    var menu = document.getElementById('dc-menu');
+    if (!btn || !menu) return;
+    if (!open && menu.hidden) return;
+    btn.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+    if (open) { var first = menu.querySelector('[aria-current="page"]') || menu.querySelector('.dc-menu-item'); if (first) first.focus(); }
   }
 
   // ---------- boot ----------
@@ -1719,6 +1769,11 @@
   modal.addEventListener('cancel', function (e) {
     if (state.busy) { e.preventDefault(); return; }
     if (modal.dataset.dirty) { e.preventDefault(); formError('You have unsaved changes. Save them, or press Cancel to discard them.'); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var menu = document.getElementById('dc-menu');
+    if (menu && !menu.hidden) { setMenu(false); var btn = document.getElementById('dc-menu-btn'); if (btn) btn.focus(); }
   });
   window.addEventListener('beforeunload', function (e) {
     if (!state.leaving && (state.busy || (modal.open && modal.dataset.dirty))) { e.preventDefault(); e.returnValue = ''; }
