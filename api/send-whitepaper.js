@@ -16,6 +16,10 @@
 // size limit. An https link is emailed as a link; so is a PDF that cannot be
 // fetched, so the visitor is never left empty-handed.
 //
+// This site's PDFs are lead-gated: middleware.js serves them only on a signed,
+// expiring link (_pdf-link.js), so both the fetch for the attachment and the
+// download link in the email are signed here.
+//
 // Sends over SMTP via _mail.js; set SMTP_HOST, SMTP_USER and SMTP_PASS (and
 // optionally MAIL_FROM, SALES_EMAIL) as described there. Also reads:
 //
@@ -30,6 +34,7 @@ const path = require('path');
 const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
+const { signedPdfPath, canSignPdfLinks, EMAIL_LINK_MS, FETCH_LINK_MS } = require('./_pdf-link');
 const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
 
 // Copied on every case-study email sent to a visitor.
@@ -91,10 +96,10 @@ function safeGreetingName(name) {
   return words.slice(0, 2).join(' ');
 }
 
-// The public address of a case study's PDF: its own https link, or the file as
-// served from this site's static assets.
-function downloadUrlFor(paper, siteUrl) {
-  return paper.url || `${siteUrl}/${paper.file.split('/').map(encodeURIComponent).join('/')}`;
+// The address of a case study's PDF: its own https link, or a signed link to the
+// file in this site's static assets, valid for ttlMs.
+function downloadUrlFor(paper, siteUrl, ttlMs) {
+  return paper.url || `${siteUrl}${signedPdfPath(paper.file, ttlMs)}`;
 }
 
 // The address used for email links and for fetching this site's own PDFs. It never
@@ -140,7 +145,7 @@ async function fetchPdf(url) {
 
 function visitorEmail({ name, paper, siteUrl, attached }) {
   const greeting = name ? `Hello ${esc(name)},` : 'Hello,';
-  const downloadUrl = downloadUrlFor(paper, siteUrl);
+  const downloadUrl = downloadUrlFor(paper, siteUrl, EMAIL_LINK_MS);
   const delivery = attached
     ? `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is attached to this email as a PDF.</p>`
     : `<p style="margin:0 0 14px">Thank you for your interest in D-TECH. The full <strong>${esc(paper.title)}</strong> case study you requested is ready to download as a PDF:</p>
@@ -195,6 +200,10 @@ module.exports = async function handler(req, res) {
 
   if (!summaryOnly && !isConfigured()) {
     console.error('SMTP environment variables are missing');
+    return res.status(503).json({ ok: false, error: 'Email delivery is temporarily unavailable. Please contact sales@dtechindia.com.' });
+  }
+  if (!summaryOnly && !canSignPdfLinks()) {
+    console.error('PDF links cannot be signed: set PDF_LINK_SECRET or ADMIN_SECRET (16+ characters)');
     return res.status(503).json({ ok: false, error: 'Email delivery is temporarily unavailable. Please contact sales@dtechindia.com.' });
   }
 
@@ -256,7 +265,7 @@ module.exports = async function handler(req, res) {
   const sales = salesEmail();
   const siteUrl = siteUrlFor(req);
 
-  const pdf = paper.file ? await fetchPdf(downloadUrlFor(paper, siteUrl)) : null;
+  const pdf = paper.file ? await fetchPdf(downloadUrlFor(paper, siteUrl, FETCH_LINK_MS)) : null;
   const attached = pdf !== null;
 
   try {

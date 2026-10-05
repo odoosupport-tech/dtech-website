@@ -421,6 +421,12 @@
   function today() { return new Date().toISOString().slice(0, 10); }
 
   // ---------- inbox follow-up ----------
+  // The site's own PDFs are lead-gated (middleware.js): open them through the admin
+  // route, which redirects to a short-lived signed link. https links open as they are.
+  function pdfHref(c) {
+    if (!c.pdf_file) return '';
+    return /^https?:/.test(c.pdf_file) ? c.pdf_file : '/api/admin/data?pdf=' + encodeURIComponent(c.pdf_file);
+  }
   function statusOf(r) { return STATUSES.hasOwnProperty(r.status) ? r.status : 'new'; }
   function notesOf(r) { return Array.isArray(r.notes) ? r.notes : []; }
   function isOpen(r) { return statusOf(r) !== 'archived'; }
@@ -867,7 +873,7 @@
       var cards = list.map(function (c) {
         var on = c.published !== false;
         var pdf = !c.pdf_file ? 'No PDF' : /^https:/.test(c.pdf_file) ? 'PDF link' : 'PDF attached';
-        var pdfUrl = c.pdf_file ? (c.pdf_file.startsWith('http') ? c.pdf_file : '/' + c.pdf_file) : '';
+        var pdfUrl = pdfHref(c);
         var viewBtn = '<button type="button" class="dc-btn" data-view-cs="' + esc(c.id) + '">👁 View</button>';
         var pdfBtn = pdfUrl ? '<a class="dc-btn" href="' + esc(pdfUrl) + '" target="_blank" rel="noopener">📄 PDF</a>' : '';
         var siteBtn = '<a class="dc-btn" href="/case-studies#' + esc(c.id) + '" target="_blank" rel="noopener">🌐 Live</a>';
@@ -1047,7 +1053,7 @@
   function showCaseStudy(id) {
     var c = find('caseStudies', id);
     if (!c) return;
-    var pdfUrl = c.pdf_file ? (c.pdf_file.startsWith('http') ? c.pdf_file : '/' + c.pdf_file) : '';
+    var pdfUrl = pdfHref(c);
     var outcomes = Array.isArray(c.outcomes) ? c.outcomes : [];
     var metrics = Array.isArray(c.metrics) ? c.metrics : [];
     var bodyHtml = '<dl class="dc-dl"><dt>Client</dt><dd>' + esc(c.client) + '</dd>' +
