@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071d34">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <title>Staff Sign-in | D-TECH</title>
-  <meta name="description" content="Sign-in for D-TECH staff to the website management console.">
+  <title>Admin Sign-in | D-TECH</title>
+  <meta name="description" content="Admin sign-in to the D-TECH website management console.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <!-- The console (/api/admin/console) replaces this page after sign-in and was
@@ -61,7 +61,7 @@
 <body class="dt-auth">
   <main class="dt-si-card" id="dt-si-card" aria-labelledby="dt-si-title">
     <a class="dt-si-logo" href="/" aria-label="D-TECH home"><img src="/assets/dtech-logo-blue.webp" width="324" height="142" alt="D-TECH"></a>
-    <h1 id="dt-si-title">Staff sign-in</h1>
+    <h1 id="dt-si-title">Admin sign-in</h1>
     <p class="dt-si-sub">D-TECH website management console</p>
     <!-- method="post" keeps the password out of the URL even if scripts fail to load. -->
     <form id="dt-si-form" method="post" novalidate>
@@ -79,7 +79,7 @@
   <p class="dt-si-foot"><span>Restricted area for authorised D-TECH staff.</span><a class="dt-si-back" href="/">&larr; Back to the website</a></p>
 <script>
   (function () {
-    // Staff sign-in. The password is only ever posted to /api/admin/auth, never
+    // Admin sign-in. The password is only ever posted to /api/admin/auth, never
     // put in a URL or stored in the browser. Once signed in, the console script
     // (/api/admin/console) replaces this page.
     var AUTH = '/api/admin/auth';
@@ -218,7 +218,7 @@
           } else if (r.status === 401) {
             wrongCredentials();
           } else if (r.status === 404) {
-            say('Staff sign-in is not switched on for this website yet. Please ask your website administrator.', 'bad');
+            say('Admin sign-in is not switched on for this website yet. Please ask your website administrator.', 'bad');
           } else {
             say('Sign-in is not available right now. Please try again in a minute.', 'bad');
           }

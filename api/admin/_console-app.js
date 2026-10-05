@@ -1,5 +1,5 @@
 /* D-TECH Management Console. Served by api/admin/console.js to signed-in
- * sessions only, and injected into portal.html (the staff sign-in page at
+ * sessions only, and injected into portal.html (the admin sign-in page at
  * /admin-dtech), replacing its content. Styles are scoped under .dc so nothing
  * leaks into the public bundle. */
 (function () {

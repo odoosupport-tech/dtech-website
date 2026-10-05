@@ -416,7 +416,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['sign-in script: posts ID + password, 401/404/429 handled, loads console, nothing stored', () => {
       const portal = fs.readFileSync(path.join(REPO, 'portal.html'), 'utf8');
-      const script = portal.match(/<script>\s*\(function \(\) \{\s*\/\/ Staff sign-in\.[\s\S]*?<\/script>/)[0];
+      const script = portal.match(/<script>\s*\(function \(\) \{\s*\/\/ Admin sign-in\.[\s\S]*?<\/script>/)[0];
       new Function(script.replace(/^<script>|<\/script>$/g, '')); // parses
       for (const needle of ["method: 'POST'", 'JSON.stringify({ id: id, key: key })', 'r.status === 401', 'r.status === 404', 'r.status === 429', "'/api/admin/console'", "'signed-out'", "'session-ended'"]) {
         assert(script.includes(needle), `sign-in script missing ${needle}`);
