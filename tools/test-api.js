@@ -107,15 +107,22 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   // 1b. Public copies of the console-edited lists
   await area('1b. Public content (api/content.js)', [
     ['case studies: published in full, a draft is only { id, published: false }', async () => {
-      const raw = JSON.parse(fs.readFileSync('data/case-studies.json', 'utf8'));
-      const draft = raw.find(c => c.published === false);
-      assert(draft, 'fixture needs a draft case study');
-      const r = await call(content, req('GET', null, { query: { list: 'case-studies' } }));
-      eq(r.statusCode, 200); assert(Array.isArray(r.body)); eq(r.body.length, raw.length, 'drafts keep their slot for ordering');
-      assert.deepStrictEqual(r.body.find(c => c.id === draft.id), { id: draft.id, published: false });
-      assert(!JSON.stringify(r.body).includes(draft.summary), 'draft text leaked');
-      assert(r.body.filter(c => c.published !== false).every(c => c.client), 'published entries complete');
-      assert.match(r.headers['cache-control'], /max-age=0/);
+      const file = 'data/case-studies.json';
+      const before = fs.readFileSync(file, 'utf8');
+      try {
+        // The site's list may hold no drafts: mark one in the sandbox copy so this check always runs.
+        const raw = JSON.parse(before);
+        if (!raw.some(c => c.published === false)) raw[raw.length - 1] = { ...raw[raw.length - 1], published: false };
+        fs.writeFileSync(file, JSON.stringify(raw));
+        const draft = raw.find(c => c.published === false);
+        assert(draft, 'fixture needs a draft case study');
+        const r = await call(content, req('GET', null, { query: { list: 'case-studies' } }));
+        eq(r.statusCode, 200); assert(Array.isArray(r.body)); eq(r.body.length, raw.length, 'drafts keep their slot for ordering');
+        assert.deepStrictEqual(r.body.find(c => c.id === draft.id), { id: draft.id, published: false });
+        assert(!JSON.stringify(r.body).includes(draft.summary), 'draft text leaked');
+        assert(r.body.filter(c => c.published !== false).every(c => c.client), 'published entries complete');
+        assert.match(r.headers['cache-control'], /max-age=0/);
+      } finally { fs.writeFileSync(file, before); }
     }],
     ['banners: only active ones', async () => {
       const file = 'data/banners.json';
@@ -245,6 +252,15 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const buf = fs.readFileSync(path.join(REPO, p.file));
       eq(buf.subarray(0, 5).toString(), '%PDF-', 'PDF header');
     }]),
+    ['every published case study in data/ → its PDF exists and is a PDF, its logo exists', () => {
+      const list = JSON.parse(fs.readFileSync(path.join(REPO, 'data/case-studies.json'), 'utf8'));
+      for (const c of list.filter(x => x.published !== false)) {
+        if (/^https?:\/\//.test(c.pdf_file)) continue; // a console "link" PDF lives elsewhere
+        const buf = fs.readFileSync(path.join(REPO, c.pdf_file));
+        eq(buf.subarray(0, 5).toString(), '%PDF-', `${c.id} PDF header`);
+        if (c.logo) assert(fs.existsSync(path.join(REPO, c.logo)), `${c.id} logo ${c.logo} missing`);
+      }
+    }],
     ['unknown caseId → 400', async () => eq((await call(whitepaper, req('POST', { email: 'lead@example.com', caseId: 'nope' }))).statusCode, 400)],
     ['on Vercel a forged Host cannot change the email link or the PDF fetch', async () => {
       Object.assign(process.env, { VERCEL: '1', VERCEL_PROJECT_PRODUCTION_URL: 'dtech.test' });
@@ -815,17 +831,17 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     // A fresh handler instance per request: the handler caches the console's case list for a few seconds.
     ['unpublished original case study → PDF request refused, nothing emailed', async () => {
       const fresh = () => { delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))]; return require(path.join(REPO, 'api/send-whitepaper.js')); };
-      const unpublish = await post({ type: 'caseStudy', action: 'toggle', id: 'balaji', value: false });
+      const unpublish = await post({ type: 'caseStudy', action: 'toggle', id: 'rockwool', value: false });
       eq(unpublish.statusCode, 200, JSON.stringify(unpublish.body));
       const before = sent.length;
-      const r = await call(fresh(), req('POST', { email: 'unpub@example.com', name: 'Lead', caseId: 'balaji', formStart: stale() }));
+      const r = await call(fresh(), req('POST', { email: 'unpub@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
       eq(r.statusCode, 400); eq(r.body.error, 'Unknown case study.'); eq(sent.length, before, 'mail sent for an unpublished case study');
       // other original case studies are unaffected
       const other = await call(fresh(), req('POST', { email: 'still@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
       eq(other.statusCode, 200, JSON.stringify(other.body));
       // publishing it again makes it deliverable again
-      eq((await post({ type: 'caseStudy', action: 'toggle', id: 'balaji', value: true })).statusCode, 200);
-      const again = await call(fresh(), req('POST', { email: 'again@example.com', name: 'Lead', caseId: 'balaji', formStart: stale() }));
+      eq((await post({ type: 'caseStudy', action: 'toggle', id: 'rockwool', value: true })).statusCode, 200);
+      const again = await call(fresh(), req('POST', { email: 'again@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
       eq(again.statusCode, 200, JSON.stringify(again.body));
     }],
   ]);

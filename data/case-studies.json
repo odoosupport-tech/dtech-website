@@ -496,7 +496,7 @@
     "client": "Petronet LNG Limited",
     "wordmark": null,
     "logo": "assets/case-studies/logos/petronet-lng.webp",
-    "category": "services",
+    "category": "network",
     "industry": "Energy · LNG Terminal",
     "location": "Dahej LNG Terminal, Gujarat",
     "period": "PO dated Nov 2022",
@@ -738,7 +738,7 @@
     "client": "Aarti Industries Limited",
     "wordmark": null,
     "logo": "assets/case-studies/logos/custom/aarti.png",
-    "category": "services",
+    "category": "network",
     "industry": "Specialty Chemicals · Multi-Plant",
     "location": "8 plants + Head Office, Gujarat",
     "period": "ARC agreements from Oct 2020",
@@ -1018,7 +1018,7 @@
     "client": "Baroda Gujarat Gramin Bank",
     "wordmark": null,
     "logo": "assets/case-studies/logos/custom/bggb.png",
-    "category": "services",
+    "category": "network",
     "industry": "Banking",
     "location": "334+ branches across Gujarat",
     "period": "9-year relationship",
@@ -1688,44 +1688,6 @@
     "custom": true
   },
   {
-    "id": "balaji",
-    "client": "Balaji Wafers Private Limited",
-    "wordmark": null,
-    "logo": "assets/case-studies/logos/balaji.svg",
-    "image": null,
-    "category": "safety",
-    "industry": "Food Processing & High-Speed FMCG",
-    "location": "Food Manufacturing Hub, Gujarat",
-    "period": "Submitted 2019",
-    "arch_tag": "AI Vision QC Reject & RFID Dispatch",
-    "summary": "Integrated high-speed inline AI vision reject sorting and RFID weighbridge dispatch to slash shipping discrepancies and streamline shift meal queues.",
-    "challenge": "High-speed snack packaging operations running 24/7 faced manual packaging inspection bottlenecks, warehouse shipping discrepancies across multi-state distribution hubs, and cafeteria queuing delays across three manufacturing shifts of 3,500+ workers.",
-    "solution": "Deployed automated AI vision quality reject sorting on high-speed conveyors, automated RFID boom barriers and terminal weighbridge dispatch, alongside contactless Cafeteria CMS RFID terminals synced to payroll. Fully integrated into corporate SAP ERP for paperless dispatch.",
-    "outcomes": [],
-    "metrics": [
-      [
-        "Shipping Accuracy",
-        "99.8% Match"
-      ],
-      [
-        "Meal Tap Speed",
-        "< 0.4 Seconds"
-      ],
-      [
-        "Daily Shift Volume",
-        "3,500+ Workers"
-      ],
-      [
-        "Food Waste Drop",
-        "28% Reduction"
-      ]
-    ],
-    "quote": "The automation delivered by D-TECH eliminated dispatch errors and modernized our plant workforce operations without disrupting daily production.",
-    "quote_author": "Head of Plant Automation & Logistics",
-    "pdf_file": "assets/case-studies/balaji-wafers-case-study.pdf",
-    "published": false
-  },
-  {
     "id": "balaji-cctv",
     "client": "Balaji Wafers Private Limited",
     "wordmark": null,
@@ -2071,7 +2033,7 @@
     "client": "Rishi FIBC Solutions Pvt. Ltd.",
     "wordmark": null,
     "logo": "assets/case-studies/logos/custom/rishi-fibc.png",
-    "category": "services",
+    "category": "network",
     "industry": "Packaging · FIBC Manufacturing",
     "location": "Ranu works, Vadodara, Gujarat",
     "period": "PO dated 13 Jul 2015",
@@ -2080,7 +2042,7 @@
     "challenge": "",
     "solution": "",
     "outcomes": [
-      "35 Dell OptiPlex 3020 Micro systems",
+      "35 Dell 3020 Micro desktop systems",
       "Common configuration with AIO mount stands",
       "Installation and functional checks before handover",
       "Three-year onsite hardware warranty"
