@@ -1,5 +1,5 @@
 // GET /api/admin/console: the management console app script (session required).
-// portal.html (the staff sign-in page at /admin-dtech) loads this script only
+// portal.html (the admin sign-in page at /admin-dtech) loads this script only
 // after sign-in, so the console's markup never appears in a public file.
 
 const fs = require('fs');
