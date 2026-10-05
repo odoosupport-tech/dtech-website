@@ -1135,10 +1135,10 @@
           targetCaseId = caseId;
           if (dtIsAdmin) {
             var adminCase = (typeof allCases !== 'undefined' ? allCases : []).filter(function (x) { return x.id === caseId; })[0];
-            var adminPdf = adminCase && (adminCase.pdf_file || adminCase.url);
-            if (adminPdf) {
-              // The site's PDFs are lead-gated: the admin route redirects to a signed link.
-              window.open(/^https?:/.test(adminPdf) ? adminPdf : '/api/admin/data?pdf=' + encodeURIComponent(adminPdf), '_blank');
+            if (adminCase && adminCase.pdf_file) {
+              // PDFs are lead-gated and outside links are hidden from the public list:
+              // the admin route looks the case study up and redirects to its PDF.
+              window.open('/api/admin/data?case=' + encodeURIComponent(caseId), '_blank');
               return;
             }
           }

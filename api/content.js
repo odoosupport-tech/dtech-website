@@ -5,7 +5,10 @@
 //
 //   case-studies  published entries in full; a draft is only { id, published: false },
 //                 so pages that ship a static card can still drop it, and the
-//                 console's display order is kept
+//                 console's display order is kept. A PDF given as an outside link
+//                 shows only as pdf_file: true: PDFs are lead-gated, reaching
+//                 visitors by email after the form (site-held ones are also
+//                 guarded by middleware.js)
 //   banners       active banners only (the page still checks the start/end dates)
 //
 // Response: the list as a JSON array, the same shape as the file it comes from.
@@ -16,7 +19,8 @@ const path = require('path');
 const LISTS = {
   'case-studies': {
     file: 'case-studies.json',
-    view: items => items.map(c => (c.published === false ? { id: c.id, published: false } : c)),
+    view: items => items.map(c => (c.published === false ? { id: c.id, published: false }
+      : typeof c.pdf_file === 'string' && /^https?:/i.test(c.pdf_file) ? { ...c, pdf_file: true } : c)),
   },
   banners: {
     file: 'banners.json',

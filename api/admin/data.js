@@ -5,6 +5,8 @@
 //   GET ?cv=<applicant>  that applicant's CV file, as a download
 //   GET ?pdf=<file>      a redirect to a short-lived signed link to a case-study PDF
 //                        under assets/case-studies/pdf/ (lead-gated; see _pdf-link.js)
+//   GET ?case=<id>       a redirect to that case study's PDF: a signed link as above,
+//                        or its outside https link (which the public list hides)
 //   GET ?deployed=<file> the copy of jobs.json, case-studies.json or banners.json in
 //                        this deployment, so the console can tell when a change is
 //                        live (the public never sees the raw files, drafts included)
@@ -19,6 +21,8 @@ const ID_RE = /^[a-z0-9-]{1,40}$/;
 const SITE_FILES = ['jobs.json', 'case-studies.json', 'banners.json'];
 // No dots outside the extension, so no "..": the path stays inside the PDF folder.
 const PDF_FILE_RE = /^assets\/case-studies\/pdf\/[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)?\.pdf$/;
+const CASE_ID_RE = /^[a-z0-9-]{1,80}$/;
+const LINK_RE = /^https:\/\/[^\s"'<>]+$/;
 
 function deployedList(file) {
   try {
@@ -40,6 +44,21 @@ async function siteList(file) {
 async function privateList(file) {
   if (!store.isConfigured('private')) return [];
   return store.readJson('private', file, []);
+}
+
+function redirect(res, location) {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Location', location);
+  return res.status(302).send('');
+}
+
+async function openCasePdf(res, id) {
+  if (!CASE_ID_RE.test(id)) return res.status(400).json({ ok: false, error: 'Unknown case study' });
+  const c = (await siteList('case-studies.json')).find(x => x && x.id === id);
+  const file = c && typeof c.pdf_file === 'string' ? c.pdf_file : '';
+  if (PDF_FILE_RE.test(file)) return redirect(res, signedPdfPath(file, FETCH_LINK_MS));
+  if (LINK_RE.test(file)) return redirect(res, file);
+  return res.status(404).json({ ok: false, error: 'This case study has no PDF.' });
 }
 
 async function sendCv(req, res, id) {
@@ -66,10 +85,9 @@ module.exports = async function handler(req, res) {
     if (req.query && req.query.pdf) {
       const file = String(req.query.pdf);
       if (!PDF_FILE_RE.test(file)) return res.status(400).json({ ok: false, error: 'Unknown PDF' });
-      res.setHeader('Cache-Control', 'no-store');
-      res.setHeader('Location', signedPdfPath(file, FETCH_LINK_MS));
-      return res.status(302).send('');
+      return redirect(res, signedPdfPath(file, FETCH_LINK_MS));
     }
+    if (req.query && req.query.case) return await openCasePdf(res, String(req.query.case));
     if (req.query && req.query.deployed) {
       const file = String(req.query.deployed);
       if (!SITE_FILES.includes(file)) return res.status(400).json({ ok: false, error: 'Unknown list' });
