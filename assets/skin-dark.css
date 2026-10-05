@@ -148,6 +148,10 @@ html body[data-page="contact"] form button[type="submit"] {
 .header-cta:hover {
   background:var(--signal) !important; border-color:var(--signal) !important; color:#061320 !important;
 }
+/* Partner cards (about): the light theme's deep-blue ground turns cyan here, where
+   white text drops to 2.4:1; use the same white action as the buttons above. */
+.partner-cta { background:#ffffff !important; color:#061320 !important; }
+.partner-cta:hover { background:var(--signal) !important; color:#061320 !important; }
 
 .button-secondary { background:transparent; color:var(--ink); border-color:rgba(255,255,255,.18); }
 .button-secondary:hover { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.35); color:#fff; }
