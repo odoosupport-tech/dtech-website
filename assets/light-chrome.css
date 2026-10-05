@@ -40,6 +40,9 @@ html:not([data-theme="dark"]) :is(.desktop-nav>a[aria-current],.restored-nav>a[a
 
 html:not([data-theme="dark"]) .theme-toggle { border-color:var(--line-strong); color:var(--ink-soft); }
 html:not([data-theme="dark"]) .theme-toggle:hover { background:var(--well); border-color:var(--signal); color:var(--ink); }
+html:not([data-theme="dark"]) .header-login { border-color:var(--line-strong); color:var(--ink-soft); }
+html:not([data-theme="dark"]) .header-login:hover { background:var(--well); border-color:var(--signal); color:var(--ink); }
+html:not([data-theme="dark"]) .header-login:focus-visible { outline-color:var(--signal-deep); }
 html:not([data-theme="dark"]) .menu-button { border-color:var(--line-strong); color:var(--ink); }
 
 html:not([data-theme="dark"]) .header-cta { background:var(--signal-deep); border-color:var(--signal-deep); color:#fff!important; }

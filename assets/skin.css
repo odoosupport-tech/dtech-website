@@ -586,6 +586,23 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .theme-toggle svg { width:17px; height:17px; }
 .theme-toggle { width:36px; padding:0; }
 
+/* Employee login (the Odoo dashboard), right of the theme toggle: the toggle's
+   outline with the nav's lettering; icon only where the header gets tight. */
+.header-login {
+  position:relative; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  height:36px; padding:0 12px; white-space:nowrap;
+  border:1px solid rgba(255,255,255,.16); border-radius:var(--r-control);
+  background:transparent; color:rgba(255,255,255,.72);
+  font:700 10.5px/1 var(--label); letter-spacing:.08em; text-transform:uppercase;
+}
+.header-login:hover { background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.30); color:#fff; }
+.header-login:focus-visible { outline:2px solid var(--signal); outline-offset:2px; }
+.header-login svg { width:16px; height:16px; flex:none; }
+@media (max-width:1280px) {
+  .header-login { width:36px; padding:0; }
+  .header-login span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+}
+
 .menu-button {
   display:none; padding:8px;
   border:1px solid rgba(255,255,255,.18); border-radius:var(--r-control);
