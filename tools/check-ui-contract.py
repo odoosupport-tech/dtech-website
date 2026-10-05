@@ -147,6 +147,20 @@ def check_detail_pages_contract(problems):
         problems.append("privacy-policy.html no longer has the single <main> and data-page the detail pages rely on")
 
 
+def check_icon_contract(problems):
+    """Every data-lucide icon a page uses must be in the assets/lucide.js subset,
+    or it renders as nothing (rebuild the subset with tools/lucide/build.mjs)."""
+    library = (ROOT / "assets/lucide.js").read_text(encoding="utf-8")
+    sources = [p for p in ROOT.glob("*.html")] + [p for p in (ROOT / "assets").glob("*.js") if not p.name.endswith((".min.js", "lucide.js"))]
+    names = set()
+    for path in sources:
+        names |= set(re.findall(r'data-lucide="([a-z0-9-]+)"', path.read_text(encoding="utf-8")))
+    pascal = lambda name: re.sub(r"(^|-)([a-z0-9])", lambda m: m.group(2).upper(), name)
+    for name in sorted(names):
+        if not re.search(r"\b" + pascal(name) + r"\b", library):
+            problems.append(f'icon "{name}" is used but missing from assets/lucide.js')
+
+
 def check_deep_link_contract(problems):
     script = (ROOT / "assets/refined.js").read_text(encoding="utf-8")
     if "alignHashTarget" not in script or "hashchange" not in script:
@@ -166,6 +180,7 @@ def main():
     check_public_admin_probe(problems)
     check_contact_dock_contract(problems)
     check_detail_pages_contract(problems)
+    check_icon_contract(problems)
     if problems:
         print(f"{len(problems)} UI contract problem(s):")
         for problem in problems:
