@@ -81,7 +81,7 @@
   </style>
   <script src="assets/refined.min.js?v=3681838a08" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=7dea9dcaaf">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=710c6a14d8">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=721e3a7536">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=1985ff5031">
@@ -1422,8 +1422,18 @@
           document.getElementById('detail-modal-location').textContent = c.location;
           document.getElementById('detail-modal-client').textContent = c.client;
           document.getElementById('detail-modal-arch').textContent = c.arch_tag;
-          document.getElementById('detail-modal-challenge').textContent = c.challenge;
-          document.getElementById('detail-modal-solution').textContent = c.solution;
+          // Console-added case studies carry no challenge / solution text: show the card
+          // summary as what was delivered, and drop a box that would otherwise be empty.
+          const challenge = (c.challenge || '').trim();
+          const solution = (c.solution || '').trim() || (c.summary || '').trim();
+          const challengeEl = document.getElementById('detail-modal-challenge');
+          const solutionEl = document.getElementById('detail-modal-solution');
+          challengeEl.textContent = challenge;
+          solutionEl.textContent = solution;
+          challengeEl.parentElement.classList.toggle('hidden', !challenge);
+          solutionEl.parentElement.classList.toggle('hidden', !solution);
+          challengeEl.parentElement.classList.toggle('md:col-span-2', !solution);
+          solutionEl.parentElement.classList.toggle('md:col-span-2', !challenge);
           document.getElementById('detail-modal-quote').textContent = c.quote ? '"' + c.quote + '"' : '';
           document.getElementById('detail-modal-author').textContent = c.quote_author ? '— ' + c.quote_author : '';
           document.getElementById('detail-verified-email').textContent = email || 'Verified Corporate Access';
