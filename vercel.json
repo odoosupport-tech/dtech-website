@@ -30,6 +30,9 @@
     "api/admin/auth.js": {
       "maxDuration": 30
     },
+    "api/admin/mail-check.js": {
+      "maxDuration": 30
+    },
     "api/content.js": {
       "includeFiles": "data/*.json"
     }

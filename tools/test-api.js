@@ -173,7 +173,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
-      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('Bharuch'), 'contact details');
+      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('support@dtechindia.com') && c.text.includes('+91 99989 03042') && c.text.includes('Bharuch'), 'contact details');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
     }],
     ['auto-responder ignores markup planted in the name', async () => {
@@ -745,6 +745,58 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
     for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console']) assert(!re.test(p), `${p} endpoint would be redirected`);
   };
+  // 6c. "Check email": settings report, failure explanations, test send, no secrets.
+  const mailCheck = api('admin/mail-check.js');
+  const nodemailer = require(path.join(REPO, 'node_modules/nodemailer'));
+  const withSmtp = async (fakeTransport, fn) => {
+    const real = nodemailer.createTransport;
+    nodemailer.createTransport = () => fakeTransport;
+    try { return await fn(); } finally { nodemailer.createTransport = real; }
+  };
+  const smtpError = (code, responseCode, message) => Object.assign(new Error(message), { code, responseCode });
+  const check = (body = {}) => call(mailCheck, req('POST', body, { headers: { cookie } }));
+  await area('6c. Check email (api/admin/mail-check.js)', [
+    ['no session → 404', async () => eq((await call(mailCheck, req('POST', {}))).statusCode, 404)],
+    ['working server → ok, settings shown, password never returned', async () => {
+      const r = await withSmtp({ verify: async () => true }, () => check());
+      eq(r.statusCode, 200); eq(r.body.result.status, 'ok');
+      eq(r.body.result.settings.host, 'smtp.invalid'); eq(r.body.result.settings.passwordSet, true);
+      assert(!JSON.stringify(r.body).includes(process.env.SMTP_PASS + '"'), 'password leaked');
+      assert(!/"pass"/.test(JSON.stringify(r.body)), 'pass field leaked');
+      assert(/^te•+@invalid$/.test(r.body.result.settings.user), r.body.result.settings.user);
+    }],
+    ['wrong password → explains SMTP_USER/SMTP_PASS and App Passwords', async () => {
+      const r = await withSmtp({ verify: async () => { throw smtpError('EAUTH', 535, 'Invalid login: 535-5.7.8 Username and Password not accepted'); } }, () => check());
+      eq(r.body.result.status, 'failed');
+      assert(/SMTP_PASS/.test(r.body.result.advice) && /App Password/.test(r.body.result.advice), r.body.result.advice);
+      assert(/EAUTH 535/.test(r.body.result.detail), r.body.result.detail);
+    }],
+    ['port/encryption mismatch and unreachable server are told apart', async () => {
+      const tls = await withSmtp({ verify: async () => { throw smtpError('ESOCKET', 0, 'C0:error:0A00010B:SSL routines:ssl3_get_record:wrong version number'); } }, () => check());
+      assert(/SMTP_PORT=465/.test(tls.body.result.advice), tls.body.result.advice);
+      const down = await withSmtp({ verify: async () => { throw smtpError('ETIMEDOUT', 0, 'Connection timeout'); } }, () => check());
+      assert(/Could not connect/.test(down.body.result.advice), down.body.result.advice);
+      const dns = await withSmtp({ verify: async () => { throw smtpError('EDNS', 0, 'getaddrinfo ENOTFOUND smtp.gmial.com'); } }, () => check());
+      assert(/SMTP_HOST could not be found/.test(dns.body.result.advice), dns.body.result.advice);
+    }],
+    ['sender refused → points at MAIL_FROM', async () => {
+      const r = await withSmtp({ verify: async () => true, sendMail: async () => { throw smtpError('EENVELOPE', 553, 'Sender address rejected'); } }, () => check({ send: true }));
+      eq(r.body.result.status, 'failed'); assert(/MAIL_FROM/.test(r.body.result.advice), r.body.result.advice);
+    }],
+    ['send test → mails SALES_EMAIL', async () => {
+      const mails = [];
+      const r = await withSmtp({ verify: async () => true, sendMail: async (m) => { mails.push(m); return {}; }, close() {} }, () => check({ send: true }));
+      eq(r.body.result.status, 'sent'); eq(mails.length, 1); eq(mails[0].to, 'sales@test.invalid');
+    }],
+    ['missing settings → names them, no connection attempted', async () => {
+      const saved = process.env.SMTP_PASS; delete process.env.SMTP_PASS;
+      try {
+        const r = await withSmtp({ verify: async () => { throw new Error('must not connect'); } }, () => check());
+        eq(r.body.result.status, 'missing'); assert(r.body.result.missing.includes('SMTP_PASS'));
+      } finally { process.env.SMTP_PASS = saved; }
+    }],
+  ]);
+
   await area('7. Build & contract integrity', [
     ['api source files are hidden, endpoints stay reachable (vercel.json)', hiddenSource],
     ['raw data/*.json files are not served (drafts stay private)', () => {
