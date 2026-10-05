@@ -1219,6 +1219,29 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         eq((await call(data, req('GET', null, { query: { pdf: bad }, headers: { cookie } }))).statusCode, 400, bad);
       }
     }],
+    ['a PDF added later as an outside link: hidden from the public list, opened via ?case= by the console', async () => {
+      const file = 'data/case-studies.json';
+      const before = fs.readFileSync(file, 'utf8');
+      try {
+        const list = JSON.parse(before);
+        const uploaded = list.find(c => c.published !== false && typeof c.pdf_file === 'string' && c.pdf_file.startsWith('assets/'));
+        const linked = { ...uploaded, id: 'future-linked-pdf', pdf_file: 'https://drive.example.com/case.pdf', custom: true, published: true };
+        const none = { ...uploaded, id: 'future-no-pdf', pdf_file: '', custom: true, published: true };
+        fs.writeFileSync(file, JSON.stringify([...list, linked, none]));
+        const pub = (await call(content, req('GET', null, { query: { list: 'case-studies' } }))).body;
+        eq(pub.find(c => c.id === linked.id).pdf_file, true, 'outside link hidden, "has a PDF" kept');
+        eq(pub.find(c => c.id === uploaded.id).pdf_file, uploaded.pdf_file, 'uploaded path unchanged (the gate guards it)');
+        assert(!JSON.stringify(pub).includes('drive.example.com'), 'link leaked');
+        const open = (id, withSession = true) => call(data, req('GET', null, { query: { case: id }, headers: withSession ? { cookie } : {} }));
+        eq((await open(uploaded.id, false)).statusCode, 404, 'no session');
+        const up = await open(uploaded.id);
+        eq(up.statusCode, 302); eq(await through(up.headers.location), true);
+        const ln = await open(linked.id);
+        eq(ln.statusCode, 302); eq(ln.headers.location, 'https://drive.example.com/case.pdf');
+        eq((await open(none.id)).statusCode, 404);
+        eq((await open('Not An Id!')).statusCode, 400);
+      } finally { fs.writeFileSync(file, before); }
+    }],
     ['vercel.json tells search engines not to index the PDFs', () => {
       const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).headers.find(h => h.source === '/assets/case-studies/pdf/(.*)');
       assert(rule && rule.headers.some(h => h.key === 'X-Robots-Tag' && /noindex/.test(h.value)));

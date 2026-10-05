@@ -151,7 +151,7 @@ Every form is checked in the browser and again on the server. While a change sav
 | `POST /api/admin/update` | Add, edit, delete or switch jobs, case studies and banners (`type`: `job`, `caseStudy`, `banner`); errors name the field to fix |
 | `GET /api/admin/console` | The console app script |
 
-Built-in case studies can be published or unpublished but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards. If one has a PDF, visitors who open its summary can request it: `api/send-whitepaper.js` attaches an uploaded PDF, or emails the link, and files the lead as usual. Replacing or removing a PDF leaves the old uploaded file in the repository, so delete it by hand if it must go.
+Built-in case studies can be published or unpublished but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards. If one has a PDF, visitors who open its summary can request it: `api/send-whitepaper.js` attaches an uploaded PDF, or emails the link, and files the lead as usual. A linked PDF's address is never sent to the page (the public list only says a PDF exists), so visitors still need the form; prefer uploading, because only PDFs held on this site are also guarded by `middleware.js`. Replacing or removing a PDF leaves the old uploaded file in the repository, so delete it by hand if it must go.
 
 ## Security headers
 
