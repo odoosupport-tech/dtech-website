@@ -6,6 +6,8 @@
 //     -i tools/tailwind/input.css -o assets/tailwind.css --minify
 module.exports = {
   content: ['./*.html', './assets/**/*.js'],
+  // Words in inline scripts that are not classes (input.blur() on case-studies).
+  blocklist: ['blur'],
   ...{
       theme: {
         extend: {
