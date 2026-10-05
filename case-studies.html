@@ -866,6 +866,10 @@
             ? 'No case studies match \u201c' + caseView.query.trim() + '\u201d. Try a different client, technology, industry or location.'
             : 'No case studies in this category yet.';
 
+          // A typed search stands in for the brand tiles, so its results sit right under the box.
+          const brandBox = document.getElementById('cs-brands');
+          if (brandBox) brandBox.hidden = tokens.length > 0 || Number(brandBox.dataset.brands || 0) < 2;
+
           const pager = document.getElementById('cs-pager');
           const more = document.getElementById('cs-more');
           const remaining = matched.length - shownSet.size;
@@ -939,7 +943,7 @@
             const count = Object.assign(document.createElement('span'), { className: 'cs-brand-count', textContent: b.count });
             count.setAttribute('aria-hidden', 'true');
             btn.append(logo, name, count);
-            btn.addEventListener('click', () => filterBrand(key));
+            btn.addEventListener('click', () => { filterBrand(key); if (caseView.brand) showResults(); });
             list.appendChild(btn);
           });
           // More brands than two rows hold: offer the rest behind one button.
@@ -950,7 +954,8 @@
             more.onclick = () => { brandsExpanded = !brandsExpanded; renderBrandFilter(); };
           }
           box.classList.toggle('expanded', brandsExpanded);
-          box.hidden = brands.size < 2;
+          box.dataset.brands = brands.size;
+          box.hidden = brands.size < 2 || caseView.query.trim() !== '';
           syncBrandChips();
         }
 
@@ -973,6 +978,16 @@
           if (clear) clear.hidden = true;
           try { history.replaceState(null, '', on ? '#brand-' + key : location.pathname + location.search); } catch (e) { /* hash is only a convenience */ }
           renderCases();
+        }
+
+        // On a laptop screen the search, tabs and brand tiles fill the view and the grid
+        // starts below the fold, so a filter seemed to do nothing. Bring the first result up.
+        function showResults() {
+          const first = [...document.querySelectorAll('#case-grid .case-card')].find(card => !card.classList.contains('hidden'))
+            || document.getElementById('case-empty');
+          if (!first || first.getBoundingClientRect().top < window.innerHeight * 0.6) return;
+          const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          first.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
         }
 
         function filterCases(key) {
@@ -1021,6 +1036,15 @@
           });
           input.addEventListener('keydown', e => {
             if (e.key === 'Escape' && input.value) { e.preventDefault(); clear.click(); }
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              clearTimeout(timer);
+              caseView.query = input.value;
+              caseView.limit = CASES_PER_PAGE;
+              renderCases();
+              input.blur();
+              showResults();
+            }
           });
           clear.addEventListener('click', () => {
             clearTimeout(timer);
@@ -1498,7 +1522,7 @@
           // with inline handlers, which the Content-Security-Policy does not allow.
           document.addEventListener('click', e => {
             const tab = e.target.closest('.case-tab[data-filter]');
-            if (tab) filterCases(tab.dataset.filter);
+            if (tab) { filterCases(tab.dataset.filter); showResults(); }
             if (e.target.closest('[data-close-case]')) closeCaseModal();
             if (e.target.closest('[data-close-gate]')) closeEmailGateModal();
           });
