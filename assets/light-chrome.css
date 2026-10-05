@@ -20,7 +20,8 @@ html:not([data-theme="dark"]) .utility-bar {
 }
 html:not([data-theme="dark"]) .utility-bar a { color:var(--ink-soft); }
 html:not([data-theme="dark"]) .utility-bar a:hover { color:var(--ink); }
-html:not([data-theme="dark"]) .utility-bar a span { color:var(--signal-deep); }
+/* One step darker than --signal-deep: the 11px numbers need 4.5:1 on the pale wash. */
+html:not([data-theme="dark"]) .utility-bar a span { color:#006ca2; }
 html:not([data-theme="dark"]) .utility-bar a span.utility-lead,
 html:not([data-theme="dark"]) .utility-bar a span.utility-tag { color:inherit; }
 html:not([data-theme="dark"]) .utility-avatar { border-color:var(--line-strong); }

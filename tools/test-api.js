@@ -9,6 +9,7 @@ const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const { execFileSync } = require('child_process');
+const crypto = require('crypto');
 
 const REPO = path.resolve(__dirname, '..');
 if (!fs.existsSync(path.join(REPO, 'node_modules/nodemailer'))) throw new Error('node_modules missing: run npm ci first');
@@ -53,6 +54,7 @@ mail.sendMail = async (msg) => { sent.push(msg); return { id: `mock-${sent.lengt
 const api = (p) => require(path.join(REPO, 'api', p));
 const jobs = api('jobs.js'), contact = api('contact.js'), apply = api('apply.js'), whitepaper = api('send-whitepaper.js');
 const content = api('content.js');
+const detail = api('detail.js');
 const auth = api('admin/auth.js'), data = api('admin/data.js'), update = api('admin/update.js'), consoleApp = api('admin/console.js');
 
 // ---- tiny req/res mocks ----------------------------------------------------
@@ -359,7 +361,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         const dest = r.destination.split(/[?#]/)[0];
         if (dest === '/' || dest === '/admin-dtech') continue;
         const file = dest.replace(/^\//, '');
-        assert(fs.existsSync(path.join(REPO, file)) || fs.existsSync(path.join(REPO, `${file}.html`)), `${r.source} -> ${r.destination} is missing`);
+        // /api/x is the serverless function api/x.js
+        const fn = file.startsWith('api/') && fs.existsSync(path.join(REPO, `${file}.js`));
+        assert(fn || fs.existsSync(path.join(REPO, file)) || fs.existsSync(path.join(REPO, `${file}.html`)), `${r.source} -> ${r.destination} is missing`);
       }
     }],
     ['no session: auth GET, data, update → 404', async () => {
@@ -743,7 +747,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     assert(rule, 'no redirect hiding api source files');
     const re = new RegExp(`^${rule.source}$`);
     for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
-    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console']) assert(!re.test(p), `${p} endpoint would be redirected`);
+    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console', '/api/detail']) assert(!re.test(p), `${p} endpoint would be redirected`);
   };
   // 6c. "Check email": settings report, failure explanations, test send, no secrets.
   const mailCheck = api('admin/mail-check.js');
@@ -895,6 +899,150 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq((await post({ type: 'caseStudy', action: 'toggle', id: 'rockwool', value: true })).statusCode, 200);
       const again = await call(fresh(), req('POST', { email: 'again@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
       eq(again.statusCode, 200, JSON.stringify(again.body));
+    }],
+  ]);
+
+  // 10. One page per case study and per open role (api/detail.js)
+  const page = (type, id, method = 'GET') => call(detail, { method, query: id === undefined ? { type } : { type, id }, headers: {} });
+  const casesFile = 'data/case-studies.json', jobsFile = 'data/jobs.json';
+  const withList = async (file, change, fn) => {
+    const before = fs.readFileSync(file, 'utf8');
+    try { fs.writeFileSync(file, JSON.stringify(change(JSON.parse(before)))); return await fn(); } finally { fs.writeFileSync(file, before); }
+  };
+  const cspAllows = () => {
+    const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).headers.find(h => h.source.startsWith('/((?!'));
+    const csp = rule.headers.find(x => x.key === 'Content-Security-Policy').value;
+    return new Set((csp.match(/'sha256-[^']+'/g) || []).map(h => h.slice(1, -1)));
+  };
+  const runnableScripts = html => [...html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)]
+    .filter(([, attrs = '']) => !/\ssrc\s*=/i.test(attrs) && !/application\/ld\+json/i.test(attrs)).map(m => m[2]);
+  const ldBlocks = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  const relativeUrls = html => html.match(/\s(?:href|src|srcset)="(?![a-z][a-z0-9+.-]*:|\/|#)[^"]+"/gi) || [];
+  await area('10. Case-study and job pages (api/detail.js)', [
+    ['case page: 200 HTML, own title/canonical/h1, absolute URLs, current menu item, sections.css', async () => {
+      const r = await page('case', 'petronet-fms');
+      eq(r.statusCode, 200); assert.match(r.headers['content-type'], /^text\/html/);
+      assert.match(r.headers['cache-control'], /s-maxage=\d+/);
+      assert(r.body.includes('<title>Petronet LNG Limited: 24×7 Onsite Enterprise FMS | D-TECH SIPL</title>'));
+      assert(r.body.includes('<link rel="canonical" href="https://www.dtechindia.com/case-studies/petronet-fms">'));
+      assert(r.body.includes('<meta property="og:url" content="https://www.dtechindia.com/case-studies/petronet-fms">'));
+      assert.match(r.body, /<h1[^>]*>Petronet LNG Limited<\/h1>/);
+      assert(r.body.includes('data-page="case-study"')); assert(!r.body.includes('data-page="legal"'));
+      eq((r.body.match(/<a href="\/case-studies" aria-current="page">/g) || []).length, 2, 'desktop and phone menus');
+      assert(/<link rel="stylesheet" href="\/assets\/sections\.min\.css\?v=[0-9a-f]+">/.test(r.body), 'sections.css');
+      assert(r.body.indexOf('sections.min.css') < r.body.indexOf('light-chrome.min.css'), 'light-chrome.css must load last');
+      assert.deepStrictEqual(relativeUrls(r.body), []);
+      eq((r.body.match(/<main\b/g) || []).length, 1);
+      assert(r.body.includes('href="/case-studies#petronet-fms"'), 'full case study link');
+    }],
+    ['case page shows only the public card: write-up and PDF stay behind the email form', async () => {
+      const c = JSON.parse(fs.readFileSync(casesFile, 'utf8')).find(x => x.id === 'petronet-fms');
+      assert(c.challenge && c.solution && c.outcomes.length, 'fixture needs a full write-up');
+      const r = await page('case', 'petronet-fms');
+      assert(r.body.includes(c.summary.replace(/'/g, '&#39;')), 'summary shown');
+      for (const hidden of [c.challenge, c.solution, ...c.outcomes, c.pdf_file]) {
+        assert(!r.body.includes(String(hidden).replace(/'/g, '&#39;').slice(0, 60)), `leaked: ${String(hidden).slice(0, 40)}`);
+      }
+    }],
+    ['every runnable inline script is allowed by the CSP (same scripts as the template page)', async () => {
+      const allowed = cspAllows();
+      for (const [type, id] of [['case', 'petronet-fms'], ['job', 'l2-engineer-fms-dahej'], ['case', 'no-such-case'], ['job', 'no-such-role']]) {
+        const scripts = runnableScripts((await page(type, id)).body);
+        assert(scripts.length >= 2, 'template scripts missing');
+        for (const body of scripts) {
+          const hash = 'sha256-' + crypto.createHash('sha256').update(body, 'utf8').digest('base64');
+          assert(allowed.has(hash), `${type}/${id}: inline script not in CSP: ${body.slice(0, 50)}`);
+        }
+      }
+    }],
+    ['unknown, malformed and draft ids → 404 page; the draft is not listed or linked', async () => {
+      for (const id of ['no-such-case', '../etc/passwd', 'PETRONET-FMS', '', 'a'.repeat(101)]) {
+        const r = await page('case', id);
+        eq(r.statusCode, 404, id); assert.match(r.headers['content-type'], /^text\/html/); assert(r.body.includes('Case study not found'));
+      }
+      await withList(casesFile, list => list.map(c => (c.id === 'rockwool' ? { ...c, published: false } : c)), async () => {
+        eq((await page('case', 'rockwool')).statusCode, 404);
+        const other = await page('case', 'gnfc-fms');
+        assert(!other.body.includes('/case-studies/rockwool"'), 'draft linked from a related list');
+        assert(!(await page('sitemap')).body.includes('/case-studies/rockwool<'), 'draft in sitemap');
+      });
+    }],
+    ['data is escaped in the page and in the JSON-LD', async () => {
+      const evil = '<script>alert(1)</script> "Quoted" & Co\'s';
+      await withList(casesFile, list => [{ ...list[0], id: 'evil-case', client: evil, arch_tag: '</script><b>x', summary: '<img src=x onerror=alert(1)>' }, ...list], async () => {
+        const r = await page('case', 'evil-case');
+        eq(r.statusCode, 200);
+        assert(!r.body.includes('<script>alert(1)') && !r.body.includes('<img src=x') && !r.body.includes('</script><b>'), 'unescaped data');
+        assert(r.body.includes('&lt;script&gt;alert(1)&lt;/script&gt; &quot;Quoted&quot; &amp; Co&#39;s'));
+        const crumbs = ldBlocks(r.body).find(d => d['@type'] === 'BreadcrumbList');
+        eq(crumbs.itemListElement[2].name, evil, 'JSON-LD keeps the text');
+      });
+    }],
+    ['job page: JobPosting with every field Google requires, apply link, 200', () => withList(jobsFile, list => list.map(j => ({ ...j, isActive: true })), async () => {
+      const r = await page('job', 'l2-engineer-fms-dahej');
+      eq(r.statusCode, 200);
+      assert(r.body.includes('<link rel="canonical" href="https://www.dtechindia.com/careers/l2-engineer-fms-dahej">'));
+      eq((r.body.match(/<a href="\/careers" aria-current="page">/g) || []).length, 2);
+      assert(r.body.includes('href="/careers?apply=l2-engineer-fms-dahej"'), 'apply link');
+      assert.deepStrictEqual(relativeUrls(r.body), []);
+      const job = ldBlocks(r.body).find(d => d['@type'] === 'JobPosting');
+      assert(job, 'no JobPosting');
+      eq(job.title, 'L2 Engineer - FMS'); eq(job.datePosted, '2026-09-27');
+      assert(job.description.length > 80 && job.description.startsWith('<p>'), 'description');
+      eq(job.hiringOrganization.name, 'D-Tech Solution Integrators Private Limited');
+      assert.deepStrictEqual(job.jobLocation.address, { '@type': 'PostalAddress', addressLocality: 'Dahej', addressCountry: 'IN', addressRegion: 'Gujarat' });
+      eq(job.url, 'https://www.dtechindia.com/careers/l2-engineer-fms-dahej');
+      const adama = ldBlocks((await page('job', 'l1-fms-engineer-adama-agricultural-solutions-dahej')).body).find(d => d['@type'] === 'JobPosting');
+      eq(adama.jobLocation.address.addressLocality, 'Dahej', 'town taken from "Client, Town"');
+      const gnal = ldBlocks((await page('job', 'fms-engineer-vadodara-gnal')).body).find(d => d['@type'] === 'JobPosting');
+      eq(gnal.jobLocation.address.addressLocality, 'Vadodara', 'site in brackets dropped');
+    })],
+    ['closed role → 404; a role without a posting date gets a page but no JobPosting', async () => {
+      await withList(jobsFile, list => list.map((j, i) => (i === 0 ? { ...j, isActive: false } : i === 1 ? { ...j, isActive: true, postedAt: undefined } : j)), async () => {
+        const all = JSON.parse(fs.readFileSync(jobsFile, 'utf8'));
+        const closed = await page('job', all[0].id);
+        eq(closed.statusCode, 404); assert(closed.body.includes('This role is no longer open'));
+        const undated = await page('job', all[1].id);
+        eq(undated.statusCode, 200); assert(!ldBlocks(undated.body).some(d => d['@type'] === 'JobPosting'));
+      });
+    }],
+    ['sitemap: every published case and open role, nothing else', async () => {
+      const r = await page('sitemap');
+      eq(r.statusCode, 200); assert.match(r.headers['content-type'], /^application\/xml/);
+      assert(r.body.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'));
+      const locs = [...r.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]).sort();
+      const cases = JSON.parse(fs.readFileSync(casesFile, 'utf8')).filter(c => c.published !== false).map(c => `https://www.dtechindia.com/case-studies/${c.id}`);
+      const roles = JSON.parse(fs.readFileSync(jobsFile, 'utf8')).filter(j => j.isActive === true).map(j => `https://www.dtechindia.com/careers/${j.id}`);
+      assert.deepStrictEqual(locs, [...cases, ...roles].sort());
+    }],
+    ['HEAD → 200; POST → 405; unknown type → 404', async () => {
+      eq((await page('case', 'petronet-fms', 'HEAD')).statusCode, 200);
+      const post405 = await page('case', 'petronet-fms', 'POST');
+      eq(post405.statusCode, 405); eq(post405.headers.allow, 'GET, HEAD');
+      eq((await page('news', 'x')).statusCode, 404);
+    }],
+    ['routes, function bundle and robots.txt are wired', () => {
+      const v = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      const dest = src => (v.rewrites.find(r => r.source === src) || {}).destination;
+      eq(dest('/case-studies/:id'), '/api/detail?type=case&id=:id');
+      eq(dest('/careers/:id'), '/api/detail?type=job&id=:id');
+      eq(dest('/sitemap-details.xml'), '/api/detail?type=sitemap');
+      eq(v.functions['api/detail.js'].includeFiles, 'data/*.json');
+      assert(fs.readFileSync(path.join(REPO, 'robots.txt'), 'utf8').includes('Sitemap: https://www.dtechindia.com/sitemap-details.xml'));
+    }],
+    ['every role has a posting date; the console stamps new roles and keeps the date on edit', async () => {
+      for (const j of JSON.parse(fs.readFileSync(path.join(REPO, 'data/jobs.json'), 'utf8'))) assert.match(String(j.postedAt), /^\d{4}-\d{2}-\d{2}$/, j.id);
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+      const added = await post({ type: 'job', action: 'save', item: { ...job, title: 'Detail Page Engineer', location: 'Jhagadia' } });
+      eq(added.statusCode, 200, JSON.stringify(added.body));
+      const saved = added.body.items.find(j => j.title === 'Detail Page Engineer');
+      eq(saved.postedAt, today);
+      const old = { ...saved, postedAt: '2026-01-02' };
+      fs.writeFileSync(jobsFile, JSON.stringify(JSON.parse(fs.readFileSync(jobsFile, 'utf8')).map(j => (j.id === saved.id ? old : j))));
+      const edited = await post({ type: 'job', action: 'save', id: saved.id, item: { ...job, title: 'Detail Page Engineer', location: 'Jhagadia', positions: 3 } });
+      eq(edited.statusCode, 200, JSON.stringify(edited.body));
+      eq(edited.body.items.find(j => j.id === saved.id).postedAt, '2026-01-02', 'edit kept the date');
+      eq((await post({ type: 'job', action: 'delete', id: saved.id })).statusCode, 200);
     }],
   ]);
   console.error = errLog;

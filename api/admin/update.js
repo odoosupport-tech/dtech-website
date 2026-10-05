@@ -112,8 +112,14 @@ function jobFrom(input, existing) {
     location,
     positions,
     summary: text(input, 'summary', 'the job summary', 1000, { required: true, lines: true }),
+    // Google's job listings need the date a role was posted; edits keep the original date.
+    postedAt: existing && existing.postedAt ? existing.postedAt : todayInIndia(),
     isActive: flag(input, 'isActive', existing ? existing.isActive : true),
   };
+}
+
+function todayInIndia() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()); // YYYY-MM-DD
 }
 
 function caseStudyFrom(input, existing, pdfFile, logoFile) {

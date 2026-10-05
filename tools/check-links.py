@@ -20,6 +20,13 @@ SKIP_PATHS = ('/_vercel/',)
 
 problems = []
 
+# Pages rendered by api/detail.js (rewrites in vercel.json): one per open role and
+# one per published case study.
+DETAIL_PAGES = {
+    'careers': {j['id'] for j in json.load(open('data/jobs.json', encoding='utf-8')) if j.get('isActive') is True},
+    'case-studies': {c['id'] for c in json.load(open('data/case-studies.json', encoding='utf-8')) if c.get('published') is not False},
+}
+
 
 def check_file(path):
     html = open(path, encoding='utf-8').read()
@@ -43,6 +50,11 @@ def check_file(path):
             continue  # root-absolute; resolves on the server
         if nofrag.endswith('.html'):
             problems.append(f'{path}: link keeps the .html extension (clean URLs are on): {u}')
+            continue
+        detail = re.fullmatch(r'(careers|case-studies)/([a-z0-9-]+)', nofrag)
+        if detail:
+            if detail.group(2) not in DETAIL_PAGES[detail.group(1)]:
+                problems.append(f'{path}: link to a closed role or unpublished case study: {u}')
             continue
         # clean URLs: "about" is served from about.html
         page = nofrag if os.path.exists(nofrag) else nofrag + '.html'

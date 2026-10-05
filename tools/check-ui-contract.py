@@ -116,11 +116,35 @@ def check_marquee_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v41';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v41")
+    if "var VERSION = 'dtech-v42';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v42")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
         if asset not in worker:
             problems.append(f"service worker core cache missing {asset}")
+
+
+def check_contact_dock_contract(problems):
+    """The phones' call / WhatsApp bar must dial the numbers the site publishes."""
+    shared = (ROOT / "assets/refined.js").read_text(encoding="utf-8")
+    home = (ROOT / "index.html").read_text(encoding="utf-8")
+    contact = (ROOT / "contact.html").read_text(encoding="utf-8")
+    if ".contact-dock" not in shared or "@media (max-width:767px)" not in shared:
+        problems.append("refined.js lost the phone-only contact bar")
+        return
+    tel = re.search(r"const SALES_TEL = '([^']+)';", shared)
+    sales = re.search(r'href="tel:([^"]+)"[^>]*>(?:(?!</a>).)*Sales', home, re.S)
+    if not tel or not sales or tel.group(1) != sales.group(1):
+        problems.append("contact bar call number differs from the top bar's sales number")
+    chat = re.search(r"const WHATSAPP = '([^']+)';", shared)
+    if not chat or f'href="{chat.group(1)}"' not in contact:
+        problems.append("contact bar WhatsApp link differs from the contact page's")
+
+
+def check_detail_pages_contract(problems):
+    """api/detail.js renders case-study and job pages inside privacy-policy.html."""
+    page = (ROOT / "privacy-policy.html").read_text(encoding="utf-8")
+    if page.count("<main") != 1 or 'data-page="legal"' not in page:
+        problems.append("privacy-policy.html no longer has the single <main> and data-page the detail pages rely on")
 
 
 def check_deep_link_contract(problems):
@@ -140,6 +164,8 @@ def main():
     check_cache_contract(problems)
     check_deep_link_contract(problems)
     check_public_admin_probe(problems)
+    check_contact_dock_contract(problems)
+    check_detail_pages_contract(problems)
     if problems:
         print(f"{len(problems)} UI contract problem(s):")
         for problem in problems:

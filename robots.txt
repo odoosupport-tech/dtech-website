@@ -3,3 +3,4 @@ Allow: /
 Disallow: /api/
 
 Sitemap: https://www.dtechindia.com/sitemap.xml
+Sitemap: https://www.dtechindia.com/sitemap-details.xml

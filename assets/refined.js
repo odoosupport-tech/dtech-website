@@ -195,3 +195,51 @@ window.addEventListener('hashchange', alignHashTarget);
     })
     .catch(err => console.warn('Site banner not loaded:', err.message));
 })();
+
+// Phones: a call / WhatsApp bar pinned to the bottom of every page that has the
+// site header. Hidden on wider screens (the top bar shows the numbers there),
+// in print, and while a form field has focus, where the on-screen keyboard would
+// push the bar over the field being typed in.
+(() => {
+  const SALES_TEL = '+919558809163';
+  const SALES_LABEL = '+91 95588 09163';
+  // The WhatsApp line published on the contact page.
+  const WHATSAPP = 'https://wa.me/919998026089?text=Hello%20D-TECH%20SIPL,%20I%20would%20like%20to%20request%20an%20engineering%20consultation.';
+  const CSS = `
+.contact-dock{display:none}
+@media (max-width:767px){
+.contact-dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;border:1px solid var(--line-strong,#ccdee8);border-radius:14px;background:var(--surface,#fff);box-shadow:0 14px 34px -14px rgba(7,29,52,.5)}
+.contact-dock[hidden]{display:none}
+.contact-dock a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:10px;font:600 15px/1 var(--text-face,Inter,system-ui,sans-serif);text-decoration:none}
+.contact-dock svg{width:18px;height:18px;flex:none}
+.contact-dock .dock-call{background:var(--signal-deep,#0075ae);color:#fff}
+html[data-theme="dark"] .contact-dock .dock-call{background:var(--signal,#27b6da);color:#071d34}
+.contact-dock .dock-chat{border:1px solid var(--line-strong,#ccdee8);background:var(--paper,#f7fafc);color:var(--ink,#142b41)}
+.contact-dock .dock-chat svg{color:#1f9d55}
+.contact-dock a:focus-visible{outline:2px solid var(--signal-deep,#0075ae);outline-offset:2px}
+body.has-contact-dock{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+}
+@media print{.contact-dock{display:none!important}body.has-contact-dock{padding-bottom:0}}`;
+
+  if (!document.querySelector('.utility-bar') || document.querySelector('.contact-dock')) return;
+  const style = document.createElement('style');
+  style.id = 'contact-dock-css';
+  style.textContent = CSS;
+  document.head.appendChild(style);
+
+  const dock = document.createElement('nav');
+  dock.className = 'contact-dock';
+  dock.setAttribute('aria-label', 'Quick contact');
+  dock.innerHTML =
+    `<a class="dock-call" href="tel:${SALES_TEL}" aria-label="Call sales on ${SALES_LABEL}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Call sales</a>` +
+    `<a class="dock-chat" href="${WHATSAPP}" target="_blank" rel="noopener noreferrer" aria-label="Chat with D-TECH on WhatsApp (opens WhatsApp)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>WhatsApp</a>`;
+  document.body.appendChild(dock);
+  document.body.classList.add('has-contact-dock');
+
+  const typing = el => el instanceof Element && el.matches('input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select,[contenteditable="true"]');
+  document.addEventListener('focusin', event => { if (typing(event.target)) dock.hidden = true; });
+  document.addEventListener('focusout', () => {
+    // Moving from one field to the next keeps the bar hidden.
+    setTimeout(() => { if (!typing(document.activeElement)) dock.hidden = false; }, 0);
+  });
+})();
