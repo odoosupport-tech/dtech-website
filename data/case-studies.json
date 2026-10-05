@@ -492,6 +492,47 @@
     "custom": true
   },
   {
+    "id": "petronet-endpoint-migration",
+    "client": "Petronet LNG Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/petronet-lng.webp",
+    "category": "services",
+    "industry": "Energy · LNG Terminal",
+    "location": "Dahej LNG Terminal, Gujarat",
+    "period": "PO dated Nov 2022",
+    "arch_tag": "Endpoint Migration & Legacy Buyback",
+    "summary": "A 200-PC workplace refresh for the Dahej terminal: new business desktops, user data migration and configuration, operational testing and a managed buyback of old working PCs.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "194 all-in-one desktops + 6 micro PCs",
+      "User data migration, OS updates and SAP GUI testing",
+      "Buyback of 135–150 old working desktops",
+      "Five-year onsite next-business-day warranty specified"
+    ],
+    "metrics": [
+      [
+        "New PCs",
+        "200"
+      ],
+      [
+        "Order Value",
+        "US$297,043"
+      ],
+      [
+        "Buyback",
+        "135–150 PCs"
+      ],
+      [
+        "Warranty",
+        "5 Years NBD"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/petronet-endpoint-migration.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "mrf",
     "client": "MRF Limited",
     "wordmark": null,
@@ -611,6 +652,211 @@
     "custom": true
   },
   {
+    "id": "mrf-dahej-telecom-fms",
+    "client": "MRF Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/mrf.svg",
+    "category": "services",
+    "industry": "Automotive Tyre Manufacturing",
+    "location": "MRF Dahej plant, Gujarat",
+    "period": "2023 – 2027 · renewed Apr 2026",
+    "arch_tag": "Onsite Telecom FMS",
+    "summary": "One dedicated onsite resource keeps MRF Dahej’s telephones and LAN edge working every day — fault checks from instrument to IPBX, terminations, rack care and daily records.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Onsite support since 2023",
+      "Service Order 2400347489 renews it to 31 Mar 2027",
+      "Instrument, cabling, switch, LIU and IPBX / SETU troubleshooting",
+      "Daily reports, call log and telephone directory maintained"
+    ],
+    "metrics": [
+      [
+        "Onsite Team",
+        "1 Engineer"
+      ],
+      [
+        "Since",
+        "2023"
+      ],
+      [
+        "Current Term",
+        "to Mar 2027"
+      ],
+      [
+        "Scope",
+        "Telecom + LAN"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/mrf-dahej-telecom-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "aarti-vadodara-office",
+    "client": "Aarti Industries Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/aarti.png",
+    "category": "network",
+    "industry": "Specialty Chemicals · Corporate Office",
+    "location": "Keval Corporate Park, Vadodara, Gujarat",
+    "period": "Turnkey office programme",
+    "arch_tag": "Turnkey Office Infrastructure",
+    "summary": "A complete office for 800+ users delivered by one partner: structured copper and fibre networking, CCTV, Matrix access control, time attendance, Wi-Fi and PABX across a server room and two hub rooms.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "21,450 m data Cat6 + 13,000 m voice Cat6",
+      "250 m six-core OM3 fibre backbone",
+      "Matrix COSEC access control and time attendance",
+      "Server room and two hub rooms terminated and dressed"
+    ],
+    "metrics": [
+      [
+        "Users",
+        "800+"
+      ],
+      [
+        "Domains",
+        "6"
+      ],
+      [
+        "Data Cat6",
+        "21.45 km"
+      ],
+      [
+        "Hub Rooms",
+        "2 + Server Room"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/aarti-vadodara-office.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "aarti-arc-supply",
+    "client": "Aarti Industries Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/aarti.png",
+    "category": "services",
+    "industry": "Specialty Chemicals · Multi-Plant",
+    "location": "8 plants + Head Office, Gujarat",
+    "period": "ARC agreements from Oct 2020",
+    "arch_tag": "ARC Supply, Delivery & Support",
+    "summary": "A rate-contract supply route for eight plants and the Head Office: approved IT material from one catalogue, location-wise delivery and a single support contact after supply.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "8 plants and Head Office served",
+      "101-entry approved ARC catalogue",
+      "Location-wise dispatch and receipt follow-up",
+      "Warranty and product-issue coordination after supply"
+    ],
+    "metrics": [
+      [
+        "Plants",
+        "8 + HO"
+      ],
+      [
+        "Catalogue",
+        "101 Entries"
+      ],
+      [
+        "Value",
+        "~US$25,954"
+      ],
+      [
+        "Model",
+        "ARC"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/aarti-arc-supply.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "firmenich-hybrid-cctv-amc",
+    "client": "Firmenich",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/firmenich.png",
+    "category": "safety",
+    "industry": "Flavours & Fragrances",
+    "location": "Dahej SEZ, Gujarat",
+    "period": "PO dated 21 Jun 2013 · 7-year AMC",
+    "arch_tag": "Hybrid CCTV & 7-Year AMC",
+    "summary": "A hybrid IP and analog surveillance system for Firmenich’s Dahej SEZ plant — designed, supplied and installed by D-TECH, then maintained under a seven-year AMC.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "15 analog IR + 3 fixed IP + 2 PTZ cameras",
+      "9 km RG11 coax and 2 km single-mode fibre",
+      "DVR, server, display and UPS in the control room",
+      "Seven years of preventive and corrective AMC"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "20"
+      ],
+      [
+        "Fibre",
+        "2 km SM"
+      ],
+      [
+        "PO Value",
+        "₹18.52 L"
+      ],
+      [
+        "AMC",
+        "7 Years"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/firmenich-hybrid-cctv-amc.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "alkem-fibre-cabling",
+    "client": "Alkem Laboratories Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/alkem.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "location": "Ankleshwar, Gujarat",
+    "period": "POs dated May 2019",
+    "arch_tag": "Fibre Backbone & Structured Cabling",
+    "summary": "The physical network for Alkem’s Ankleshwar plant: armoured fibre, Cat6 access, racks and outlets supplied under one order and laid, spliced, punched and dressed under a second.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "770 m armoured fibre and 8 boxes of Cat6 supplied",
+      "36 fibre splices and 108 Cat6 punches",
+      "8 × 9U and 1 × 12U racks",
+      "Material and field-work POs delivered as one solution"
+    ],
+    "metrics": [
+      [
+        "Fibre",
+        "770 m"
+      ],
+      [
+        "Splices",
+        "36"
+      ],
+      [
+        "Cat6 Punches",
+        "108"
+      ],
+      [
+        "Racks",
+        "9"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/alkem-fibre-cabling.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "kohler-cisco-network",
     "client": "Kohler India",
     "wordmark": null,
@@ -723,6 +969,88 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/coromandel-hazarea-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "isgec-cctv",
+    "client": "ISGEC Hitachi Zosen Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/isgec.png",
+    "category": "safety",
+    "industry": "Heavy Engineering",
+    "location": "GIDC Industrial Estate, Dahej, Gujarat",
+    "period": "PO dated 28 Mar 2018",
+    "arch_tag": "CCTV Design, Deployment & Installation",
+    "summary": "An end-to-end CCTV deployment for a heavy-engineering campus: 19 network cameras on distributed field racks, an armoured fibre backbone and central 12 TB recording, installed and spliced onsite.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "13 PTZ + 4 bullet + 2 dome IP cameras",
+      "4 field racks with managed switches and SFP uplinks",
+      "800 m armoured single-mode fibre",
+      "32-channel NVR with 12 TB storage"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "19"
+      ],
+      [
+        "Recording",
+        "12 TB"
+      ],
+      [
+        "Fibre",
+        "800 m"
+      ],
+      [
+        "Value",
+        "₹9.63 L"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/isgec-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "bggb-branch-it",
+    "client": "Baroda Gujarat Gramin Bank",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/bggb.png",
+    "category": "services",
+    "industry": "Banking",
+    "location": "334+ branches across Gujarat",
+    "period": "9-year relationship",
+    "arch_tag": "Branch IT Supply & Support",
+    "summary": "Nine years of rate-contract supply, installation and support for a rural bank’s branch network — Dell systems, NAS storage and printers, with a call-lodging and escalation route for every branch.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "800+ Dell systems supplied",
+      "334+ branches served",
+      "NETGEAR NAS storage and HP printers",
+      "Onsite NBD warranty and escalation matrix"
+    ],
+    "metrics": [
+      [
+        "Branches",
+        "334+"
+      ],
+      [
+        "Dell Systems",
+        "800+"
+      ],
+      [
+        "Relationship",
+        "9 Years"
+      ],
+      [
+        "Model",
+        "Rate Contract"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/bggb-branch-it.pdf",
     "published": true,
     "custom": true
   },
@@ -1003,6 +1331,47 @@
     "published": true
   },
   {
+    "id": "gnfc-hazarea-cctv",
+    "client": "GNFC Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/gnfc.webp",
+    "category": "safety",
+    "industry": "Chemicals & Fertilizers",
+    "location": "Neem Coating Urea Plant, Bharuch, Gujarat",
+    "period": "2016 base · 2017 expansion",
+    "arch_tag": "Hazardous-Area Production CCTV",
+    "summary": "Production monitoring for GNFC’s Neem Coating Urea Plant: anti-corrosion, low-light cameras at height, a fibre link to the control room and 12 TB recording — installed under permit-to-work control.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "2 anti-corrosion low-light WDR cameras + 1 dome",
+      "300 m single-mode fibre with media converters",
+      "8-channel NVR with 12 TB storage",
+      "Work-at-height installation under permit"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "3"
+      ],
+      [
+        "Recording",
+        "12 TB"
+      ],
+      [
+        "Phases",
+        "2016 + 2017"
+      ],
+      [
+        "Value",
+        "₹3.78 L"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/gnfc-hazarea-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "jb-pharma-fms",
     "client": "JB Pharma",
     "wordmark": null,
@@ -1039,6 +1408,88 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/jb-pharma-fms.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "jb-pharma-p2p",
+    "client": "JB Pharma",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/jb-pharma.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "location": "Panoli & Ankleshwar, Gujarat",
+    "period": "2018 design · 2020 equipment",
+    "arch_tag": "Data Centre to 3-Plant P2P Wireless",
+    "summary": "Turnkey point-to-point wireless linking JB Pharma’s Panoli data centre with its Ankleshwar plant and a second Panoli unit — path engineering, towers, radios and LAN integration.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "8.248 km and 1.020 km engineered radio paths",
+      "Cambium PTP 550 radios with 29 dBi dish antennas",
+      "Tower, foundation, earthing and aviation lights",
+      "Hand-off integrated with the plant LANs"
+    ],
+    "metrics": [
+      [
+        "Plants",
+        "3"
+      ],
+      [
+        "Links",
+        "2 P2P"
+      ],
+      [
+        "Longest Path",
+        "8.25 km"
+      ],
+      [
+        "Band",
+        "5.8 GHz"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/jb-pharma-p2p.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "jb-pharma-server-network",
+    "client": "JB Pharma",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/jb-pharma.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "location": "Panoli & Ankleshwar, Gujarat",
+    "period": "Multi-site programme + AMC",
+    "arch_tag": "Server, Network, Wi-Fi & AMC",
+    "summary": "Servers, fibre networks, Wi-Fi zones and QC LIMS endpoints across JB Pharma’s Panoli and Ankleshwar units — designed, supplied and implemented by D-TECH, then kept running under a LAN AMC.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Fibre backbone from the data centre to the Labsolution network",
+      "HPE managed switching and racks",
+      "Ubiquiti Wi-Fi for production, QC and micro areas",
+      "Non-comprehensive LAN AMC"
+    ],
+    "metrics": [
+      [
+        "Locations",
+        "Panoli + Ankleshwar"
+      ],
+      [
+        "Wi-Fi",
+        "Plant Zones"
+      ],
+      [
+        "Endpoints",
+        "QC LIMS"
+      ],
+      [
+        "Support",
+        "LAN AMC"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/jb-pharma-server-network.pdf",
     "published": true,
     "custom": true
   },
@@ -1387,6 +1838,47 @@
     "published": true
   },
   {
+    "id": "krystal-it-infra",
+    "client": "Krystal Ingredients Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/krystal.webp",
+    "category": "network",
+    "industry": "Chemicals · Hazardous Area",
+    "location": "Dahej, Gujarat",
+    "period": "POs dated May 2025",
+    "arch_tag": "Integrated IT Infrastructure",
+    "summary": "A complete industrial IT foundation from two purchase orders: server and storage, FortiGate security, fibre and PoE switching, Wi-Fi 6, 167-camera CCTV, access control, video conferencing and user endpoints.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "167 IP cameras on dual 128-channel NVRs",
+      "20 managed switches and 1,500 m single-mode fibre",
+      "Lenovo server, QNAP storage and FortiGate 70F with 3-year UTM",
+      "8 Wi-Fi 6 access points and 2 Logitech VC rooms"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "167"
+      ],
+      [
+        "Switches",
+        "20"
+      ],
+      [
+        "Wi-Fi 6 APs",
+        "8"
+      ],
+      [
+        "Fibre",
+        "1.5 km"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/krystal-it-infra.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "rajashree-polyfil",
     "client": "Rajashree Polyfil",
     "wordmark": null,
@@ -1571,6 +2063,47 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/alchemie-hazarea-cctv.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
+    "id": "rishi-fibc-dell",
+    "client": "Rishi FIBC Solutions Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/rishi-fibc.png",
+    "category": "services",
+    "industry": "Packaging · FIBC Manufacturing",
+    "location": "Ranu works, Vadodara, Gujarat",
+    "period": "PO dated 13 Jul 2015",
+    "arch_tag": "Dell Desktop Supply & Support",
+    "summary": "A 35-system Dell desktop rollout for Rishi FIBC’s Ranu works — supplied to one configuration, installed and checked at the desk, with a clear route for issues and warranty service.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "35 Dell OptiPlex 3020 Micro systems",
+      "Common configuration with AIO mount stands",
+      "Installation and functional checks before handover",
+      "Three-year onsite hardware warranty"
+    ],
+    "metrics": [
+      [
+        "Systems",
+        "35"
+      ],
+      [
+        "Model",
+        "Dell 3020 Micro"
+      ],
+      [
+        "Warranty",
+        "3 Years Onsite"
+      ],
+      [
+        "Year",
+        "2015"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/rishi-fibc-dell.pdf",
     "published": true,
     "custom": true
   }
