@@ -1726,8 +1726,9 @@
     button.disabled = true;
     button.textContent = 'Refreshing…';
     load().then(function (ok) {
-      var b = document.getElementById('dc-refresh');
-      if (b && b.classList.contains('dc-btn-light')) { b.disabled = false; b.textContent = label; }
+      // The panel's "Try again" shares the header button's id and is replaced
+      // by the reload, so restore only the button that was clicked.
+      if (button.isConnected) { button.disabled = false; button.textContent = label; }
       if (ok) toast('Up to date: latest records loaded at ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '.', 'ok');
     });
   }
