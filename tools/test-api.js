@@ -358,6 +358,11 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['vercel.json: every redirect and rewrite lands on a page that exists', () => {
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
       for (const r of [...(cfg.redirects || []), ...(cfg.rewrites || [])]) {
+        // The only off-site destination: the company's Odoo (staff login and customer portal).
+        if (/^https?:\/\//.test(r.destination)) {
+          assert(r.destination.startsWith('https://d-tech-live-database.odoo.com/'), `${r.source} -> ${r.destination} leaves the site`);
+          continue;
+        }
         const dest = r.destination.split(/[?#]/)[0];
         if (dest === '/' || dest === '/admin-dtech') continue;
         const file = dest.replace(/^\//, '');

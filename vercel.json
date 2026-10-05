@@ -185,6 +185,31 @@
       "source": "/terms-conditions",
       "destination": "/terms-of-service",
       "permanent": true
+    },
+    {
+      "source": "/aboutus",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "/case-studies",
+      "permanent": false
+    },
+    {
+      "source": "/web/:path*",
+      "destination": "https://d-tech-live-database.odoo.com/web/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/odoo/:path*",
+      "destination": "https://d-tech-live-database.odoo.com/odoo/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/my/:path*",
+      "destination": "https://d-tech-live-database.odoo.com/my/:path*",
+      "permanent": false
     }
   ],
   "rewrites": [
