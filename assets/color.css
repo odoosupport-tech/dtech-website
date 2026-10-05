@@ -65,13 +65,14 @@ html body main h4>span:first-child:not([class]) { color:var(--signal-deep); }
 
 /* ==================== 4 · DARK BANDS ==================== */
 
-/* Second button inside a navy band becomes the outlined voice. */
-html body[data-page="case-studies"] main>section:last-child a:not(.bg-white),
-html body[data-page="about"] main>section:last-child a:not(.bg-white) {
+/* Second button inside a navy band becomes the outlined voice. The band's main
+   button keeps its own cyan-on-navy colours (sections.css .dt-cta). */
+html body[data-page="case-studies"] main>section:last-child a:not(.bg-white):not(.button-primary),
+html body[data-page="about"] main>section:last-child a:not(.bg-white):not(.button-primary) {
   border-color:rgba(255,255,255,.34)!important; color:#fff!important;
 }
-html body[data-page="case-studies"] main>section:last-child a:not(.bg-white):hover,
-html body[data-page="about"] main>section:last-child a:not(.bg-white):hover {
+html body[data-page="case-studies"] main>section:last-child a:not(.bg-white):not(.button-primary):hover,
+html body[data-page="about"] main>section:last-child a:not(.bg-white):not(.button-primary):hover {
   background:rgba(255,255,255,.1)!important; border-color:#fff!important;
 }
 
