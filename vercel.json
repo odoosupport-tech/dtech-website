@@ -210,6 +210,56 @@
       "source": "/my/:path*",
       "destination": "https://d-tech-live-database.odoo.com/my/:path*",
       "permanent": false
+    },
+    {
+      "source": "/(about-us|why-dtech|history-and-milestone|vendors|software)(\\.html)?",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/(contact-us|tally-offers)(\\.html)?",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/(privacy|privacy&policy)(\\.html)?",
+      "destination": "/privacy-policy",
+      "permanent": true
+    },
+    {
+      "source": "/(cctv-sol|cctv-solution)(\\.html)?",
+      "destination": "/ai-video-analytics",
+      "permanent": true
+    },
+    {
+      "source": "/(automatin-solution|automation-solution)(\\.html)?",
+      "destination": "/jiva",
+      "permanent": true
+    },
+    {
+      "source": "/(printing-solution)(\\.html)?",
+      "destination": "/hp",
+      "permanent": true
+    },
+    {
+      "source": "/(desktop-laptop-server-storage|dell-offer)(\\.html)?",
+      "destination": "/dell",
+      "permanent": true
+    },
+    {
+      "source": "/(product)(\\.html)?",
+      "destination": "/tfms",
+      "permanent": true
+    },
+    {
+      "source": "/(customers|services|access-control|access-control-system|fire-sol|fire-solution|data-security|network-server-rack|optic-fiber|raised-floor|wireless-solution|ups-solution|public-address-solution|telecom-epabx|av-boardroom-solution|video-conference-solution)(\\.html)?",
+      "destination": "/case-studies",
+      "permanent": true
+    },
+    {
+      "source": "/(Index|led-display|pdf)(\\.html)?",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "rewrites": [
