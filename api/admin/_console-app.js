@@ -54,6 +54,12 @@
     '.dc-table a.dc-btn-primary,.dc-modal a.dc-btn-primary{color:#fff;text-decoration:none}',
     '.dc-strong{font-weight:700}',
     '.dc-sub{color:var(--muted);font-size:12px}',
+    '.dc-mail-status{font-size:14px;line-height:1.5;margin:0 0 12px;padding:10px 12px;border-radius:8px;background:#f1f5f9}',
+    '.dc-mail-ok,.dc-mail-sent{background:#ecfdf5;color:#065f46}',
+    '.dc-mail-failed,.dc-mail-missing{background:#fef2f2;color:#991b1b}',
+    '.dc-mail-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}',
+    '.dc-mail-table th,.dc-mail-table td{text-align:left;padding:6px 8px;border-bottom:1px solid #e2e8f0;overflow-wrap:anywhere}',
+    '.dc-mail-table th{font-weight:600;color:var(--muted);width:45%}',
     '.dc-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}',
     '.dc-empty{padding:48px 16px;text-align:center;color:var(--muted)}',
     '.dc-note{border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;border:1px solid #fde68a;background:#fffbeb;color:#92400e}',
@@ -648,6 +654,37 @@
     };
   }
 
+  // "Check email": signs in to the SMTP server with the Vercel settings and
+  // explains any failure; "Send test email" also mails SALES_EMAIL.
+  function checkEmail(button, send) {
+    button.disabled = true;
+    toast(send ? 'Sending a test email…' : 'Checking the email settings…');
+    api('/api/admin/mail-check', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ send: send }) })
+      .then(function (body) {
+        button.disabled = false;
+        var r = body.result || {};
+        var s = r.settings || {};
+        var head = {
+          ok: ['Email is working', 'The website signed in to the mail server successfully.'],
+          sent: ['Test email sent', 'A test email went to ' + (s.sales || 'the sales inbox') + '. Check that inbox (and spam).'],
+          failed: ['Email is not working', r.advice || ''],
+          missing: ['Email is not set up', r.advice || ''],
+        }[r.status] || ['Email check', ''];
+        var rows = [['Server (SMTP_HOST)', s.host || 'not set'], ['Port (SMTP_PORT)', String(s.port || '')], ['Encryption', s.secure ? 'SSL/TLS (port 465 style)' : 'STARTTLS (port 587 style)'],
+          ['Login (SMTP_USER)', s.user || 'not set'], ['Password (SMTP_PASS)', s.passwordSet ? 'set' : 'not set'], ['Sender (MAIL_FROM)', s.from || ''], ['Enquiries go to (SALES_EMAIL)', s.sales || '']];
+        openModal(head[0],
+          '<p class="dc-mail-status dc-mail-' + esc(r.status || 'unknown') + '">' + esc(head[1]) + '</p>' +
+          (r.detail ? '<p class="dc-sub">Mail server said: <code>' + esc(r.detail) + '</code></p>' : '') +
+          '<table class="dc-mail-table"><tbody>' + rows.map(function (x) { return '<tr><th scope="row">' + esc(x[0]) + '</th><td>' + esc(x[1]) + '</td></tr>'; }).join('') + '</tbody></table>' +
+          '<p class="dc-sub">Change these in Vercel → Project → Settings → Environment Variables, then redeploy. The password is never shown here.</p>',
+          (r.status === 'ok' ? '<button type="button" class="dc-btn dc-btn-primary" id="dc-mail-send">Send test email</button>' : '') +
+          '<button type="button" class="dc-btn" data-close>Close</button>');
+      }, function (err) {
+        button.disabled = false;
+        toast(err.message, 'bad');
+      });
+  }
+
   function shell() {
     root.innerHTML =
       '<header class="dc-top"><div class="dc-top-in">' +
@@ -656,6 +693,7 @@
         '<div class="dc-counts" id="dc-counts"></div>' +
         '<span class="dc-deploy" id="dc-deploy" role="status" aria-live="polite" hidden></span>' +
         '<button type="button" class="dc-btn dc-btn-light" id="dc-refresh">Refresh</button>' +
+        '<button type="button" class="dc-btn dc-btn-light" id="dc-mail-check">Check email</button>' +
         '<button type="button" class="dc-btn dc-btn-light" id="dc-logout">' + icon('lock') + 'Sign Out</button>' +
       '</div></header>' +
       '<main class="dc-main"><div id="dc-notes"></div><nav class="dc-tabs" role="tablist" id="dc-tabs"></nav><div id="dc-panel" class="dc-card" role="tabpanel"><div class="dc-loading">Loading the latest records…</div></div></main>';
@@ -1552,6 +1590,7 @@
     if ('close' in d) { closeModal(); return; }
     if (state.busy) return;
     if (t.id === 'dc-refresh') { load(); return; }
+    if (t.id === 'dc-mail-check' || t.id === 'dc-mail-send') { checkEmail(t, t.id === 'dc-mail-send'); return; }
     if (t.id === 'dc-logout') {
       t.disabled = true;
       api('/api/admin/auth', { method: 'DELETE' }).then(function () { backToSignIn('signed-out'); }, function () { backToSignIn('signed-out'); });

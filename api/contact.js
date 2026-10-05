@@ -88,8 +88,8 @@ function customerConfirmationEmail({ enquiry }) {
       </td></tr>
       <tr><td style="padding:18px 28px;background:#f8fafc;font-size:13px;color:#475569;line-height:1.6">
         <strong style="color:#14181c">D-TECH Solution Integrators Private Limited</strong><br>
-        Email: <a href="mailto:sales@dtechindia.com" style="color:#0075ae">sales@dtechindia.com</a><br>
-        Phone: <a href="tel:+919558809163" style="color:#0075ae">+91 95588 09163</a><br>
+        Sales: <a href="tel:+919558809163" style="color:#0075ae">+91 95588 09163</a> · <a href="mailto:sales@dtechindia.com" style="color:#0075ae">sales@dtechindia.com</a><br>
+        Customer care: <a href="tel:+919998903042" style="color:#0075ae">+91 99989 03042</a> · <a href="mailto:support@dtechindia.com" style="color:#0075ae">support@dtechindia.com</a><br>
         Bharuch Corporate HQ, Gujarat
       </td></tr>
     </table>
@@ -103,7 +103,7 @@ function customerConfirmationText({ enquiry }) {
     `Your requirement regarding ${enquiry.topic || 'your enquiry'} has been recorded and assigned to our solutions engineering team.`, '',
     'A representative will review the details and get in touch with you within 1 business day.', '',
     'D-TECH Solution Integrators Private Limited',
-    'Email: sales@dtechindia.com', 'Phone: +91 95588 09163', 'Bharuch Corporate HQ, Gujarat',
+    'Sales: +91 95588 09163 · sales@dtechindia.com', 'Customer care: +91 99989 03042 · support@dtechindia.com', 'Bharuch Corporate HQ, Gujarat',
   ].join('\n');
 }
 
