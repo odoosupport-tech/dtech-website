@@ -84,10 +84,12 @@ function applicationText({ applicant, role, ip }) {
 }
 
 // The CV is committed first so the record never points at a missing file.
+// Commit messages and the CV path name the record by id only: the data
+// repository's history keeps them even after the record is purged.
 async function fileApplication(record, cv) {
   if (!store.isConfigured('private')) throw new Error('private storage is not configured');
-  if (cv && record.cv.path) await store.putFile('private', record.cv.path, cv.buffer, `Add CV for ${record.name}`);
-  await store.appendJson('private', 'applicants.json', record, `Add application from ${record.name} for ${record.role}`);
+  if (cv && record.cv.path) await store.putFile('private', record.cv.path, cv.buffer, `Add CV for application ${record.id}`);
+  await store.appendJson('private', 'applicants.json', record, `Add application ${record.id}`);
 }
 
 module.exports = async function handler(req, res) {
@@ -154,7 +156,7 @@ module.exports = async function handler(req, res) {
     location: job ? job.location || '' : '', date: new Date().toISOString(),
     cv: !cv ? null
       : emailOnlyCvs() ? { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, emailOnly: true }
-      : { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, path: `cvs/${id}-${cv.filename.replace(/[^A-Za-z0-9._-]+/g, '-')}` },
+      : { filename: cv.filename, type: cv.mime, bytes: cv.buffer.length, path: `cvs/${id}.${ALLOWED_CV[cv.mime]}` },
   };
 
   const [mailed, filed] = await Promise.allSettled([

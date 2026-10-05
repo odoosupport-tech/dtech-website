@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
       text: enquiryText({ enquiry, ip }),
     }),
     store.isConfigured('private')
-      ? store.appendJson('private', 'requirements.json', record, `Add requirement from ${enquiry.name}`)
+      ? store.appendJson('private', 'requirements.json', record, `Add requirement ${record.id}`)
       : Promise.reject(new Error('private storage is not configured')),
     confirmVisitor
       ? sendMail({

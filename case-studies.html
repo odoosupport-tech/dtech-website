@@ -81,7 +81,7 @@
   </style>
   <script src="assets/refined.min.js?v=3c15f2c720" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=83f31bc0dd">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=684f0d5ebf">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=88039106d3">
   <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
   <link rel="stylesheet" href="assets/sections.min.css?v=727330eb94">
@@ -844,6 +844,7 @@
             const on = tab.dataset.filter === caseView.cat;
             tab.classList.toggle('active', on);
             tab.setAttribute('aria-selected', on ? 'true' : 'false');
+            tab.tabIndex = on ? 0 : -1; // roving tabindex: Tab enters the tab list once
           });
           document.getElementById('case-grid').setAttribute('aria-labelledby', 'case-tab-' + caseView.cat);
 
@@ -1535,6 +1536,21 @@
             if (tab) { filterCases(tab.dataset.filter); showResults(); }
             if (e.target.closest('[data-close-case]')) closeCaseModal();
             if (e.target.closest('[data-close-gate]')) closeEmailGateModal();
+          });
+          // Standard keys for a horizontal tab list: Left/Right move to the previous/next tab
+          // (wrapping), Home/End to the first/last; Up/Down keep scrolling the page. The tab
+          // under focus is selected at once, as filtering is instant.
+          document.querySelector('.case-tabs').addEventListener('keydown', e => {
+            const tabs = [...document.querySelectorAll('.case-tab[data-filter]')];
+            const at = tabs.indexOf(e.target.closest('.case-tab[data-filter]'));
+            if (at < 0) return;
+            const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+            const to = step ? (at + step + tabs.length) % tabs.length
+              : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : -1;
+            if (to < 0) return;
+            e.preventDefault();
+            filterCases(tabs[to].dataset.filter);
+            tabs[to].focus();
           });
           document.getElementById('email-gate-form').addEventListener('submit', handleEmailGateSubmit);
           fetch('/api/content?list=case-studies', { cache: 'no-cache', headers: { Accept: 'application/json' } })

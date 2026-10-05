@@ -233,7 +233,11 @@ module.exports = async function handler(req, res) {
     if (!paper) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
   }
 
-  const record = request => ({ id: store.newId(), ...lead, caseId, caseTitle: `${paper.title} — ${paper.topic}`, request, date: new Date().toISOString() });
+  // Commit messages name the record by id only: the data repository's history keeps them for good.
+  const fileLead = request => {
+    const record = { id: store.newId(), ...lead, caseId, caseTitle: `${paper.title} — ${paper.topic}`, request, date: new Date().toISOString() };
+    return store.appendJson('private', 'leads.json', record, `Add case-study ${request === 'pdf' ? 'lead' : 'summary view'} ${record.id}`);
+  };
 
   if (summaryOnly) {
     if (!store.isConfigured('private')) {
@@ -241,7 +245,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, filed: false });
     }
     try {
-      await store.appendJson('private', 'leads.json', record('summary'), `Add case-study summary view from ${lead.name || lead.email}`);
+      await fileLead('summary');
       return res.status(200).json({ ok: true, filed: true });
     } catch (err) {
       console.error('Filing summary view failed:', err.message);
@@ -275,7 +279,7 @@ module.exports = async function handler(req, res) {
         html: leadEmail({ lead, paper, ip, attached }),
       }).catch(err => console.error('Sales notification failed:', err.message)),
       store.isConfigured('private')
-        ? store.appendJson('private', 'leads.json', record('pdf'), `Add case-study lead from ${lead.name || lead.email}`)
+        ? fileLead('pdf')
           .catch(err => console.error('Filing lead failed:', err.message))
         : Promise.resolve(console.error('Lead not filed: private storage is not configured')),
     ]);
