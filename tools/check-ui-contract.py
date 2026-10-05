@@ -116,8 +116,10 @@ def check_marquee_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v42';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v42")
+    if "var VERSION = 'dtech-v43';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v43")
+    if "caches.match('/')" in worker:
+        problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
         if asset not in worker:
             problems.append(f"service worker core cache missing {asset}")

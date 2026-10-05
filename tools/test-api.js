@@ -1050,7 +1050,88 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq((await post({ type: 'job', action: 'delete', id: saved.id })).statusCode, 200);
     }],
   ]);
+
+  // 11. The private data repo keeps every commit message and file path for good,
+  // even after a purge, so neither may carry a visitor's name or email.
+  const recordWrites = async (fn) => {
+    const real = { appendJson: store.appendJson, putFile: store.putFile };
+    const writes = [];
+    store.appendJson = (name, file, item, message) => { writes.push({ file, message }); return real.appendJson(name, file, item, message); };
+    store.putFile = (name, file, buf, message) => { writes.push({ file, message }); return real.putFile(name, file, buf, message); };
+    try { await fn(); } finally { Object.assign(store, real); }
+    return writes;
+  };
+  const personal = ['Asha Verma', 'asha.verma@example.com', 'Asha'];
+  const assertAnonymous = (writes, expected) => {
+    eq(writes.length, expected, `writes: ${JSON.stringify(writes)}`);
+    for (const w of writes) for (const p of personal) {
+      assert(!w.message.includes(p), `commit message "${w.message}" names the visitor`);
+      assert(!w.file.includes(p.split(' ')[0]), `path "${w.file}" names the visitor`);
+    }
+  };
+  await area('11. No personal data in data-repo commits', [
+    ['contact → "Add requirement <id>"', async () => {
+      const writes = await recordWrites(async () => {
+        eq((await call(contact, req('POST', { ...validEnquiry, name: 'Asha Verma', email: 'asha.verma@example.com', formStart: stale() }))).statusCode, 200);
+      });
+      assertAnonymous(writes, 1);
+      assert.match(writes[0].message, /^Add requirement [a-z0-9]+-[0-9a-f]{8}$/);
+    }],
+    ['application with CV → CV stored as cvs/<id>.pdf, messages by id', async () => {
+      const writes = await recordWrites(async () => {
+        // Earlier areas edit and close roles, so apply to one that is open now.
+        const open = JSON.parse(fs.readFileSync('data/jobs.json', 'utf8')).find(j => j.isActive === true);
+        const r = await call(apply, req('POST', { ...applicant, jobId: open.id, name: 'Asha Verma', email: 'asha.verma@example.com', formStart: stale(), cv: { filename: 'Asha Verma CV.pdf', type: 'application/pdf', dataBase64: pdfB64 } }));
+        eq(r.statusCode, 200, JSON.stringify(r.body));
+        const rec = JSON.parse(fs.readFileSync('.portal-data/applicants.json', 'utf8')).find(a => a.id === r.body.reference);
+        eq(rec.cv.path, `cvs/${rec.id}.pdf`);
+        eq(rec.cv.filename, 'Asha Verma CV.pdf', 'download keeps the original file name');
+      });
+      assertAnonymous(writes, 2);
+      assert.match(writes[0].message, /^Add CV for application [a-z0-9]+-[0-9a-f]{8}$/);
+      assert.match(writes[1].message, /^Add application [a-z0-9]+-[0-9a-f]{8}$/);
+    }],
+    ['case-study summary view and PDF lead → messages by id', async () => {
+      const writes = await recordWrites(async () => {
+        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'mrf', formStart: stale() }))).statusCode, 200);
+        eq((await call(whitepaper, req('POST', { email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+      });
+      assertAnonymous(writes, 2);
+      assert.match(writes[0].message, /^Add case-study summary view [a-z0-9]+-[0-9a-f]{8}$/);
+      assert.match(writes[1].message, /^Add case-study lead [a-z0-9]+-[0-9a-f]{8}$/);
+    }],
+  ]);
   console.error = errLog;
+
+  // 12. Service worker offline behaviour, run in a stubbed worker scope.
+  const runWorker = async (cached, url) => {
+    const listeners = {};
+    const scope = {
+      self: { addEventListener: (type, fn) => { listeners[type] = fn; }, skipWaiting: () => {}, clients: { claim: () => {} } },
+      location: { origin: 'https://dtech.test' },
+      caches: { match: async (r) => cached[typeof r === 'string' ? r : new URL(r.url).pathname], open: async () => ({ put: async () => {} }) },
+      fetch: async () => { throw new TypeError('Failed to fetch'); },
+      URL, Response, Promise,
+    };
+    scope.self.location = scope.location;
+    require('vm').runInNewContext(fs.readFileSync(path.join(REPO, 'sw.js'), 'utf8'), scope);
+    let reply;
+    listeners.fetch({ request: { method: 'GET', mode: 'navigate', url: `https://dtech.test${url}` }, respondWith: (p) => { reply = p; } });
+    return reply;
+  };
+  await area('12. Service worker offline fallback (sw.js)', [
+    ['offline, page cached → the cached page', async () => {
+      const page = new Response('about page');
+      eq(await runWorker({ '/about': page, '/': new Response('home') }, '/about'), page);
+    }],
+    ['offline, page not cached → explicit offline page (503), never the home page', async () => {
+      const r = await runWorker({ '/': new Response('home page') }, '/contact');
+      eq(r.status, 503);
+      const html = await r.text();
+      assert(html.includes('You are offline') && !html.includes('home page'), html.slice(0, 120));
+      assert.match(r.headers.get('content-type'), /^text\/html/);
+    }],
+  ]);
 
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });

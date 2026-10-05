@@ -61,7 +61,7 @@
   </style>
   <script src="assets/refined.min.js?v=3c15f2c720" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
-  <link rel="stylesheet" href="assets/bundle.min.css?v=83f31bc0dd">
+  <link rel="stylesheet" href="assets/bundle.min.css?v=684f0d5ebf">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=88039106d3">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff">
@@ -309,7 +309,7 @@
         <label for="apply-website">Website</label><input type="text" id="apply-website" tabindex="-1" autocomplete="off">
       </div>
       <p class="apply-note"><strong>Your CV can be 3 MB at most</strong> (PDF or Word). Your details and CV go to D-TECH's recruitment team. We keep them only to consider you for roles. See our <a class="hx-link" href="privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
-      <p class="apply-feedback" id="apply-feedback" hidden></p>
+      <p class="apply-feedback" id="apply-feedback" role="status" tabindex="-1" hidden></p>
       <div class="apply-actions">
         <button type="button" class="button button-secondary" data-apply-close>Cancel</button>
         <button type="submit" class="button button-primary" id="apply-submit">Send application <span>&#8599;</span></button>
@@ -487,7 +487,13 @@
             feedback.setAttribute('data-state', 'error');
             feedback.textContent = err.message || 'We could not send your application. Please try again.';
           })
-          .then(function () { submit.disabled = false; if (!submit.hidden) submit.innerHTML = original; });
+          .then(function () {
+            submit.disabled = false;
+            if (!submit.hidden) submit.innerHTML = original;
+            // The result is read out where focus lands: the submit button may now be
+            // hidden (success) or was disabled while sending, so focus would be lost.
+            feedback.focus();
+          });
       });
     })();
   </script>
