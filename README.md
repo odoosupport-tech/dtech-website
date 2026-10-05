@@ -39,6 +39,7 @@ The Vercel functions send mail over SMTP with [nodemailer](https://nodemailer.co
 
 - `api/contact.js`: the Contact Us form (`contact.html`) posts here, and the enquiry is emailed to sales with Reply-To set to the visitor. If the function fails or is unavailable, the form falls back to opening the visitor's email app.
 - `api/send-whitepaper.js`: case-study PDFs live in `assets/case-studies/pdf/`. When a visitor asks for one on `case-studies.html`, the PDF is emailed to them as an attachment and sales gets a lead notification.
+- `middleware.js`: the PDFs are lead-gated. Vercel serves a file under `/assets/case-studies/pdf/` only on a signed, expiring link (`api/_pdf-link.js`): the one the site uses to attach it, the download link in the visitor's email (valid 14 days), or one issued to a signed-in console user. Any other request, including old PDF addresses search engines still list, is redirected to `/case-studies`, and the PDFs carry `X-Robots-Tag: noindex`. The signing key is `PDF_LINK_SECRET`, or `ADMIN_SECRET` when that is unset; with neither, no PDF is served and PDF requests answer 503.
 - `api/apply.js`: job applications from `careers.html`, emailed with the CV attached (see Careers).
 
 Set these in Vercel → Project → Settings → Environment Variables, then redeploy:
@@ -54,6 +55,7 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 | `SALES_EMAIL` | no | Receives enquiries and lead notifications (default `sales@dtechindia.com`) |
 | `SITE_URL` | no | Public address used in email links, e.g. `https://www.dtechindia.com` (default: the production address Vercel provides in `VERCEL_PROJECT_PRODUCTION_URL`; the request's Host header is never trusted on Vercel) |
 | `ALLOWED_ORIGINS` | no | Extra comma-separated site origins allowed to call the functions (their own origin is always allowed) |
+| `PDF_LINK_SECRET` | no | Signs the case-study PDF links (at least 16 characters; default: `ADMIN_SECRET`). Changing it voids PDF links already emailed. |
 
 **Google Workspace / Gmail:** `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` = the full mailbox address, and `SMTP_PASS` = a 16-character [app password](https://myaccount.google.com/apppasswords) (the account needs 2-Step Verification on; Google rejects the normal password over SMTP). Gmail sends as `SMTP_USER`; a different `MAIL_FROM` address only works if it is added under Gmail → Settings → Accounts → "Send mail as". Workspace allows about 2,000 messages a day per mailbox.
 
@@ -99,7 +101,7 @@ SMTP is the only delivery channel; nothing else receives the site's form data. I
 |---|---|---|
 | Client requirements, case-study leads, job applications, CVs | `requirements.json`, `leads.json`, `applicants.json`, `cvs/` in a **separate private repository** | `api/contact.js`, `api/send-whitepaper.js`, `api/apply.js` |
 | Open roles, case studies, site banners | `data/jobs.json`, `data/case-studies.json`, `data/banners.json` in this repository | the management console |
-| Case-study PDFs uploaded from the console | `assets/case-studies/pdf/custom/` in this repository (public, like the built-in PDFs) | the management console |
+| Case-study PDFs uploaded from the console | `assets/case-studies/pdf/custom/` in this repository (in the repository like the built-in PDFs; the website serves them only on signed links, see `middleware.js`) | the management console |
 
 **Never store submissions in this repository.** It is public, and Vercel serves the repository root as the website, so anything committed here can be read by anyone and stays in the git history. `api/_store.js` refuses to use this repository for submissions.
 

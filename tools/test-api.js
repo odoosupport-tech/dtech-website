@@ -18,12 +18,17 @@ if (!fs.existsSync(path.join(REPO, 'node_modules/nodemailer'))) throw new Error(
 for (const k of Object.keys(process.env)) if (/^(GITHUB_|SMTP_|MAIL_FROM|SALES_EMAIL|HR_EMAIL|VERCEL|ADMIN_SECRET|ALLOWED_ORIGINS|SITE_URL)/.test(k)) delete process.env[k];
 Object.assign(process.env, { SMTP_HOST: 'smtp.invalid', SMTP_USER: 'test@invalid', SMTP_PASS: 'x', SALES_EMAIL: 'sales@test.invalid', ADMIN_SECRET: 'test-admin-secret-0123456789' });
 // The only network the suite allows: this site's own static PDFs (the whitepaper
-// handler fetches them from https://dtech.test), served from the sandbox's assets/.
+// handler fetches them from https://dtech.test), served from the sandbox's assets/
+// behind the real middleware.js gate: an unsigned or bad link gets the case-study
+// page (where the redirect lands), as on Vercel.
 let failPdfFetch = false;
+const gate = import(path.join(REPO, 'middleware.js'));
 globalThis.fetch = async (url) => {
-  const m = /^https:\/\/dtech\.test\/(assets\/case-studies\/pdf\/[A-Za-z0-9\/._-]+\.pdf)$/.exec(String(url));
+  const m = /^https:\/\/dtech\.test\/(assets\/case-studies\/pdf\/[A-Za-z0-9\/._-]+\.pdf)(\?t=[^&#]*)?$/.exec(String(url));
   if (!m) throw new Error(`network blocked in tests: ${url}`);
   if (failPdfFetch) return new Response('missing', { status: 404 });
+  const turnedAway = await (await gate).default(new Request(String(url)));
+  if (turnedAway) return new Response('<!doctype html><title>Case studies</title>', { status: 200, headers: { 'content-type': 'text/html' } });
   return new Response(fs.readFileSync(path.join(process.cwd(), m[1])), { status: 200 });
 };
 require(path.join(REPO, 'node_modules/nodemailer')).createTransport = () => { throw new Error('real SMTP transport must never be created in tests'); };
@@ -323,7 +328,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq((await call(whitepaper, req('POST', { request: 'summary', email: 'bot@example.com', caseId: 'mrf', website: 'spam' }))).statusCode, 200);
       eq(JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).length, count, 'bot filed a lead');
     }],
-    ['PDF cannot be fetched → visitor still gets the CDN download link, no attachment', async () => {
+    ['PDF cannot be fetched → visitor still gets a signed download link, no attachment', async () => {
       failPdfFetch = true;
       try {
         const before = sent.length;
@@ -331,7 +336,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         eq(r.statusCode, 200, JSON.stringify(r.body));
         const visitor = sent[before];
         eq(visitor.attachments.length, 0);
-        assert(visitor.html.includes('href="https://dtech.test/assets/case-studies/pdf/petronet-lng-enterprise-fms-2026.pdf"'), 'CDN download link');
+        const link = /href="https:\/\/dtech\.test(\/assets\/case-studies\/pdf\/petronet-lng-enterprise-fms-2026\.pdf)\?t=([^"]+)"/.exec(visitor.html);
+        assert(link, 'signed download link');
+        eq(await (await gate).validPdfToken(link[1], link[2], process.env.ADMIN_SECRET), true, 'link passes the PDF gate');
       } finally { failPdfFetch = false; }
     }],
   ]);
@@ -1130,6 +1137,91 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const html = await r.text();
       assert(html.includes('You are offline') && !html.includes('home page'), html.slice(0, 120));
       assert.match(r.headers.get('content-type'), /^text\/html/);
+    }],
+  ]);
+
+  // 13. Case-study PDFs are lead-gated: middleware.js serves them only on links signed by _pdf-link.js.
+  const { default: pdfGate, validPdfToken, config: gateConfig } = await gate;
+  const pdfLink = require(path.join(REPO, 'api/_pdf-link.js'));
+  const PDF = 'assets/case-studies/pdf/petronet-lng-enterprise-fms-2026.pdf';
+  const through = async (pathAndQuery) => (await pdfGate(new Request(`https://dtech.test${pathAndQuery}`))) === undefined;
+  const withEnv = async (vars, fn) => {
+    const saved = Object.fromEntries(Object.keys(vars).map(k => [k, process.env[k]]));
+    for (const [k, v] of Object.entries(vars)) if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    try { return await fn(); } finally {
+      for (const [k, v] of Object.entries(saved)) if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+  };
+  await area('13. Lead-gated case-study PDFs (middleware.js)', [
+    ['the gate covers the whole PDF folder', () => eq(gateConfig.matcher, '/assets/case-studies/pdf/:path*')],
+    ['no link, or an old address search engines list → redirected to /case-studies', async () => {
+      const r = await pdfGate(new Request(`https://dtech.test/${PDF}`));
+      eq(r.status, 302); eq(r.headers.get('location'), 'https://dtech.test/case-studies');
+      eq(await through(`/${PDF}?t=`), false);
+      eq(await through(`/${PDF}?t=garbage`), false);
+    }],
+    ['a signed link → served', async () => eq(await through(pdfLink.signedPdfPath(PDF, 60000)), true)],
+    ['an expired link → refused', async () => {
+      const old = pdfLink.signedPdfPath(PDF, 1000, Date.now() - 5000);
+      eq(await through(old), false);
+    }],
+    ['a link signed for another PDF, or with a changed expiry or signature → refused', async () => {
+      const other = pdfLink.signedPdfPath('assets/case-studies/pdf/mrf-plant-network.pdf', 60000);
+      eq(await through(`/${PDF}?t=${other.split('?t=')[1]}`), false);
+      const [p, t] = pdfLink.signedPdfPath(PDF, 60000).split('?t=');
+      const [exp, sig] = t.split('.');
+      eq(await through(`${p}?t=${Number(exp) + 86400000}.${sig}`), false);
+      eq(await through(`${p}?t=${exp}.${sig.slice(0, -1)}${sig.endsWith('A') ? 'B' : 'A'}`), false);
+    }],
+    ['no secret on the server → nothing served, even with a link; requests answer 503', async () => {
+      const link = pdfLink.signedPdfPath(PDF, 60000);
+      await withEnv({ ADMIN_SECRET: undefined, PDF_LINK_SECRET: undefined }, async () => {
+        eq(await through(link), false);
+        assert.throws(() => pdfLink.signedPdfPath(PDF, 60000), /cannot be signed/);
+        const r = await call(whitepaper, req('POST', { email: 'nosecret@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
+        eq(r.statusCode, 503);
+        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'nosecret@example.com', name: 'Lead', caseId: 'mrf', formStart: stale() }))).statusCode, 200, 'summary views need no PDF');
+      });
+    }],
+    ['PDF_LINK_SECRET, when set, signs instead of ADMIN_SECRET (and both sides agree)', async () => {
+      await withEnv({ PDF_LINK_SECRET: 'a-separate-pdf-link-secret' }, async () => {
+        const link = pdfLink.signedPdfPath(PDF, 60000);
+        eq(await through(link), true);
+        const [p, t] = link.split('?t=');
+        eq(await validPdfToken(p, t, process.env.ADMIN_SECRET), false, 'not valid under ADMIN_SECRET');
+      });
+    }],
+    ['PDF emailed → attached via a signed fetch; a fallback link is signed for 14 days', async () => {
+      const before = sent.length;
+      eq((await call(whitepaper, req('POST', { email: 'gated@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+      eq(sent.slice(before).find(m => m.to === 'gated@example.com').attachments.length, 1, 'signed fetch got through the gate');
+      failPdfFetch = true;
+      try {
+        const mark = sent.length;
+        eq((await call(whitepaper, req('POST', { email: 'gated-link@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+        const html = sent.slice(mark).find(m => m.to === 'gated-link@example.com').html;
+        const m = /href="https:\/\/dtech\.test(\/assets\/case-studies\/pdf\/[^"?]+)\?t=([^"]+)"/.exec(html);
+        assert(m, 'signed download link in the email');
+        const days = (Number(m[2].split('.')[0]) - Date.now()) / 86400000;
+        assert(days > 13.9 && days <= 14, `link valid for ${days} days`);
+        eq(await validPdfToken(m[1], m[2], process.env.ADMIN_SECRET), true);
+      } finally { failPdfFetch = false; }
+    }],
+    ['console: ?pdf= needs a session, then redirects to a short-lived signed link', async () => {
+      const q = { query: { pdf: PDF } };
+      eq((await call(data, req('GET', null, q))).statusCode, 404, 'no session');
+      const r = await call(data, req('GET', null, { ...q, headers: { cookie } }));
+      eq(r.statusCode, 302);
+      eq(r.headers['cache-control'], 'no-store');
+      assert(r.headers.location.startsWith(`/${PDF}?t=`), r.headers.location);
+      eq(await through(r.headers.location), true);
+      for (const bad of ['assets/case-studies/pdf/../../api/_store.js', 'assets/case-studies/pdf/x.pdf/../y.pdf', 'api/_whitepapers.json', 'assets/case-studies/pdf/a/b/c.pdf']) {
+        eq((await call(data, req('GET', null, { query: { pdf: bad }, headers: { cookie } }))).statusCode, 400, bad);
+      }
+    }],
+    ['vercel.json tells search engines not to index the PDFs', () => {
+      const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).headers.find(h => h.source === '/assets/case-studies/pdf/(.*)');
+      assert(rule && rule.headers.some(h => h.key === 'X-Robots-Tag' && /noindex/.test(h.value)));
     }],
   ]);
 

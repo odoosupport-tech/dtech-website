@@ -1137,7 +1137,8 @@
             var adminCase = (typeof allCases !== 'undefined' ? allCases : []).filter(function (x) { return x.id === caseId; })[0];
             var adminPdf = adminCase && (adminCase.pdf_file || adminCase.url);
             if (adminPdf) {
-              window.open(adminPdf, '_blank');
+              // The site's PDFs are lead-gated: the admin route redirects to a signed link.
+              window.open(/^https?:/.test(adminPdf) ? adminPdf : '/api/admin/data?pdf=' + encodeURIComponent(adminPdf), '_blank');
               return;
             }
           }

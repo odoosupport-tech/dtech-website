@@ -3,6 +3,8 @@
 //   GET                  { requirements, applicants, leads, jobs, caseStudies, banners,
 //                          canSave, publishing: "github"|"local"|null, hasInbox }
 //   GET ?cv=<applicant>  that applicant's CV file, as a download
+//   GET ?pdf=<file>      a redirect to a short-lived signed link to a case-study PDF
+//                        under assets/case-studies/pdf/ (lead-gated; see _pdf-link.js)
 //   GET ?deployed=<file> the copy of jobs.json, case-studies.json or banners.json in
 //                        this deployment, so the console can tell when a change is
 //                        live (the public never sees the raw files, drafts included)
@@ -11,9 +13,12 @@ const fs = require('fs');
 const path = require('path');
 const store = require('../_store');
 const { requireSession } = require('../_admin');
+const { signedPdfPath, FETCH_LINK_MS } = require('../_pdf-link');
 
 const ID_RE = /^[a-z0-9-]{1,40}$/;
 const SITE_FILES = ['jobs.json', 'case-studies.json', 'banners.json'];
+// No dots outside the extension, so no "..": the path stays inside the PDF folder.
+const PDF_FILE_RE = /^assets\/case-studies\/pdf\/[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)?\.pdf$/;
 
 function deployedList(file) {
   try {
@@ -58,6 +63,13 @@ module.exports = async function handler(req, res) {
   }
   try {
     if (req.query && req.query.cv) return await sendCv(req, res, String(req.query.cv));
+    if (req.query && req.query.pdf) {
+      const file = String(req.query.pdf);
+      if (!PDF_FILE_RE.test(file)) return res.status(400).json({ ok: false, error: 'Unknown PDF' });
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('Location', signedPdfPath(file, FETCH_LINK_MS));
+      return res.status(302).send('');
+    }
     if (req.query && req.query.deployed) {
       const file = String(req.query.deployed);
       if (!SITE_FILES.includes(file)) return res.status(400).json({ ok: false, error: 'Unknown list' });
