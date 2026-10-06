@@ -1120,10 +1120,12 @@
 
   function purgeRecord(type, id) {
     confirmBox('Delete permanently?',
-      'This removes the record' + (type === 'applicant' ? ' and the stored CV file' : '') + ' from the inbox. It cannot be undone.',
+      'This removes the record' + (type === 'applicant' ? ' and the stored CV file' : '') + ' from the inbox and from the storage history. It cannot be undone.',
       'Delete permanently').then(function (ok) {
       if (!ok) return;
-      save(type, 'purge', { id: id }, { done: 'Deleted permanently.' }).catch(function (err) {
+      save(type, 'purge', { id: id }, { done: 'Deleted permanently.' }).then(function (res) {
+        if (res && res.historyErased === false) toast('Deleted from the inbox, but older copies could not be cleared from the storage history. Please tell your website administrator.', 'bad');
+      }, function (err) {
         if (err.message !== 'Signed out') toast(err.message, 'bad');
       });
     });

@@ -140,9 +140,10 @@ Every form is checked in the browser and again on the server. While a change sav
 - **Sign in** at `/admin-dtech` (the same page is also at `/portal`; **Ctrl + Shift + Alt + D** on the home page opens it) with the admin ID and password.
 - After 5 wrong attempts, sign-in pauses for 15 minutes. The page shows a countdown, and the server enforces the same limit (5 attempts per 15 minutes per IP, per instance). Every wrong attempt also waits 1.5 seconds before the answer.
 - **Shared rate limit (Vercel Firewall, free on Hobby):** the per-instance limit above resets when Vercel starts a new instance, so add one rule in the Vercel dashboard under **Firewall → Configure → New Rule**: *If* Request Path starts with `/api/` *and* Method equals `POST`, *Then* Rate Limit, Fixed Window, 60 s, 20 requests, key IP, action Default (429). Publish it. Hobby allows one rate-limit rule per project.
-- **Sign Out** in the console header ends the session and returns to the sign-in page.
+- **Sign Out** in the console header ends the session and returns to the sign-in page. It also revokes that session on the server (its id goes into `revoked-sessions.json` in the private store), so a copied cookie stops working within 30 seconds; other signed-in staff are not affected.
 - The console script is only served (`/api/admin/console`) to a signed-in session, so its markup never appears in a public file. The sign-in page is not linked anywhere or listed in the sitemap, and is sent with `noindex, nofollow`.
-- Sessions last 8 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The ID and password checks are timing-safe.
+- Sessions last 4 hours, in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to `/api/admin`. The ID and password checks are timing-safe.
+- **Delete permanently** removes the record (and an applicant's CV) and then replaces the private repository's history with a single snapshot of its current files, so earlier copies are no longer reachable. The repository therefore keeps no change history. If GitHub refuses the rewrite (for example, branch protection on the data repository forbids force-pushes), the console says so. GitHub may keep unreachable commits readable by their exact id until it garbage-collects them; ask GitHub Support to purge them if that matters.
 
 | Endpoint | What it does |
 |---|---|

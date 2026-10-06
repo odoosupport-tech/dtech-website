@@ -16,9 +16,10 @@
 //                                                value: new|contacted|review|archived
 //   { type, action: "note", id, note }           adds an internal note (up to 1000 characters)
 //   { type, action: "deleteNote", id, noteId }
-//   { type, action: "purge", id }                deletes the record and, for an applicant, the stored CV file.
-//                                                Git history keeps older commits of the repository;
-//                                                purge removes the data from the current files only.
+//   { type, action: "purge", id }                deletes the record and, for an applicant, the stored CV file,
+//                                                then replaces the private repository's history with one
+//                                                snapshot so earlier copies are gone too. The response's
+//                                                historyErased is false if that last step failed.
 //
 // A case study's item.pdf chooses the whitepaper emailed to visitors who ask for it (every case study needs one):
 //   { mode: "keep" }                           leave it as it is (the default)
@@ -359,7 +360,7 @@ function followUp(type, body, list) {
 }
 
 module.exports = async function handler(req, res) {
-  if (!requireSession(req, res)) return;
+  if (!(await requireSession(req, res))) return;
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -402,8 +403,14 @@ module.exports = async function handler(req, res) {
       await store.deleteFile('private', purged.cv.path, `inbox: delete CV of ${body.type} ${purged.id} (management console)`)
         .catch(err => console.error('Deleting CV file failed:', err.message));
     }
+    // Earlier commits still hold the record (and CV); replace the history with the current files.
+    let historyErased;
+    if (purged) {
+      historyErased = await store.squashHistory('private', `inbox: snapshot after deleting ${body.type} ${purged.id} (management console)`)
+        .then(() => true, err => { console.error('Replacing private history failed:', err.message); return false; });
+    }
     console.log('Console change:', summary);
-    return res.status(200).json({ ok: true, items });
+    return res.status(200).json({ ok: true, items, ...(historyErased === false ? { historyErased } : {}) });
   } catch (err) {
     if (err instanceof InputError) return res.status(err.status).json({ ok: false, error: err.message, ...(err.field ? { field: err.field } : {}) });
     console.error('Console update failed:', err.message);

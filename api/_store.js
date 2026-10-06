@@ -184,7 +184,7 @@ async function writeRaw(cfg, file, buffer, sha, message) {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // Deletes a file; resolves false when it does not exist. Git history still holds
-// earlier versions of a deleted file, so this removes it from the working tree only.
+// earlier versions of a deleted file until squashHistory() replaces it.
 async function deleteRaw(cfg, file, message) {
   if (cfg.mode === 'local') {
     try {
@@ -256,8 +256,51 @@ async function readFile(storeName, file) {
   return hit ? hit.buffer : null;
 }
 
+// Replaces the private repository's history with one commit holding its
+// current files, so records and CVs deleted from the console can no longer be
+// recovered from earlier commits. Resolves true when the history is a single
+// snapshot afterwards (also when it already was), false for local storage,
+// which keeps no history.
+//
+// A write that lands between the final ref check and the force-update would be
+// dropped from the repository (the visitor's email copy still exists); the
+// window is a few milliseconds, and the ref is re-checked before every attempt.
+// GitHub may keep unreachable commits readable by their exact id until it
+// garbage-collects them; GitHub Support can purge them sooner.
+async function squashHistory(storeName, message) {
+  const cfg = requireStore(storeName);
+  if (cfg.name !== 'private') throw new Error('Only the private store has its history replaced');
+  if (cfg.mode === 'local') return false;
+  await assertPrivateRepo(cfg);
+  const base = `${API}/repos/${cfg.repo}/git`;
+  const refUrl = `${base}/refs/heads/${encodeURIComponent(cfg.branch)}`;
+  const getJson = async (url, what) => {
+    const res = await ghRequest(cfg, 'GET', url);
+    if (!res.ok) throw await ghError(res, what);
+    return res.json();
+  };
+  const headSha = async () => (await getJson(`${base}/ref/heads/${encodeURIComponent(cfg.branch)}`, 'branch lookup')).object.sha;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const head = await headSha();
+    const commit = await getJson(`${base}/commits/${head}`, 'commit lookup');
+    if (!commit.parents || commit.parents.length === 0) return true; // already one snapshot
+    const created = await ghRequest(cfg, 'POST', `${base}/commits`, { body: { message, tree: commit.tree.sha, parents: [] } });
+    if (!created.ok) throw await ghError(created, 'snapshot commit');
+    const snapshot = (await created.json()).sha;
+    // Another write since we read the branch: start again from the new head.
+    if ((await headSha()) !== head) {
+      await sleep(RETRY_BASE_MS * attempt * (1 + Math.random()));
+      continue;
+    }
+    const moved = await ghRequest(cfg, 'PATCH', refUrl, { body: { sha: snapshot, force: true } });
+    if (!moved.ok) throw await ghError(moved, 'history replacement');
+    return true;
+  }
+  throw new Error('The private repository changed too often while replacing its history; please try again');
+}
+
 function newId() {
   return `${Date.now().toString(36)}-${require('crypto').randomBytes(4).toString('hex')}`;
 }
 
-module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, deleteFile, readFile, newId };
+module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, deleteFile, readFile, squashHistory, newId };

@@ -3,7 +3,7 @@
 //   GET     200 when the caller has a valid session, otherwise 404
 //   POST    { id, key } — checks the admin ID (ADMIN_USER) and password
 //           (ADMIN_SECRET) and starts a session; 401 when either is wrong
-//   DELETE  signs out
+//   DELETE  signs out: clears the cookie and revokes the session for every copy of it
 //
 // Every method answers 404 while ADMIN_SECRET is unset (console switched off).
 
@@ -24,14 +24,15 @@ module.exports = async function handler(req, res) {
   if (!secret()) return notFound(res); // console switched off
 
   if (req.method === 'GET') {
-    return hasSession(req) ? res.status(200).json({ ok: true }) : notFound(res);
+    return (await hasSession(req)) ? res.status(200).json({ ok: true }) : notFound(res);
   }
   if (req.method !== 'POST' && req.method !== 'DELETE') return notFound(res);
   if (!allowedOrigin(req)) return notFound(res);
 
   if (req.method === 'DELETE') {
-    endSession(res);
-    return res.status(200).json({ ok: true });
+    // revoked: whether the session was revoked server-side (see endSession).
+    const revoked = await endSession(req, res);
+    return res.status(200).json({ ok: true, revoked });
   }
 
   const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';

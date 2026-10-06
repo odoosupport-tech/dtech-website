@@ -14,7 +14,7 @@ const { allowedOrigin, createRateLimiter } = require('../_http');
 const overLimit = createRateLimiter();
 
 module.exports = async function handler(req, res) {
-  if (!requireSession(req, res)) return;
+  if (!(await requireSession(req, res))) return;
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });

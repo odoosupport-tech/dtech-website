@@ -11,11 +11,19 @@
 // The session is a signed, expiring token in an HttpOnly, Secure,
 // SameSite=Strict cookie scoped to /api/admin, so page scripts never see it.
 // Requests without a session get a plain 404 so the data endpoints look absent.
+//
+// Each session carries a random id. Signing out records that id in the private
+// store (REVOKED_FILE), so a copied cookie stops working too, not just the one
+// the browser deletes. Other instances see the revocation within REVOKED_CACHE_MS.
 
 const crypto = require('crypto');
+const store = require('./_store');
 
 const COOKIE = 'dt_console';
-const SESSION_MS = 8 * 60 * 60 * 1000;
+const SESSION_MS = 4 * 60 * 60 * 1000;
+const REVOKED_FILE = 'revoked-sessions.json';
+const REVOKED_CACHE_MS = 30 * 1000;
+const SESSION_RE = /^(\d{13,16})\.([A-Za-z0-9_-]{24})\.([A-Za-z0-9_-]{43})$/;
 
 function secret() {
   const s = process.env.ADMIN_SECRET || '';
@@ -62,12 +70,49 @@ function readCookie(req, name) {
   return '';
 }
 
-function hasSession(req) {
+// { expires, sid } for a correctly signed, unexpired cookie, else null.
+function readSession(req) {
   const s = secret();
-  if (!s) return false;
-  const [expires, mac] = readCookie(req, COOKIE).split('.');
-  if (!expires || !mac || !/^\d+$/.test(expires) || Number(expires) < Date.now()) return false;
-  return safeEqual(mac, sign(expires, s));
+  if (!s) return null;
+  const m = SESSION_RE.exec(readCookie(req, COOKIE));
+  if (!m || Number(m[1]) < Date.now()) return null;
+  if (!safeEqual(m[3], sign(`${m[1]}.${m[2]}`, s))) return null;
+  return { expires: Number(m[1]), sid: m[2] };
+}
+
+// Revoked session ids, re-read from the private store at most every
+// REVOKED_CACHE_MS per instance. Without a private store there is nothing to
+// read (local setups and a console without storage), so nothing is revoked.
+let revokedCache = null; // { at, ids: Set }
+
+function liveRevocations(list) {
+  const now = Date.now();
+  return (Array.isArray(list) ? list : []).filter(r => r && typeof r.sid === 'string' && Number(r.expires) > now);
+}
+
+async function revokedIds() {
+  if (revokedCache && Date.now() - revokedCache.at < REVOKED_CACHE_MS) return revokedCache.ids;
+  if (!store.isConfigured('private')) return new Set();
+  try {
+    const ids = new Set(liveRevocations(await store.readJson('private', REVOKED_FILE, [])).map(r => r.sid));
+    revokedCache = { at: Date.now(), ids };
+    return ids;
+  } catch (err) {
+    // A storage hiccup keeps the last known list; with none, fail closed.
+    console.error('Reading revoked console sessions failed:', err.message);
+    if (revokedCache) return revokedCache.ids;
+    throw err;
+  }
+}
+
+async function hasSession(req) {
+  const session = readSession(req);
+  if (!session) return false;
+  try {
+    return !(await revokedIds()).has(session.sid);
+  } catch (err) {
+    return false;
+  }
 }
 
 function cookie(value, maxAgeSeconds) {
@@ -75,12 +120,29 @@ function cookie(value, maxAgeSeconds) {
 }
 
 function startSession(res) {
-  const expires = String(Date.now() + SESSION_MS);
-  res.setHeader('Set-Cookie', cookie(`${expires}.${sign(expires, secret())}`, SESSION_MS / 1000));
+  const payload = `${Date.now() + SESSION_MS}.${crypto.randomBytes(18).toString('base64url')}`;
+  res.setHeader('Set-Cookie', cookie(`${payload}.${sign(payload, secret())}`, SESSION_MS / 1000));
 }
 
-function endSession(res) {
+// Clears the browser's cookie and, for a genuine session, revokes its id for
+// every copy of the cookie. Resolves true when the revocation was stored; false
+// when there was no valid session, no private store, or the write failed (the
+// cookie is cleared either way, and a copy then lapses at its expiry).
+async function endSession(req, res) {
   res.setHeader('Set-Cookie', cookie('', 0));
+  const session = readSession(req);
+  if (!session || !store.isConfigured('private')) return false;
+  try {
+    const next = await store.updateJson('private', REVOKED_FILE, [], list => {
+      const live = liveRevocations(list).filter(r => r.sid !== session.sid);
+      return [...live, { sid: session.sid, expires: session.expires }];
+    }, 'console: sign-out (session revoked)');
+    revokedCache = { at: Date.now(), ids: new Set(next.map(r => r.sid)) };
+    return true;
+  } catch (err) {
+    console.error('Revoking the console session failed:', err.message);
+    return false;
+  }
 }
 
 function notFound(res) {
@@ -88,11 +150,11 @@ function notFound(res) {
   return res.status(404).json({ ok: false, error: 'Not found' });
 }
 
-// Call at the top of every protected handler: `if (!requireSession(req, res)) return;`
-function requireSession(req, res) {
+// Call at the top of every protected handler: `if (!(await requireSession(req, res))) return;`
+async function requireSession(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
-  if (hasSession(req)) return true;
+  if (await hasSession(req)) return true;
   notFound(res);
   return false;
 }

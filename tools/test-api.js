@@ -451,7 +451,8 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const c = r.headers['set-cookie'];
       assert(/HttpOnly/.test(c) && /Secure/.test(c) && /SameSite=Strict/.test(c) && /Path=\/api\/admin/.test(c), c);
       cookie = c.split(';')[0];
-      assert.match(cookie, /^dt_console=\d+\.[A-Za-z0-9_-]+$/);
+      assert.match(cookie, /^dt_console=\d{13}\.[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{43}$/);
+      assert(/Max-Age=14400\b/.test(c), `session should last 4 hours: ${c}`);
     }],
     ['tampered cookie → 404', async () => eq((await call(data, req('GET', null, { headers: { cookie: cookie.replace(/.$/, c => c === 'A' ? 'B' : 'A') } }))).statusCode, 404)],
     ['data with session → requirements, applicants, leads, jobs, caseStudies', async () => {
@@ -489,6 +490,54 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(r.statusCode, 200);
       assert.match(r.headers['content-type'], /javascript/);
       new Function(r.body);
+    }],
+    ['sign-out revokes the session: a copied cookie stops working, other sessions continue', async () => {
+      const signIn = async () => (await call(auth, req('POST', { id: 'admin', key: process.env.ADMIN_SECRET }))).headers['set-cookie'].split(';')[0];
+      const a = await signIn(), b = await signIn();
+      assert.notStrictEqual(a, b, 'each sign-in needs its own session id');
+      const out = await call(auth, req('DELETE', null, { headers: { cookie: a } }));
+      eq(out.statusCode, 200); eq(out.body.revoked, true);
+      assert(/Max-Age=0\b/.test(out.headers['set-cookie']), 'cookie not cleared');
+      eq((await call(data, req('GET', null, { headers: { cookie: a } }))).statusCode, 404, 'copied cookie still works after sign-out');
+      eq((await call(auth, req('GET', null, { headers: { cookie: a } }))).statusCode, 404);
+      eq((await call(data, req('GET', null, { headers: { cookie: b } }))).statusCode, 200, 'other session was signed out');
+      const list = JSON.parse(fs.readFileSync('.portal-data/revoked-sessions.json', 'utf8'));
+      assert(list.some(x => x.sid === a.split('.')[1]), 'revocation not stored');
+      assert(!JSON.stringify(list).includes(a.split('.')[2]), 'signature must not be stored');
+    }],
+    ['sign-out without a valid session clears the cookie, stores nothing', async () => {
+      const before = fs.readFileSync('.portal-data/revoked-sessions.json', 'utf8');
+      const r = await call(auth, req('DELETE', null, { headers: { cookie: 'dt_console=1.' + 'x'.repeat(24) + '.' + 'y'.repeat(43) } }));
+      eq(r.statusCode, 200); eq(r.body.revoked, false);
+      eq(fs.readFileSync('.portal-data/revoked-sessions.json', 'utf8'), before);
+    }],
+    ['old cookie format without a session id → 404', async () => {
+      const expires = String(Date.now() + 3600 * 1000);
+      const key = crypto.createHmac('sha256', process.env.ADMIN_SECRET).update('dtech-console-session-v1').digest();
+      const legacy = `dt_console=${expires}.${crypto.createHmac('sha256', key).update(expires).digest('base64url')}`;
+      eq((await call(data, req('GET', null, { headers: { cookie: legacy } }))).statusCode, 404);
+    }],
+    ['revocations from another instance apply within 30 s; expired ones are pruned', async () => {
+      const c = (await call(auth, req('POST', { id: 'admin', key: process.env.ADMIN_SECRET }))).headers['set-cookie'].split(';')[0];
+      const file = '.portal-data/revoked-sessions.json';
+      const saved = fs.readFileSync(file, 'utf8');
+      const realNow = Date.now;
+      let now = realNow();
+      Date.now = () => now;
+      try {
+        const list = JSON.parse(saved);
+        list.push({ sid: c.split('.')[1], expires: now + 3600e3 }, { sid: 'z'.repeat(24), expires: now - 1 });
+        fs.writeFileSync(file, JSON.stringify(list)); // as another instance would
+        now += 31 * 1000;
+        eq((await call(data, req('GET', null, { headers: { cookie: c } }))).statusCode, 404, 'revocation by another instance ignored');
+        const d = (await call(auth, req('POST', { id: 'admin', key: process.env.ADMIN_SECRET }))).headers['set-cookie'].split(';')[0];
+        eq((await call(auth, req('DELETE', null, { headers: { cookie: d } }))).body.revoked, true);
+        assert(!JSON.parse(fs.readFileSync(file, 'utf8')).some(x => x.sid === 'z'.repeat(24)), 'expired revocation kept');
+        fs.writeFileSync(file, '{ not json');
+        now += 31 * 1000;
+        eq((await call(data, req('GET', null, { headers: { cookie: d } }))).statusCode, 404, 'unreadable list must keep the last known revocations');
+        eq((await call(data, req('GET', null, { headers: { cookie } }))).statusCode, 200, 'unreadable list with a cached copy should not sign everyone out');
+      } finally { Date.now = realNow; fs.writeFileSync(file, saved); }
     }],
   ]);
 
@@ -825,6 +874,81 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
   ];
 
+  // A tiny in-memory GitHub repository: contents, branch ref and commits.
+  async function withFakeRepo(fn, { repo = 'test-owner/squash-data', isPrivate = true, files = {}, parents = 1, patchStatus = 200, moveHeadOnce = false } = {}) {
+    const saved = { fetch: globalThis.fetch, repo: process.env.GITHUB_DATA_REPO, token: process.env.GITHUB_DATA_TOKEN };
+    const base = `https://api.github.com/repos/${repo}`;
+    const state = { head: 'c0', commits: { c0: { tree: 't0', parents: parents ? [{ sha: 'older' }] : [] } }, files: { ...files }, posts: [], patches: [], n: 0, headReads: 0 };
+    const commit = () => { const sha = `c${++state.n}`; state.commits[sha] = { tree: `t${state.n}`, parents: [{ sha: state.head }] }; state.head = sha; };
+    const json = (status, body) => ({ ok: status < 300, status, json: async () => body, text: async () => JSON.stringify(body) });
+    Object.assign(process.env, { GITHUB_DATA_REPO: repo, GITHUB_DATA_TOKEN: 'test-token' });
+    globalThis.fetch = async (url, opts) => {
+      url = String(url);
+      const body = opts.body ? JSON.parse(opts.body) : null;
+      if (url === base) return json(200, { private: isPrivate });
+      if (url === `${base}/git/ref/heads/main`) {
+        if (moveHeadOnce && ++state.headReads === 2) commit(); // a visitor's write lands mid-squash
+        return json(200, { object: { sha: state.head } });
+      }
+      let m = /\/git\/commits\/([^/?]+)$/.exec(url);
+      if (m && opts.method === 'GET') return json(200, { sha: m[1], tree: { sha: state.commits[m[1]].tree }, parents: state.commits[m[1]].parents });
+      if (url === `${base}/git/commits` && opts.method === 'POST') { state.posts.push(body); const sha = `snap${state.posts.length}`; state.commits[sha] = { tree: body.tree, parents: body.parents }; return json(201, { sha }); }
+      if (url === `${base}/git/refs/heads/main` && opts.method === 'PATCH') { state.patches.push(body); if (patchStatus >= 300) return json(patchStatus, { message: 'protected branch' }); state.head = body.sha; return json(200, {}); }
+      m = new RegExp(`^${base}/contents/([^?]+)`).exec(url);
+      assert(m, `unexpected url ${url}`);
+      const file = m[1];
+      if (opts.method === 'GET') return file in state.files ? json(200, { sha: `s-${file}`, encoding: 'base64', content: Buffer.from(state.files[file]).toString('base64') }) : json(404, {});
+      if (opts.method === 'PUT') { state.files[file] = Buffer.from(body.content, 'base64').toString('utf8'); commit(); return json(201, {}); }
+      if (opts.method === 'DELETE') { delete state.files[file]; commit(); return json(200, {}); }
+      throw new Error(`unexpected ${opts.method} ${url}`);
+    };
+    try { return await fn(state); } finally {
+      globalThis.fetch = saved.fetch;
+      if (saved.repo === undefined) delete process.env.GITHUB_DATA_REPO; else process.env.GITHUB_DATA_REPO = saved.repo;
+      if (saved.token === undefined) delete process.env.GITHUB_DATA_TOKEN; else process.env.GITHUB_DATA_TOKEN = saved.token;
+    }
+  }
+  storeChecks.push(
+    ['squashHistory: branch replaced by one parentless commit of the current tree', () => withFakeRepo(async (state) => {
+      eq(await store.squashHistory('private', 'snapshot'), true);
+      eq(state.posts.length, 1);
+      assert.deepStrictEqual(state.posts[0], { message: 'snapshot', tree: 't0', parents: [] });
+      assert.deepStrictEqual(state.patches, [{ sha: 'snap1', force: true }]);
+      eq(state.head, 'snap1');
+    })],
+    ['squashHistory: history already one snapshot → nothing rewritten', () => withFakeRepo(async (state) => {
+      eq(await store.squashHistory('private', 'snapshot'), true);
+      eq(state.posts.length, 0); eq(state.patches.length, 0);
+    }, { repo: 'test-owner/squash-single', parents: 0 })],
+    ['squashHistory: a write lands meanwhile → restarts from the new head, keeps it', () => withFakeRepo(async (state) => {
+      eq(await store.squashHistory('private', 'snapshot'), true);
+      eq(state.posts.length, 2, 'should retry once');
+      eq(state.posts[1].tree, 't1', 'second snapshot must include the new write');
+      assert.deepStrictEqual(state.patches, [{ sha: 'snap2', force: true }]);
+    }, { repo: 'test-owner/squash-race', moveHeadOnce: true })],
+    ['squashHistory: public repository → refused before touching git', () => withFakeRepo(async (state) => {
+      await assert.rejects(store.squashHistory('private', 'snapshot'), /not private; refusing/);
+      eq(state.posts.length, 0); eq(state.patches.length, 0);
+    }, { repo: 'test-owner/squash-public', isPrivate: false })],
+    ['squashHistory: only the private store; local storage has no history', async () => {
+      await assert.rejects(store.squashHistory('site', 'snapshot'), /Only the private store/);
+      eq(await store.squashHistory('private', 'snapshot'), false);
+    }],
+    ['console purge on GitHub storage → record gone and history replaced', () => withFakeRepo(async (state) => {
+      const r = await post({ type: 'requirement', action: 'purge', id: 'req-gone' });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(r.body.historyErased, undefined);
+      assert(!JSON.parse(state.files['requirements.json']).some(x => x.id === 'req-gone'), 'record kept');
+      eq(state.posts.length, 1); eq(state.posts[0].parents.length, 0);
+      eq(state.head, 'snap1'); assert.match(state.posts[0].message, /snapshot after deleting requirement req-gone/);
+    }, { repo: 'test-owner/purge-data', files: { 'requirements.json': JSON.stringify([{ id: 'req-gone', name: 'X' }, { id: 'req-kept', name: 'Y' }]) } })],
+    ['console purge when history replacement fails → deleted, historyErased: false', () => withFakeRepo(async (state) => {
+      const r = await post({ type: 'requirement', action: 'purge', id: 'req-gone' });
+      eq(r.statusCode, 200, JSON.stringify(r.body)); eq(r.body.historyErased, false);
+      assert(!JSON.parse(state.files['requirements.json']).some(x => x.id === 'req-gone'), 'record kept');
+    }, { repo: 'test-owner/purge-protected', patchStatus: 422, files: { 'requirements.json': JSON.stringify([{ id: 'req-gone', name: 'X' }]) } })],
+  );
+
   console.error = errLog;
 
   // 7. Build & contracts
@@ -966,6 +1090,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(inboxFile('applicants.json').length, count - 1);
       assert(!inboxFile('applicants.json').some(a => a.id === rec.id), 'record kept');
       assert(!fs.existsSync(path.join('.portal-data', rec.cv.path)), 'CV file kept');
+      eq(r.body.historyErased, undefined, 'local storage has no history to erase');
     }],
     ['purge requirement and lead → record removed', async () => {
       const req1 = inboxFile('requirements.json')[0];
