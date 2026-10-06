@@ -64,13 +64,14 @@ function enquiryEmail({ enquiry, ip }) {
   ].map(([k, v]) => `<tr><td style="padding:6px 12px;color:#64748b">${esc(k)}</td><td style="padding:6px 12px"><strong>${esc(v || '—')}</strong></td></tr>`).join('');
   return `<p style="font-family:Arial,sans-serif">New enquiry from the website contact form. Reply to this email to answer the visitor directly.</p>
   <table style="font-family:Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows}</table>
-  <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;white-space:pre-wrap;margin-top:16px;padding:14px 16px;background:#f8fafc;border-radius:8px">${esc(enquiry.message)}</div>`;
+  <p style="font-family:Arial,sans-serif;font-size:14px;font-weight:bold;margin:18px 0 6px">Requirement / description:</p>
+  <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;white-space:pre-wrap;padding:14px 16px;background:#f8fafc;border-radius:8px">${esc(enquiry.message)}</div>`;
 }
 
 function enquiryText({ enquiry, ip }) {
   return [
     `Name: ${enquiry.name}`, `Email: ${enquiry.email}`, `Phone: ${enquiry.phone || '—'}`,
-    `Company: ${enquiry.company || '—'}`, `Subject: ${enquiry.topic}`, `IP: ${ip}`, '', enquiry.message,
+    `Company: ${enquiry.company || '—'}`, `Subject: ${enquiry.topic}`, `IP: ${ip}`, '', 'Requirement / description:', enquiry.message,
   ].join('\n');
 }
 

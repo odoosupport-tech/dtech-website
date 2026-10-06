@@ -202,6 +202,8 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(m.to, 'sales@test.invalid, rahul.sharma@dtechindia.com'); eq(m.replyTo, 'test@enterprise.com');
       assert.match(m.subject, /AI Forklift Pedestrian Safety \(N2024G-5\) — Test Client/);
       assert(m.html.includes('Test Industries') && m.text.includes('+91 99999 88888'));
+      assert(m.html.includes('Requirement / description:') && m.html.includes(validEnquiry.message), 'description heading or text missing from the HTML mail');
+      assert(m.text.includes(`Requirement / description:\n${validEnquiry.message}`), 'description heading or text missing from the text mail');
       const filed = JSON.parse(fs.readFileSync('.portal-data/requirements.json', 'utf8'));
       eq(filed[0].id, r.body.id);
     }],
