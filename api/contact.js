@@ -35,6 +35,18 @@ const TOPICS = {
 };
 const GENERAL_TOPIC = 'General enquiry';
 
+// Contact enquiries also go straight to Rahul Sharma (asked for 2026-10-06), on
+// top of SALES_EMAIL, so the details arrive without signing in to the console.
+const ENQUIRY_ALSO_TO = ['rahul.sharma@dtechindia.com'];
+
+function enquiryRecipients() {
+  const seen = new Set();
+  return [...String(salesEmail()).split(','), ...ENQUIRY_ALSO_TO]
+    .map(a => a.trim()).filter(Boolean)
+    .filter(a => !seen.has(a.toLowerCase()) && seen.add(a.toLowerCase()))
+    .join(', ');
+}
+
 function topicFor(subject) {
   const key = clean(subject, 40);
   return Object.prototype.hasOwnProperty.call(TOPICS, key) ? TOPICS[key] : GENERAL_TOPIC;
@@ -153,7 +165,7 @@ module.exports = async function handler(req, res) {
   const record = { id: store.newId(), ...enquiry, date: new Date().toISOString() };
   const [mailed, filed, confirmed] = await Promise.allSettled([
     sendMail({
-      to: salesEmail(),
+      to: enquiryRecipients(),
       replyTo: enquiry.email,
       subject: `Website enquiry: ${enquiry.topic || 'General'} — ${enquiry.name}`,
       html: enquiryEmail({ enquiry, ip }),

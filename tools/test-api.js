@@ -199,7 +199,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(contact, req('POST', validEnquiry));
       eq(r.statusCode, 200); eq(r.body.ok, true);
       const m = sent[before]; assert(m, 'no mail');
-      eq(m.to, 'sales@test.invalid'); eq(m.replyTo, 'test@enterprise.com');
+      eq(m.to, 'sales@test.invalid, rahul.sharma@dtechindia.com'); eq(m.replyTo, 'test@enterprise.com');
       assert.match(m.subject, /AI Forklift Pedestrian Safety \(N2024G-5\) — Test Client/);
       assert(m.html.includes('Test Industries') && m.text.includes('+91 99999 88888'));
       const filed = JSON.parse(fs.readFileSync('.portal-data/requirements.json', 'utf8'));
@@ -216,7 +216,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
       assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('support@dtechindia.com') && c.text.includes('+91 99989 03042') && c.text.includes('Bharuch'), 'contact details');
-      eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
+      eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid, rahul.sharma@dtechindia.com').length, 1, 'sales notified once');
     }],
     ['auto-responder ignores markup planted in the name', async () => {
       const before = sent.length;
@@ -238,7 +238,16 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       for (let i = 0; i < 4; i++) eq((await call(contact, req('POST', { ...validEnquiry, email: target }, { headers: { 'x-real-ip': `10.9.0.${i}` } }))).statusCode, 200);
       const mails = sent.slice(before);
       eq(mails.filter(m => m.to === target).length, 3, 'visitor confirmations');
-      eq(mails.filter(m => m.to === 'sales@test.invalid').length, 4, 'sales notices');
+      eq(mails.filter(m => m.to === 'sales@test.invalid, rahul.sharma@dtechindia.com').length, 4, 'sales notices');
+    }],
+    ['enquiry copy to Rahul is not duplicated when SALES_EMAIL already lists him', async () => {
+      const saved = process.env.SALES_EMAIL;
+      process.env.SALES_EMAIL = 'sales@test.invalid, Rahul.Sharma@dtechindia.com';
+      try {
+        const before = sent.length;
+        eq((await call(contact, req('POST', validEnquiry, { headers: { 'x-real-ip': '10.9.1.1' } }))).statusCode, 200);
+        eq(sent[before].to, 'sales@test.invalid, Rahul.Sharma@dtechindia.com');
+      } finally { process.env.SALES_EMAIL = saved; }
     }],
   ]);
 
@@ -449,7 +458,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 8); // area 2: the valid enquiry, the auto-responder, markup, free-text topic and 4 flood posts
+      eq(r.body.requirements.length, 9); // area 2: the valid enquiry, the auto-responder, markup, free-text topic, 4 flood posts and the Rahul-copy check
       eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3
       eq(r.body.leads.length, 8); // PDF and summary requests from area 4
     }],
