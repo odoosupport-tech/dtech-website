@@ -204,7 +204,7 @@ window.addEventListener('hashchange', alignHashTarget);
   const SALES_TEL = '+919558809163';
   const SALES_LABEL = '+91 95588 09163';
   // The WhatsApp line published on the contact page.
-  const WHATSAPP = 'https://wa.me/919998026089?text=Hello%20D-TECH%20SIPL,%20I%20would%20like%20to%20request%20an%20engineering%20consultation.';
+  const WHATSAPP = 'https://wa.me/919998903042?text=Hello%20D-TECH%20SIPL,%20I%20would%20like%20to%20request%20an%20engineering%20consultation.';
   const CSS = `
 .contact-dock{display:none}
 @media (max-width:767px){
