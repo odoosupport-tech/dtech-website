@@ -30,7 +30,7 @@ const TOPICS = {
   kiosk: 'AT-GTS Safety & Group Training Kiosk',
   cctv: 'CCTV Surveillance & AI Vision Analytics',
   gps: 'GPS Vehicle Tracking & Fleet Telematics',
-  messaging: 'WhatsApp, SMS, Instagram & Chatbot Messaging',
+  messaging: 'WhatsApp, SMS, Instagram & Chatbot Marketing',
   other: 'Other Custom Systems Integration',
 };
 const GENERAL_TOPIC = 'General enquiry';
