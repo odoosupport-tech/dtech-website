@@ -31,6 +31,13 @@ const TOPICS = {
   cctv: 'CCTV Surveillance & AI Vision Analytics',
   gps: 'GPS Vehicle Tracking & Fleet Telematics',
   messaging: 'WhatsApp, SMS, Instagram & Chatbot Marketing',
+  amc: 'AMC / CAMC Maintenance Services',
+  fms: 'FMS / Managed IT Services',
+  sap: 'SAP Implementation, Support & Resource Augmentation',
+  software: 'Custom Software, ERP & CRM',
+  'ai-agents': 'AI Agents & Document Automation',
+  robotics: 'Robotics & Material Handling',
+  assessment: 'Integrated Technology / Site Assessment',
   other: 'Other Custom Systems Integration',
 };
 const GENERAL_TOPIC = 'General enquiry';
@@ -82,6 +89,15 @@ function safeGreetingName(name) {
   return words.slice(0, 3).join(' ');
 }
 
+// Contact numbers in the visitor's thank-you email (office list, 2026-10-06; same as the contact page).
+const FOOTER_PHONES = [
+  ['Trading Sales', '+91 95588 09163'],
+  ['AMC Sales', '+91 91574 20663'],
+  ['Enterprise Sales', '+91 99989 01246'],
+  ['Customer care', '+91 77788 27794'],
+  ['Office', '+91 2642 264596'],
+];
+
 const CONFIRMATION_SUBJECT = 'Thank you for contacting D-TECH \u2014 Requirement Received';
 
 function customerConfirmationEmail({ enquiry }) {
@@ -103,8 +119,8 @@ function customerConfirmationEmail({ enquiry }) {
       </td></tr>
       <tr><td style="padding:18px 28px;background:#f8fafc;font-size:13px;color:#475569;line-height:1.6">
         <strong style="color:#14181c">D-TECH Solution Integrators Private Limited</strong><br>
-        Sales: <a href="tel:+919558809163" style="color:#0075ae">+91 95588 09163</a> · <a href="mailto:sales@dtechindia.com" style="color:#0075ae">sales@dtechindia.com</a><br>
-        Customer care: <a href="tel:+919998903042" style="color:#0075ae">+91 99989 03042</a> · <a href="mailto:support@dtechindia.com" style="color:#0075ae">support@dtechindia.com</a><br>
+        ${FOOTER_PHONES.map(([label, number]) => `${label}: <a href="tel:${number.replace(/[^+\d]/g, '')}" style="color:#0075ae">${number}</a><br>`).join('\n        ')}
+        Email: <a href="mailto:sales@dtechindia.com" style="color:#0075ae">sales@dtechindia.com</a> · <a href="mailto:support@dtechindia.com" style="color:#0075ae">support@dtechindia.com</a><br>
         Bharuch Corporate HQ, Gujarat
       </td></tr>
     </table>
@@ -118,7 +134,8 @@ function customerConfirmationText({ enquiry }) {
     `Your requirement regarding ${enquiry.topic || 'your enquiry'} has been recorded and assigned to our solutions engineering team.`, '',
     'A representative will review the details and get in touch with you within 1 business day.', '',
     'D-TECH Solution Integrators Private Limited',
-    'Sales: +91 95588 09163 · sales@dtechindia.com', 'Customer care: +91 99989 03042 · support@dtechindia.com', 'Bharuch Corporate HQ, Gujarat',
+    ...FOOTER_PHONES.map(([label, number]) => `${label}: ${number}`),
+    'Email: sales@dtechindia.com · support@dtechindia.com', 'Bharuch Corporate HQ, Gujarat',
   ].join('\n');
 }
 

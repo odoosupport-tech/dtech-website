@@ -217,7 +217,11 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
-      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('support@dtechindia.com') && c.text.includes('+91 99989 03042') && c.text.includes('Bharuch'), 'contact details');
+      for (const line of ['Trading Sales: +91 95588 09163', 'AMC Sales: +91 91574 20663', 'Enterprise Sales: +91 99989 01246', 'Customer care: +91 77788 27794', 'Office: +91 2642 264596', 'sales@dtechindia.com', 'support@dtechindia.com', 'Bharuch']) {
+        assert(c.text.includes(line), `contact details: ${line}`);
+      }
+      assert(c.html.includes('href="tel:+919157420663"') && c.html.includes('href="tel:+917778827794"') && c.html.includes('href="tel:+912642264596"'), 'tap-to-call links');
+      assert(!/director@/i.test(c.html + c.text), 'director address belongs on case-study mails only');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid, rahul.sharma@dtechindia.com').length, 1, 'sales notified once');
     }],
     ['auto-responder ignores markup planted in the name', async () => {
@@ -241,6 +245,17 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const mails = sent.slice(before);
       eq(mails.filter(m => m.to === target).length, 3, 'visitor confirmations');
       eq(mails.filter(m => m.to === 'sales@test.invalid, rahul.sharma@dtechindia.com').length, 4, 'sales notices');
+    }],
+    ['every contact-page subject has a fixed topic label (new service lines included)', async () => {
+      const page = fs.readFileSync(path.join(REPO, 'contact.html'), 'utf8');
+      const values = [...page.matchAll(/<option value="([a-z-]+)">([^<]+)<\/option>/g)];
+      for (const v of ['amc', 'fms', 'sap', 'software', 'ai-agents', 'robotics', 'assessment']) assert(values.some(m => m[1] === v), `${v} missing from contact.html`);
+      for (const [, value, label] of values) {
+        const before = sent.length;
+        await call(contact, req('POST', { ...validEnquiry, email: `topic-${value}@example.com`, subject: value }, { headers: { 'x-real-ip': `10.8.${values.length}.${before % 250}` } }));
+        const notice = sent.slice(before).find(m => m.to.includes('rahul.sharma@dtechindia.com'));
+        eq(notice.subject, `Website enquiry: ${label.replace(/&amp;/g, '&')} — Test Client`, value);
+      }
     }],
     ['enquiry copy to Rahul is not duplicated when SALES_EMAIL already lists him', async () => {
       const saved = process.env.SALES_EMAIL;
@@ -461,7 +476,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 9); // area 2: the valid enquiry, the auto-responder, markup, free-text topic, 4 flood posts and the Rahul-copy check
+      eq(r.body.requirements.length, 25); // area 2: the valid enquiry, the auto-responder, markup, free-text topic, 4 flood posts, one per subject (16) and the Rahul-copy check
       eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3
       eq(r.body.leads.length, 8); // PDF and summary requests from area 4
     }],
