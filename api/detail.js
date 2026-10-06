@@ -154,6 +154,35 @@ function townOf(location) {
   return last || String(location || '').trim();
 }
 
+// Search results show about 65 characters of a title; longer ones are cut off.
+// Titles that fit stay as they are; longer ones drop the client's legal suffix,
+// then shorten the brand, before falling back to a short generic form.
+const TITLE_MAX = 65;
+function shortClient(name) {
+  return String(name || '').replace(/[\s,]+(?:pvt\.?|private)\s*(?:ltd\.?|limited)\.?$/i, '').replace(/[\s,]+(?:limited|ltd\.?)$/i, '').trim();
+}
+function fitTitle(options) {
+  return options.find(t => t.length <= TITLE_MAX) || options[options.length - 1];
+}
+function caseTitle(c) {
+  const tag = c.arch_tag || 'Case study';
+  const client = shortClient(c.client) || c.client;
+  return fitTitle([
+    `${c.client}: ${tag} | D-TECH SIPL`,
+    `${client}: ${tag} | D-TECH SIPL`,
+    `${client}: ${tag} | D-TECH`,
+    `${client}: Case Study | D-TECH`,
+  ]);
+}
+function jobTitle(j) {
+  const town = townOf(j.location);
+  return fitTitle([
+    `${j.title}, ${j.location} | Careers | D-TECH SIPL`,
+    `${j.title}, ${town} | Careers | D-TECH SIPL`,
+    `${j.title}, ${town} | D-TECH Careers`,
+  ]);
+}
+
 function longDate(iso) {
   const d = new Date(`${iso}T00:00:00Z`);
   return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -273,7 +302,7 @@ function casePage(c, all) {
     </section>
   </main>`;
   return render({
-    title: `${c.client}: ${c.arch_tag || 'Case study'} | D-TECH SIPL`,
+    title: caseTitle(c),
     description: snippet(c.summary),
     url,
     page: 'case-study',
@@ -388,7 +417,7 @@ function jobPage(j, all) {
     <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Ready to apply?</h2><p>Send your CV for ${esc(j.title)} and our recruitment team will be in touch. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="${apply}">Apply for this role <span>&#8599;</span></a></div></section>
   </main>`;
   return render({
-    title: `${j.title}, ${j.location} | Careers | D-TECH SIPL`,
+    title: jobTitle(j),
     description: snippet(`${j.title} at D-TECH, ${j.location}. ${String(j.summary || '').replace(/^[-*•]\s+/gm, '')}`),
     url,
     page: 'job',

@@ -25,7 +25,7 @@ Commit the outputs; Vercel serves them as-is and `tools/` is excluded by `.verce
 
 ## Analytics
 
-`assets/analytics.js` loads Vercel Web Analytics (cookieless, same-origin) on every page except on localhost. Enable it in Vercel → Project → Analytics.
+The site loads no analytics script. Vercel Web Analytics was never switched on, so its loader (removed on 2026-10-06) only produced a 404 on every page. To add page-view counts later, turn on Vercel → Project → Analytics and restore `assets/analytics.js` from git history (commit before its removal), adding it back to every page and to `build:js` in `package.json`.
 
 ## Deploy on Vercel
 
