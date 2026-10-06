@@ -96,6 +96,41 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   const errLog = console.error; const quiet = [];
   console.error = (...a) => quiet.push(a.join(' ')); // handlers log expected failures (e.g. store off)
 
+  await area('0. Request origin & abuse limits', [
+    ['origin checks match scheme, host and port; forwarded host is not trusted', () => {
+      const { allowedOrigin } = api('_http.js');
+      eq(allowedOrigin(req('POST')), true);
+      for (const origin of ['http://dtech.test', 'https://dtech.test:8443', 'null', 'https://dtech.test/path', 'https://user@dtech.test', 'https://evil.test']) {
+        eq(allowedOrigin(req('POST', {}, { headers: { origin, 'x-forwarded-host': 'evil.test' } })), false, origin);
+      }
+      eq(allowedOrigin(req('POST', {}, { headers: { origin: undefined } })), false);
+      eq(allowedOrigin({ headers: { host: 'localhost:8000', origin: 'http://localhost:8000' }, socket: { encrypted: false } }), true);
+      const saved = process.env.ALLOWED_ORIGINS;
+      try {
+        process.env.ALLOWED_ORIGINS = 'https://extra.test/';
+        eq(allowedOrigin(req('POST', {}, { headers: { origin: 'https://extra.test' } })), true);
+      } finally {
+        if (saved === undefined) delete process.env.ALLOWED_ORIGINS; else process.env.ALLOWED_ORIGINS = saved;
+      }
+    }],
+    ['saturating the limiter cannot clear existing limits; expired keys recover', () => {
+      const { createRateLimiter } = api('_http.js');
+      const limited = createRateLimiter();
+      const realNow = Date.now;
+      let now = realNow();
+      Date.now = () => now;
+      try {
+        eq(limited('blocked', 1, 1000), false);
+        for (let i = 0; i < 4999; i++) eq(limited('key' + i, 1, 1000), false);
+        eq(limited('overflow', 1, 1000), true);
+        for (let i = 0; i < 10000; i++) eq(limited('blocked', 1, 1000), true);
+        now += 1000;
+        eq(limited('new-key', 1, 1000), false);
+        eq(limited('blocked', 1, 1000), false);
+      } finally { Date.now = realNow; }
+    }],
+  ]);
+
   // 1. Jobs
   await area('1. Careers & jobs (api/jobs.js)', [
     ['jobs.json is valid JSON with 12 active roles', () => {
@@ -676,16 +711,17 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   async function withFakeGitHub(putResponses, fn, { repo = 'test-owner/test-data', isPrivate = true } = {}) {
     const saved = { fetch: globalThis.fetch, repo: process.env.GITHUB_DATA_REPO, token: process.env.GITHUB_DATA_TOKEN };
     const puts = [];
-    const calls = { visibility: 0 };
+    const calls = { visibility: 0, contents: 0 };
     const base = `https://api.github.com/repos/${repo}`;
     Object.assign(process.env, { GITHUB_DATA_REPO: repo, GITHUB_DATA_TOKEN: 'test-token' });
     globalThis.fetch = async (url, opts) => {
       url = String(url);
       if (url === base && opts.method === 'GET') {
         calls.visibility++;
-        return { ok: true, status: 200, json: async () => ({ full_name: repo, private: isPrivate }), text: async () => '' };
+        return { ok: true, status: 200, json: async () => ({ full_name: repo, private: typeof isPrivate === 'function' ? isPrivate() : isPrivate }), text: async () => '' };
       }
       assert(url.startsWith(`${base}/contents/`), `unexpected url ${url}`);
+      calls.contents++;
       if (opts.method === 'GET') return { ok: false, status: 404, text: async () => '' };
       const [status, text] = putResponses[Math.min(puts.length, putResponses.length - 1)];
       puts.push(status);
@@ -728,6 +764,39 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await store.appendJson('private', 'leads.json', { id: 'b' }, 'm');
       eq(puts.length, 2); eq(calls.visibility, 1);
     }, { repo: 'test-owner/fresh-data' })],
+    ['public data repo → JSON and CV reads refused before fetching content', () => withFakeGitHub([], async (puts, calls) => {
+      await assert.rejects(store.readJson('private', 'leads.json', []), /not private; refusing/);
+      await assert.rejects(store.readFile('private', 'cvs/a.pdf'), /not private; refusing/);
+      eq(calls.contents, 0);
+    }, { repo: 'test-owner/public-read', isPrivate: false })],
+    ['visibility is rechecked after one minute in a warm function', () => withFakeGitHub([], async (puts, calls) => {
+      const realNow = Date.now;
+      let now = realNow();
+      Date.now = () => now;
+      try {
+        await store.readJson('private', 'leads.json', []);
+        await store.readFile('private', 'cvs/a.pdf');
+        eq(calls.visibility, 1);
+        now += 60000;
+        await store.readJson('private', 'leads.json', []);
+        eq(calls.visibility, 2);
+      } finally { Date.now = realNow; }
+    }, { repo: 'test-owner/expiring-visibility' })],
+    ['repository changed to public → reads stop when the visibility cache expires', async () => {
+      let privateRepo = true;
+      await withFakeGitHub([], async (puts, calls) => {
+        const realNow = Date.now;
+        let now = realNow();
+        Date.now = () => now;
+        try {
+          await store.readJson('private', 'leads.json', []);
+          privateRepo = false;
+          now += 60000;
+          await assert.rejects(store.readFile('private', 'cvs/a.pdf'), /not private; refusing/);
+          eq(calls.contents, 1);
+        } finally { Date.now = realNow; }
+      }, { repo: 'test-owner/visibility-changed', isPrivate: () => privateRepo });
+    }],
     ['site store (public by design) → no visibility check', async () => {
       const saved = { fetch: globalThis.fetch, token: process.env.GITHUB_TOKEN };
       let visibility = 0, puts = 0;
@@ -815,16 +884,21 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
 
   await area('7. Build & contract integrity', [
     ['api source files are hidden, endpoints stay reachable (vercel.json)', hiddenSource],
+    ['middleware source is hidden while the PDF middleware remains deployable', () => {
+      const config = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      assert(config.redirects.some(r => r.source === '/middleware.js' && r.destination === '/404.html'));
+      assert(!/^middleware\.js$/m.test(fs.readFileSync(path.join(REPO, '.vercelignore'), 'utf8')));
+    }],
     ['raw data/*.json files are not served (drafts stay private)', () => {
       const rule = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).redirects.find(r => r.source === '/data/(.*)');
       assert(rule && rule.destination === '/404.html', 'no redirect hiding data/');
     }],
-    ['CSP: no unsafe-inline scripts except the HP widget pages, hashes current', () => {
+    ['CSP: no unsafe-inline scripts except the HP widget page, hashes current', () => {
       for (const h of JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).headers) {
         const csp = (h.headers.find(x => x.key === 'Content-Security-Policy') || {}).value;
         if (!csp) continue;
         const scriptSrc = csp.split(';').find(d => d.trim().startsWith('script-src'));
-        eq(scriptSrc.includes("'unsafe-inline'"), h.source.includes('hp|dell|motorola') && !h.source.startsWith('/((?!'), h.source);
+        eq(scriptSrc.includes("'unsafe-inline'"), h.source === '/hp(\\.html)?', h.source);
       }
       run('python3', ['tools/csp-hashes.py', '--check'], 'OK')();
     }],
@@ -1153,7 +1227,37 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }
   };
   await area('13. Lead-gated case-study PDFs (middleware.js)', [
-    ['the gate covers the whole PDF folder', () => eq(gateConfig.matcher, '/assets/case-studies/pdf/:path*')],
+    ['the gate covers every route before static routing', () => eq(gateConfig.matcher, '/:path*')],
+    ['internal files are blocked through plain, encoded and double-encoded aliases', async () => {
+      for (const route of [
+        '/data/case-studies.json', '/data%2Fcase-studies.json', '/%64ata%2Fjobs.json',
+        '/data%252Fjobs.json', '/data%5Cjobs.json', '//data//jobs.json',
+        '/api%2Fadmin%2F_console-app.js', '/api/admin/_console-app.js', '/api/_store',
+        '/docs/superpowers/plans/example.md', '/tools/test-api.js', '/graphify-out/graph.json',
+        '/middleware.js', '/middle%77are.js', '/vercel.json', '/.env.production', '/.git/config',
+        '/.portal-data/requirements.json', '/assets/..%2Fdata%2Fjobs.json',
+      ]) {
+        const r = await pdfGate(new Request(`https://dtech.test${route}`));
+        assert(r, route); eq(r.status, 404, route); eq(r.headers.get('cache-control'), 'no-store');
+      }
+    }],
+    ['public pages, assets and API handlers remain reachable through middleware', async () => {
+      for (const route of ['/', '/careers', '/case-studies/mrf', '/admin-dtech', '/portal', '/assets/bundle.min.css', '/api/jobs', '/api/contact', '/api/admin/data', '/api/detail?type=sitemap', '/.well-known/acme-challenge/example']) {
+        eq(await pdfGate(new Request(`https://dtech.test${route}`)), undefined, route);
+      }
+    }],
+    ['encoded PDF aliases still require a signed link', async () => {
+      for (const route of ['/assets%2Fcase-studies%2Fpdf%2Fexample.pdf', '/assets/case-studies/%70df/example.pdf', '/assets%252Fcase-studies%252Fpdf%252Fexample.pdf']) {
+        const r = await pdfGate(new Request(`https://dtech.test${route}`));
+        eq(r.status, 302, route); eq(r.headers.get('location'), 'https://dtech.test/case-studies');
+      }
+    }],
+    ['malformed and excessively nested path encodings fail closed', async () => {
+      for (const route of ['/data%ZZjobs.json', '/data%' + '25'.repeat(9) + '2Fjobs.json', '/da%0Ata%2Fjobs.json', '/middleware.js%00']) {
+        const r = await pdfGate(new Request(`https://dtech.test${route}`));
+        eq(r.status, 400, route);
+      }
+    }],
     ['no link, or an old address search engines list → redirected to /case-studies', async () => {
       const r = await pdfGate(new Request(`https://dtech.test/${PDF}`));
       eq(r.status, 302); eq(r.headers.get('location'), 'https://dtech.test/case-studies');

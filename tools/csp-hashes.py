@@ -9,7 +9,7 @@ this tool computes from every *.html page and writes into script-src.
   python3 tools/csp-hashes.py --check   exit 1 if vercel.json is out of date, or if a
                                         page has an inline event handler (onclick=…)
 
-The hp/dell/motorola pages keep 'unsafe-inline': they embed HP's third-party
+The HP page keeps 'unsafe-inline': it embeds HP's third-party
 syndication widget, which is outside our control.
 """
 import base64
@@ -22,7 +22,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERCEL_JSON = os.path.join(ROOT, 'vercel.json')
-THIRD_PARTY_SOURCES = {'/(hp|dell|motorola)(\\.html)?'}
+THIRD_PARTY_SOURCES = {'/hp(\\.html)?'}
 
 SCRIPT = re.compile(r'<script(\s[^>]*)?>(.*?)</script\s*>', re.S | re.I)
 SRC_ATTR = re.compile(r'\ssrc\s*=', re.I)

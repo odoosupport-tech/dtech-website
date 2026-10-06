@@ -10,25 +10,42 @@ const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[A-Za-z]{2,}$/;
 // protection.
 function createRateLimiter() {
   const hits = new Map();
+  const MAX_KEYS = 5000;
   return function overLimit(key, max, windowMs) {
     const now = Date.now();
-    const recent = (hits.get(key) || []).filter(t => now - t < windowMs);
+    const entry = hits.get(key);
+    const recent = (entry ? entry.times : []).filter(t => now - t < windowMs);
+    // Rejected requests do not grow the array or reset the window.
+    if (recent.length >= max) return true;
+    if (!entry && hits.size >= MAX_KEYS) {
+      for (const [id, value] of hits) {
+        if (value.expires <= now) hits.delete(id);
+      }
+      // Saturation must not erase the counters of callers already limited.
+      if (hits.size >= MAX_KEYS) return true;
+    }
     recent.push(now);
-    hits.set(key, recent);
-    if (hits.size > 5000) hits.clear();
-    return recent.length > max;
+    hits.set(key, { times: recent, expires: now + windowMs });
+    return false;
   };
 }
 
 function allowedOrigin(req) {
-  const origin = req.headers.origin;
-  if (!origin) return false;
-  let host;
-  try { host = new URL(origin).host; } catch (e) { return false; }
-  if (host === req.headers.host || host === req.headers['x-forwarded-host']) return true;
+  const value = req.headers.origin;
+  if (typeof value !== 'string') return false;
+  let origin;
+  try {
+    origin = new URL(value);
+    if (!['https:', 'http:'].includes(origin.protocol) || value !== origin.origin) return false;
+  } catch (e) { return false; }
+  // Vercel terminates TLS before the function. Else use the actual connection;
+  // header-only test requests default to HTTPS. Never trust a caller-supplied
+  // X-Forwarded-Host to introduce another allowed origin.
+  const protocol = process.env.VERCEL || !req.socket || req.socket.encrypted ? 'https:' : 'http:';
+  if (origin.origin === `${protocol}//${req.headers.host}`) return true;
   return String(process.env.ALLOWED_ORIGINS || '')
     .split(',').map(o => o.trim().replace(/\/+$/, '')).filter(Boolean)
-    .includes(origin.replace(/\/+$/, ''));
+    .includes(origin.origin);
 }
 
 // Real visitors need a few seconds to fill in a form; scripts post within milliseconds.

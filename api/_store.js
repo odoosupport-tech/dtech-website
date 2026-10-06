@@ -128,6 +128,7 @@ async function readRaw(cfg, file) {
       throw err;
     }
   }
+  if (cfg.name === 'private') await assertPrivateRepo(cfg);
   const res = await gh(cfg, 'GET', file);
   if (res.status === 404) return null;
   if (!res.ok) throw await ghError(res, `read of ${file}`);
@@ -139,19 +140,23 @@ async function readRaw(cfg, file) {
   return { buffer: Buffer.from(await rawRes.arrayBuffer()), sha: meta.sha };
 }
 
-// Repositories confirmed private in this instance, so the check costs one request per cold start.
-const verifiedPrivate = new Set();
+// Briefly cache visibility to limit GitHub calls, including for reads. A warm
+// function rechecks after a minute rather than trusting visibility forever.
+const PRIVATE_CHECK_MS = 60 * 1000;
+const verifiedPrivate = new Map();
 
 // Personal data (CVs, phone numbers) must never land in a public repository,
 // even if someone flips the data repository's visibility by mistake.
 async function assertPrivateRepo(cfg) {
   const key = cfg.repo.toLowerCase();
-  if (verifiedPrivate.has(key)) return;
+  const checkedAt = verifiedPrivate.get(key);
+  if (checkedAt !== undefined && Date.now() - checkedAt < PRIVATE_CHECK_MS) return;
+  verifiedPrivate.delete(key);
   const res = await ghRequest(cfg, 'GET', `${API}/repos/${cfg.repo}`);
   if (!res.ok) throw await ghError(res, `visibility check of ${cfg.repo}`);
   const meta = await res.json();
   if (meta.private !== true) throw new Error(`${cfg.repo} is not private; refusing to store personal data in it`);
-  verifiedPrivate.add(key);
+  verifiedPrivate.set(key, Date.now());
 }
 
 // Returns true on success, false when the write lost a race (retry), throws otherwise.
