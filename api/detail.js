@@ -189,7 +189,7 @@ function formatSummary(text) {
 
 // ---- page parts --------------------------------------------------------------
 
-function hero(crumbs, heading, lead) {
+function hero(crumbs, heading, lead, extra = '') {
   const trail = crumbs.map(([label, href]) => (href
     ? `<a href="${href}">${esc(label)}</a>`
     : `<span class="text-white">${esc(label)}</span>`)).join(' <span class="text-slate-400">/</span> ');
@@ -199,7 +199,7 @@ function hero(crumbs, heading, lead) {
         <div class="max-w-3xl space-y-4">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono">${trail}</div>
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">${esc(heading)}</h1>
-          ${lead ? `<p class="text-base sm:text-lg text-slate-300 leading-relaxed">${esc(lead)}</p>` : ''}
+          ${lead ? `<p class="text-base sm:text-lg text-slate-300 leading-relaxed">${esc(lead)}</p>` : ''}${extra}
         </div>
       </div>
     </section>`;
@@ -309,35 +309,83 @@ function jobPosting(j, url) {
   };
 }
 
+// One role in the careers-page row style (also used for "Other open roles").
+function jobRow(j) {
+  const href = `/careers/${encodeURIComponent(j.id)}`;
+  const meta = [
+    j.location ? `<li><i data-lucide="map-pin"></i>${esc(j.location)}</li>` : '',
+    j.department ? `<li><i data-lucide="briefcase"></i>${esc(j.department)}</li>` : '',
+    Number.isInteger(j.positions) && j.positions > 1 ? `<li class="cr-positions"><i data-lucide="users"></i>${j.positions} positions</li>` : '',
+  ].join('');
+  const summary = String(j.summary || '').split('\n').map(l => l.trim().replace(/^[-*•]\s+/, '')).filter(Boolean).join(' ');
+  return `<li class="cr-job"><div class="cr-job-main"><h3><a href="${href}">${esc(j.title)}</a></h3><p class="cr-job-summary">${esc(summary)}</p></div>` +
+    `<ul class="cr-job-meta">${meta}</ul>` +
+    `<div class="cr-job-actions"><a class="hx-link" href="${href}">View role</a><a class="button button-primary" href="/careers?apply=${encodeURIComponent(j.id)}">Apply</a></div></li>`;
+}
+
 function jobPage(j, all) {
   const url = `${SITE}/careers/${j.id}`;
-  const others = all.filter(x => x.id !== j.id && ID_RE.test(x.id)).slice(0, 6);
+  const apply = `/careers?apply=${encodeURIComponent(j.id)}`;
+  const others = all.filter(x => x.id !== j.id && ID_RE.test(x.id)).slice(0, 5);
   const positions = Number.isInteger(j.positions) && j.positions > 0 ? String(j.positions) : '';
+  const posted = j.postedAt ? longDate(j.postedAt) : '';
   const posting = jobPosting(j, url);
-  const main = `${MAIN_OPEN}${hero([['Home', '/'], ['Careers', '/careers'], [j.title, '']], j.title, [j.department, j.location].filter(Boolean).join(' · '))}
-    <section class="dt-section dt-section--surface dt-detail" aria-labelledby="detail-role">
-      <div class="executive-container">
-        <div class="dt-detail-grid">
-          <div>
-            <span class="dt-cut" aria-hidden="true"></span>
-            <h2 id="detail-role" class="dt-h2 dt-h2--sm">About the role</h2>
-            <div class="dt-detail-copy">${formatSummary(j.summary)}</div>
-            <div class="dt-detail-actions">
-              <a class="button button-primary" href="/careers?apply=${encodeURIComponent(j.id)}">Apply for this role</a>
-              <a class="hx-link" href="/careers">All open roles</a>
-            </div>
+  const facts = [
+    j.location ? `<li>${esc(j.location)}</li>` : '',
+    j.department ? `<li>${esc(j.department)}</li>` : '',
+    positions && positions !== '1' ? `<li><span><b>${positions}</b> positions</span></li>` : '',
+    posted ? `<li>Posted ${esc(posted)}</li>` : '',
+  ].join('');
+  const heroExtra = `
+          <div class="cr-hero-actions">
+            <a class="button button-primary" href="${apply}">Apply for this role <span>&#8599;</span></a>
+            <a class="cr-hero-link" href="/careers#roles">All open roles</a>
           </div>
-          ${sheet([['Department', j.department], ['Location', j.location], ['Open positions', positions], ['Posted', j.postedAt ? longDate(j.postedAt) : '']])}
+          ${facts ? `<ul class="cr-hero-facts">${facts}</ul>` : ''}`;
+  const main = `${MAIN_OPEN}${hero([['Home', '/'], ['Careers', '/careers'], [j.title, '']], j.title, '', heroExtra)}
+    <section class="dt-section dt-section--surface" aria-labelledby="detail-role">
+      <div class="executive-container cr-role-grid">
+        <div>
+          <span class="dt-cut" aria-hidden="true"></span>
+          <h2 id="detail-role" class="dt-h2 dt-h2--sm">About the role</h2>
+          <div class="dt-detail-copy cr-role-copy">${formatSummary(j.summary)}</div>
+          <h2 class="dt-h2 dt-h2--sm cr-role-next">What happens next</h2>
+          <ol class="cr-steps">
+            <li><span class="dt-tag">1</span><strong>Apply</strong><span>Send your CV (PDF or Word, up to 3 MB) with the Apply button.</span></li>
+            <li><span class="dt-tag">2</span><strong>We review</strong><span>Your application goes straight to our recruitment team.</span></li>
+            <li><span class="dt-tag">3</span><strong>Interview</strong><span>Shortlisted candidates talk with the team about the role and the site.</span></li>
+            <li><span class="dt-tag">4</span><strong>Offer and onboarding</strong><span>Join the team and learn the site with the people you will work alongside.</span></li>
+          </ol>
         </div>
+        <aside class="cr-role-card" aria-label="Role summary">
+          <h2 class="cr-role-card-title">${esc(j.title)}</h2>
+          ${sheet([['Location', j.location], ['Team', j.department], ['Open positions', positions], ['Posted', posted]])}
+          <a class="button button-primary cr-role-apply" href="${apply}">Apply for this role <span>&#8599;</span></a>
+          <p class="cr-role-card-note">Not quite the right fit? <a class="hx-link" href="/careers#roles">See all open roles</a> or send a speculative application from the careers page.</p>
+        </aside>
       </div>
     </section>
-    ${others.length ? `<section class="dt-section dt-section--paper" aria-labelledby="detail-more">
+    <section class="dt-section dt-section--paper" aria-labelledby="detail-why">
       <div class="executive-container">
-        <h2 id="detail-more" class="dt-h2 dt-h2--sm">Other open roles</h2>
-        ${linkList(others.map(o => ({ href: `/careers/${o.id}`, title: o.title, sub: o.location })))}
-        <p class="dt-detail-more"><a class="hx-link" href="/careers">All ${all.length} open roles</a></p>
+        <h2 id="detail-why" class="dt-h2 dt-h2--sm">Why build your career at D-TECH</h2>
+        <ul class="cr-why">
+          <li><i data-lucide="factory"></i><h3>Work on real industrial sites</h3><p>Most roles are based at client plants across Bharuch, Dahej, Jhagadia and Vadodara, keeping critical IT running every day.</p></li>
+          <li><i data-lucide="graduation-cap"></i><h3>Start as a fresher, grow with us</h3><p>Selected roles are open to freshers, with training and guidance from the engineers who do the work.</p></li>
+          <li><i data-lucide="layers"></i><h3>Learn across the stack</h3><p>Servers, storage, networks, CCTV, automation and managed services: see how a complete plant system fits together.</p></li>
+          <li><i data-lucide="shield-check"></i><h3>Stable since 1999</h3><p>Trading since 1999, incorporated in 2003, and trusted by more than 4,500 customers.</p></li>
+        </ul>
+      </div>
+    </section>
+    ${others.length ? `<section class="dt-section dt-section--surface" aria-labelledby="detail-more">
+      <div class="executive-container">
+        <div class="cr-more-head">
+          <h2 id="detail-more" class="dt-h2 dt-h2--sm">Other open roles</h2>
+          <a class="hx-link" href="/careers#roles">All ${all.length} open roles</a>
+        </div>
+        <ol class="cr-jobs">${others.map(jobRow).join('')}</ol>
       </div>
     </section>` : ''}
+    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Ready to apply?</h2><p>Send your CV for ${esc(j.title)} and our recruitment team will be in touch. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="${apply}">Apply for this role <span>&#8599;</span></a></div></section>
   </main>`;
   return render({
     title: `${j.title}, ${j.location} | Careers | D-TECH SIPL`,

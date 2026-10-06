@@ -238,6 +238,27 @@ html[data-theme="dark"] .cr-chip[aria-pressed="true"] { background:var(--signal-
 }
 @media (prefers-reduced-motion:reduce) { .cr-chip, .cr-faq summary::after { transition:none; } }
 
+/* Role pages (/careers/<id>, rendered by api/detail.js) */
+.cr-role-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,360px); gap:48px clamp(32px,6vw,96px); align-items:start; }
+.cr-role-copy { margin-top:20px; }
+.cr-role-next { margin-top:clamp(44px,5vw,64px); }
+.cr-role-card {
+  position:sticky; top:104px; padding:clamp(22px,2.4vw,30px); background:var(--paper);
+  border:1px solid var(--line-strong); border-top:3px solid var(--invert); border-radius:var(--r-panel,18px);
+}
+html[data-theme="dark"] .cr-role-card { border-top-color:var(--signal-deep); }
+.cr-role-card-title { margin:0; font-family:var(--display); font-size:20px; line-height:1.25; letter-spacing:-.02em; color:var(--ink); }
+.cr-role-card .dt-sheet { margin-top:16px; }
+.cr-role-card .dt-sheet>div { grid-template-columns:minmax(124px,.55fr) 1fr; }
+.cr-role-apply { display:flex; justify-content:center; width:100%; margin-top:22px; }
+.cr-role-card-note { margin:16px 0 0; font-size:14px; line-height:1.6; color:var(--ink-soft); }
+.cr-role-card-note .hx-link { font-size:14px; }
+.cr-more-head { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:12px 24px; margin-bottom:24px; }
+@media (max-width:900px) {
+  .cr-role-grid { grid-template-columns:1fr; }
+  .cr-role-card { position:static; }
+}
+
 /* ---- Contact: contact sheet and proposal panel -------------------------- */
 .dt-h2--sm { font-size:clamp(28px,2.7vw,38px); letter-spacing:-.03em; }
 .dt-contact .dt-intro { margin-top:14px; font-size:16px; }
