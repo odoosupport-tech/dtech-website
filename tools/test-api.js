@@ -180,7 +180,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
-      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('support@dtechindia.com') && c.text.includes('+91 77788 27794') && c.text.includes('Bharuch'), 'contact details');
+      assert(c.text.includes('sales@dtechindia.com') && c.text.includes('+91 95588 09163') && c.text.includes('support@dtechindia.com') && c.text.includes('+91 99989 03042') && c.text.includes('Bharuch'), 'contact details');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid').length, 1, 'sales notified once');
     }],
     ['auto-responder ignores markup planted in the name', async () => {
