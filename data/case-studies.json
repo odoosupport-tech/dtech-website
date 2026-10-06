@@ -2068,5 +2068,47 @@
     "pdf_file": "assets/case-studies/pdf/custom/rishi-fibc-dell.pdf",
     "published": true,
     "custom": true
+  },
+  {
+    "id": "neo-smiles-eva-healthcare-infra",
+    "client": "Neo Smiles Dental Care & Eva Maternity Home",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/neo-smiles-eva.png",
+    "category": "network",
+    "industry": "Healthcare · Dental & Maternity",
+    "location": "Prashorthan Heights, Court Road, Bharuch",
+    "period": "Quotation dated 27 Apr 2026",
+    "arch_tag": "Healthcare Facility Infrastructure Design",
+    "summary": "Consultancy, solution design and deployment coordination for a new Bharuch healthcare facility — connectivity, surveillance, communication and nurse calling brought into one coordinated infrastructure plan.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "33 indoor dome + 6 outdoor bullet cameras with 64- and 8-channel NVRs",
+      "PoE+ switching, 41 outlet sets, 5 patch panels and 3 racks",
+      "9 Ubiquiti U6+ Wi-Fi access points",
+      "Matrix ETERNITY PABX, Ahuja two-zone PA with 14 ceiling speakers",
+      "Nurse calling: 8 bed-call and 8 toilet pullcord points with staff displays"
+    ],
+    "metrics": [
+      [
+        "Domains",
+        "6"
+      ],
+      [
+        "Cameras",
+        "39"
+      ],
+      [
+        "Nurse-Call Points",
+        "8 + 8"
+      ],
+      [
+        "Quotation",
+        "Apr 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/neo-smiles-eva-healthcare-infra.pdf",
+    "published": true,
+    "custom": true
   }
 ]
