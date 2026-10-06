@@ -43,16 +43,6 @@
   },
   "redirects": [
     {
-      "source": "/solutions.html",
-      "destination": "/tfms",
-      "permanent": true
-    },
-    {
-      "source": "/solutions",
-      "destination": "/tfms",
-      "permanent": true
-    },
-    {
       "source": "/api/(.+)\\.(js|json)",
       "destination": "/404.html",
       "permanent": false
