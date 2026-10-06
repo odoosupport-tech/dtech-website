@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#17324a">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <title>JIVA System Integration | D-TECH SIPL</title>
-  <meta name="description" content="Factory and process automation integration: CNC, PLC, SCADA, servo, drive and HMI upgrades with commissioning support, plus CE and UL certified control panels.">
+  <title>WhatsApp, SMS, Instagram &amp; Chatbot Messaging | D-TECH SIPL</title>
+  <meta name="description" content="Business messaging from D-TECH: WhatsApp Business, bulk and OTP SMS, Instagram, RCS, voice and email on one platform, with no-code chatbots, a shared team inbox and CRM integration.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="JIVA System Integration | D-TECH SIPL">
-  <meta property="og:description" content="Factory and process automation integration: CNC, PLC, SCADA, servo, drive and HMI upgrades with commissioning support, plus CE and UL certified control panels.">
+  <meta property="og:title" content="WhatsApp, SMS, Instagram &amp; Chatbot Messaging | D-TECH SIPL">
+  <meta property="og:description" content="Business messaging from D-TECH: WhatsApp Business, bulk and OTP SMS, Instagram, RCS, voice and email on one platform, with no-code chatbots, a shared team inbox and CRM integration.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="JIVA System Integration | D-TECH SIPL">
-  <meta name="twitter:description" content="Factory and process automation integration: CNC, PLC, SCADA, servo, drive and HMI upgrades with commissioning support, plus CE and UL certified control panels.">
-  <link rel="canonical" href="https://www.dtechindia.com/jiva-system-integration">
-  <meta property="og:url" content="https://www.dtechindia.com/jiva-system-integration">
+  <meta name="twitter:title" content="WhatsApp, SMS, Instagram &amp; Chatbot Messaging | D-TECH SIPL">
+  <meta name="twitter:description" content="Business messaging from D-TECH: WhatsApp Business, bulk and OTP SMS, Instagram, RCS, voice and email on one platform, with no-code chatbots, a shared team inbox and CRM integration.">
+  <link rel="canonical" href="https://www.dtechindia.com/business-messaging">
+  <meta property="og:url" content="https://www.dtechindia.com/business-messaging">
   <meta property="og:site_name" content="D-TECH Solution Integrators">
   <meta property="og:image" content="https://www.dtechindia.com/assets/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -74,7 +74,7 @@
     "alternateName": "D-TECH SIPL",
     "logo": "https://www.dtechindia.com/assets/dtech-logo-blue.webp",
     "image": "https://www.dtechindia.com/assets/og-image.png",
-    "url": "https://www.dtechindia.com/jiva-system-integration",
+    "url": "https://www.dtechindia.com/business-messaging",
     "email": "sales@dtechindia.com",
     "telephone": ["+91-95588-09163", "+91-99989-03042", "+91-2642-264596"],
     "foundingDate": "2003",
@@ -109,8 +109,45 @@
     <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
     <link rel="stylesheet" href="assets/sections.min.css?v=727330eb94">
     <link rel="stylesheet" href="assets/light-chrome.min.css?v=59d08dbca7">
+    <style>
+      .sol-mock { margin:0; border:1px solid var(--line-strong); border-radius:14px; background:var(--surface); overflow:hidden; box-shadow:0 24px 48px -32px rgba(15,35,60,.45); }
+      .sol-mock-bar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); font:600 13px/1.2 var(--text-face); color:var(--ink); }
+      .sol-live { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--c-green); }
+      .sol-live::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+      .sol-map { display:block; width:100%; height:auto; background:var(--paper); }
+      .sol-map .grid { stroke:var(--line); stroke-width:1; }
+      .sol-map .road { fill:none; stroke:var(--line-strong); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .route { fill:none; stroke:var(--signal-deep); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .fence { fill:none; stroke:var(--c-orange); stroke-width:2; stroke-dasharray:6 5; }
+      .sol-map .pin { fill:var(--signal-deep); stroke:var(--surface); stroke-width:3; }
+      .sol-map .pin.idle { fill:var(--ink-soft); }
+      .sol-map .pin.alert { fill:var(--c-orange); }
+      .sol-rows { list-style:none; margin:0; padding:0; }
+      .sol-rows li { display:flex; justify-content:space-between; gap:12px; padding:11px 16px; border-top:1px solid var(--line); font-size:14px; line-height:1.35; }
+      .sol-rows b { color:var(--ink); font-weight:600; }
+      .sol-rows span { color:var(--ink-soft); text-align:right; }
+      .sol-rows .is-alert span { color:var(--c-orange-text); font-weight:600; }
+      .sol-mock figcaption { padding:10px 16px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-soft); }
+      .sol-chips { display:flex; flex-wrap:wrap; gap:6px; }
+      .sol-chips span { padding:5px 10px; border:1px solid var(--line-strong); border-radius:999px; font:500 12px/1 var(--text-face); color:var(--ink-soft); }
+      .sol-chips .is-on { background:var(--signal-deep); border-color:transparent; color:#fff; }
+      .sol-thread { display:flex; flex-direction:column; gap:10px; padding:20px 16px; background:var(--paper); }
+      .sol-msg { max-width:82%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.45; }
+      .sol-msg small { display:block; margin-top:4px; font-size:11px; opacity:.75; }
+      .sol-msg.in { align-self:flex-start; background:var(--surface); border:1px solid var(--line); color:var(--ink); border-bottom-left-radius:4px; }
+      .sol-msg.out { align-self:flex-end; background:var(--signal-deep); color:#fff; border-bottom-right-radius:4px; }
+      .sol-replies { align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+      .sol-replies span { padding:6px 11px; border:1px solid var(--signal-deep); border-radius:999px; background:var(--surface); font:600 12px/1 var(--text-face); color:var(--signal-deep); }
+      .sol-note { align-self:center; padding:4px 10px; border-radius:6px; background:var(--surface); font:500 11px/1.4 var(--mono); color:var(--ink-soft); }
+      @media (min-width:901px) {
+        .dt-product .jiva-cards.sol-cards-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) { border-left:0!important; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) .jiva-card-body { padding-left:0; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(n+4) { border-top:1px solid var(--line-strong)!important; }
+      }
+    </style>
 </head>
-<body data-page="jiva" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
+<body data-page="messaging" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="utility-bar"><div class="executive-container"><span>Industrial technology. Integrated with precision.</span><div class="utility-phones"><a href="tel:+919998903042" class="utility-agent"><img src="/assets/support/care-agent-avatar.webp" alt="" width="28" height="28" class="utility-avatar" decoding="async"><span class="utility-lead">Customer care</span><span>+91 99989 03042 ↗</span></a><a href="tel:+919558809163"><span class="utility-tag">Sales</span><span>+91 95588 09163 ↗</span></a><a href="tel:+912642264596"><span>+91 2642 264596 ↗</span></a><a href="mailto:sales@dtechindia.com"><span>sales@dtechindia.com ↗</span></a><a href="https://support.dtechindia.com" target="_blank" rel="noopener"><span class="utility-tag">Support</span><span>support.dtechindia.com ↗</span></a></div></div></div>
   <header class="site-header"><div class="executive-container header-inner">
@@ -143,35 +180,66 @@
     <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white py-14 sm:py-18 border-b border-slate-800">
       <div class="executive-container">
         <div class="max-w-3xl space-y-4">
-          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <a href="jiva" class="hover:text-white">JIVA</a> <span class="text-slate-400">/</span> <span class="text-white">System Integration</span></nav>
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">System Integration</h1>
-          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">Industrial automation integration with capability across both factory automation and process automation.</p>
+          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <span class="text-white">Business Messaging</span></nav>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">WhatsApp, SMS, Instagram &amp; Chatbot Messaging</h1>
+          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">Reach customers on the channels they already use, and answer them automatically.</p>
         </div>
       </div>
     </section>
-    <nav class="jiva-subnav" aria-label="JIVA sections"><div class="executive-container"><ol><li><a href="jiva"><i data-lucide="layout-grid"></i>Overview</a></li><li><a href="jiva-engineering-services"><i data-lucide="ruler"></i>Engineering Services</a></li><li><a href="jiva-system-integration" aria-current="page"><i data-lucide="cpu"></i>System Integration</a></li><li><a href="jiva-turnkey-solutions"><i data-lucide="factory"></i>Turnkey Solutions</a></li><li><a href="jiva-special-purpose-machines"><i data-lucide="cog"></i>Special Purpose Machines</a></li><li><a href="jiva-heavy-lifting"><i data-lucide="weight"></i>Heavy Lifting Machines</a></li></ol></div></nav>
+
     <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
       <div class="executive-container">
         <div class="jiva-intro">
-          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge photo: PLC control cabinet wiring"><img src="assets/jiva/plc-panel-wiring.webp" srcset="assets/jiva/plc-panel-wiring-480.webp 480w, assets/jiva/plc-panel-wiring-800.webp 800w, assets/jiva/plc-panel-wiring.webp 1200w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 681px" alt="Open control cabinet with rows of neatly wired PLC I/O modules and relays" width="1200" height="1600" decoding="async" loading="lazy" decoding="async"></button><figcaption>PLC control cabinet wiring</figcaption></figure>
-          <div class="space-y-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Factory and process automation, integrated</h2>
-            <ol class="jiva-list jiva-accent"><li><div><strong>Factory and process automation</strong><span>Industrial automation integration with capability across both.</span></div></li><li><div><strong>Upgrades and commissioning</strong><span>CNC, PLC, SCADA, servo, drive and HMI-based upgrades, with commissioning support.</span></div></li><li><div><strong>Control and electrical panels</strong><span>CE and UL certified control and electrical panels.</span></div></li></ol>
+          <div class="space-y-5">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">One platform for every customer conversation</h2>
+            <p class="lead">Reach customers where they already are: WhatsApp, SMS, Instagram, RCS, voice and email, run from one place.</p>
+            <p class="text-slate-600">D-TECH sets up business messaging for your company: official WhatsApp Business messaging, bulk and transactional SMS, Instagram replies, chatbots that answer round the clock, and a shared inbox where your team takes over when a person is needed. It can connect to your CRM, ERP or online store so updates go out on their own.</p>
+            <div class="hero-actions"><a class="button button-primary" href="contact?subject=messaging">Contact Us <span>↗</span></a></div>
           </div>
+          <figure class="sol-mock" role="img" aria-label="Illustration of a business chat: a customer asks about an order, an automated reply answers with quick-reply buttons, and an unread message is resent by SMS">
+            <div class="sol-mock-bar"><span>Customer inbox</span><span class="sol-chips"><span class="is-on">WhatsApp</span><span>SMS</span><span>Instagram</span><span>RCS</span></span></div>
+            <div class="sol-thread">
+              <p class="sol-msg in">Hi, has my order been dispatched?<small>10:42</small></p>
+              <p class="sol-msg out">Yes, it was dispatched today. Expected delivery is Thursday.<small>Chatbot · 10:42</small></p>
+              <p class="sol-replies"><span>Track order</span><span>Talk to an agent</span></p>
+              <p class="sol-msg in">Talk to an agent<small>10:43</small></p>
+              <p class="sol-msg out">Connecting you to our sales desk now.<small>Agent · 10:43</small></p>
+              <p class="sol-note">Payment reminder unread after 2 h → sent again by SMS</p>
+            </div>
+            <figcaption>Illustration. Channels and screens depend on the plan chosen.</figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
       <div class="executive-container">
-        <div class="max-w-3xl  mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Panels, drives and operator stations</h2></div>
-        <div class="jiva-gallery"><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Floor-standing electrical panel line-up"><img src="assets/jiva/electrical-panel-lineup.webp" srcset="assets/jiva/electrical-panel-lineup-480.webp 480w, assets/jiva/electrical-panel-lineup-800.webp 800w, assets/jiva/electrical-panel-lineup-1200.webp 1200w, assets/jiva/electrical-panel-lineup.webp 1600w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 388px, 325px" alt="Line-up of floor-standing electrical control panels" width="1600" height="1067" loading="lazy" decoding="async"></button><figcaption>Floor-standing electrical panel line-up</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Operator desk with HMI and push-button console"><img src="assets/jiva/operator-control-desk.webp" alt="Operator control desk with a touchscreen HMI and push-button console" width="512" height="768" loading="lazy" decoding="async"></button><figcaption>Operator desk with HMI and push-button console</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Drive and switchgear panels"><img src="assets/jiva/drive-panel-interior.webp" srcset="assets/jiva/drive-panel-interior-480.webp 480w, assets/jiva/drive-panel-interior-800.webp 800w, assets/jiva/drive-panel-interior.webp 1024w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 388px, 325px" alt="Open electrical panels fitted with variable-frequency drives and switchgear" width="1024" height="683" loading="lazy" decoding="async"></button><figcaption>Drive and switchgear panels</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Control panel with touchscreen HMI"><img src="assets/jiva/hmi-control-panel-front.webp" srcset="assets/jiva/hmi-control-panel-front-480.webp 480w, assets/jiva/hmi-control-panel-front-800.webp 800w, assets/jiva/hmi-control-panel-front.webp 1040w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 388px, 325px" alt="Control panel door with a touchscreen HMI, selector switch and push buttons" width="1040" height="780" loading="lazy" decoding="async"></button><figcaption>Control panel with touchscreen HMI</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Control panel with indicator lamps and stack light"><img src="assets/jiva/control-panel-stack-light.webp" srcset="assets/jiva/control-panel-stack-light-480.webp 480w, assets/jiva/control-panel-stack-light.webp 768w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 388px, 325px" alt="Control panel with indicator lamps, digital meter and a stack light" width="768" height="1024" loading="lazy" decoding="async"></button><figcaption>Control panel with indicator lamps and stack light</figcaption></figure></div>
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Every channel your customers use</h2><p class="text-base text-slate-600 leading-relaxed">Use one channel or all of them. Each can send updates, run campaigns and handle replies.</p></div><div class="jiva-cards jiva-accent sol-cards-3"><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="message-circle"></i></span><h3>WhatsApp Business messaging</h3><p>Talk to customers on the app they open most.</p><ul><li><i data-lucide="check"></i>Order, payment and service updates</li><li><i data-lucide="check"></i>Offers with images, documents and buttons</li><li><i data-lucide="check"></i>Two-way support chats</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="message-square-text"></i></span><h3>SMS</h3><p>Fast, reliable texts to any mobile phone.</p><ul><li><i data-lucide="check"></i>OTP and transactional alerts</li><li><i data-lucide="check"></i>Bulk promotional campaigns</li><li><i data-lucide="check"></i>Automatic short links with click tracking</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="camera"></i></span><h3>Instagram messaging</h3><p>Answer followers without leaving your inbox.</p><ul><li><i data-lucide="check"></i>Direct messages in the shared inbox</li><li><i data-lucide="check"></i>Automated replies to common questions</li><li><i data-lucide="check"></i>Hand-over to your team</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="smartphone"></i></span><h3>RCS messaging</h3><p>Rich, branded messages in the phone’s own messaging app.</p><ul><li><i data-lucide="check"></i>Your logo and verified sender name</li><li><i data-lucide="check"></i>Images, carousels and action buttons</li><li><i data-lucide="check"></i>Interactive replies</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="phone-call"></i></span><h3>Voice</h3><p>Automated calls for when a text is not enough.</p><ul><li><i data-lucide="check"></i>Reminders and alerts by voice call</li><li><i data-lucide="check"></i>Announcements to large lists</li><li><i data-lucide="check"></i>Calls that free up your agents</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="mail"></i></span><h3>Email</h3><p>Transactional email that lands on time.</p><ul><li><i data-lucide="check"></i>Order and purchase confirmations</li><li><i data-lucide="check"></i>Invoices and shipping updates</li><li><i data-lucide="check"></i>Account and password emails</li></ul></div></article></div>
       </div>
     </section>
-    <section class="py-12 bg-slate-50 border-t border-slate-200">
-      <div class="executive-container"><nav class="jiva-pager" aria-label="More JIVA sections"><a class="prev" href="jiva-engineering-services"><span class="jiva-pager-dir">← Previous</span><span class="jiva-pager-title">Engineering Services</span></a><a class="next" href="jiva-turnkey-solutions"><span class="jiva-pager-dir">Next →</span><span class="jiva-pager-title">Turnkey Solutions</span></a></nav></div>
+
+    <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
+      <div class="executive-container">
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Tools that do the work for you</h2></div><div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="bot"></i></span><span>Chatbots built without coding</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="headset"></i></span><span>Live chat for your whole team</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="repeat"></i></span><span>Fallback to another channel if unread</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="workflow"></i></span><span>Automated message workflows</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="plug"></i></span><span>Links to CRM, ERP and online stores</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="shield-check"></i></span><span>OTP and two-factor login</span></div></div><p class="text-slate-600 mt-8 max-w-3xl">Chatbots can also answer from your own documents: upload a product brochure or price list, and customers get answers drawn from it on WhatsApp or RCS.</p>
+      </div>
     </section>
-    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Planning an automation project?</h2><p>Tell us about your production line, special machine or lifting requirement, and our automation team will get back to you. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=jiva">Contact Us</a></div></section>
+
+    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
+      <div class="executive-container">
+        <div class="kiosk-lists">
+          <div class="space-y-6">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Where it helps</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Manufacturing and B2B</strong><span>Order confirmations, dispatch alerts, payment reminders and service tickets.</span></div></li><li><div><strong>Retail and e-commerce</strong><span>Order tracking, offers, loyalty updates and feedback.</span></div></li><li><div><strong>Healthcare</strong><span>Appointment booking and reminders, reports and patient follow-ups.</span></div></li><li><div><strong>Education</strong><span>Admissions enquiries, class reminders and messages to parents.</span></div></li><li><div><strong>Banking and finance</strong><span>Onboarding, OTPs, fraud alerts and renewal reminders.</span></div></li><li><div><strong>Travel and hospitality</strong><span>Booking help and real-time trip updates.</span></div></li></ol>
+          </div>
+          <div class="space-y-6">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">How D-TECH sets it up</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Understand your goals</strong><span>Which messages you send today, to whom, and what should be automated.</span></div></li><li><div><strong>Pick the channels</strong><span>WhatsApp, SMS, Instagram, RCS, voice or email, alone or together.</span></div></li><li><div><strong>Accounts and approvals</strong><span>Sender names, business profiles and message templates set up and approved.</span></div></li><li><div><strong>Build bots and workflows</strong><span>Chatbot flows, fallbacks and integrations with your systems.</span></div></li><li><div><strong>Train and support</strong><span>Your team trained on the inbox and campaigns, with D-TECH support after go-live.</span></div></li></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Start talking to customers where they are</h2><p>Tell us what you want to send and to how many people, and D-TECH will set up the channels, chatbots and integrations to match. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=messaging">Contact Us</a></div></section>
 
   </main>
 
@@ -262,45 +330,6 @@
       const menu = document.getElementById('mobile-menu');
       if (menu) menu.classList.toggle('hidden');
     }
-  </script>
-
-  <dialog class="jiva-lightbox" id="jiva-lightbox" aria-label="Photo viewer">
-    <button type="button" data-jiva-close aria-label="Close photo">✕</button>
-    <img decoding="async" alt="">
-    <p></p>
-  </dialog>
-  <script>
-    (function () {
-      var box = document.getElementById('jiva-lightbox');
-      if (!box || typeof box.showModal !== 'function') return;
-      var big = box.querySelector('img'), text = box.querySelector('p');
-      document.addEventListener('click', function (event) {
-        var trigger = event.target.closest('[data-jiva-zoom]');
-        if (trigger) {
-          var photo = trigger.querySelector('img');
-          var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.src;
-          big.alt = photo.alt;
-          text.textContent = caption ? caption.textContent : photo.alt;
-          box.showModal();
-          return;
-        }
-        if (event.target === box || event.target.closest('[data-jiva-close]')) box.close();
-      });
-      box.addEventListener('close', function () { big.removeAttribute('src'); });
-    })();
-    (function () {
-      // On narrow screens the section menu scrolls sideways; bring the current section into view.
-      // Runs after load: icons and web fonts change the tab widths.
-      function centre() {
-        var current = document.querySelector('.jiva-subnav [aria-current="page"]');
-        var rail = current && current.closest('ol');
-        if (!rail || rail.scrollWidth <= rail.clientWidth) return;
-        var r = rail.getBoundingClientRect(), c = current.getBoundingClientRect();
-        rail.scrollLeft += (c.left - r.left) - (r.width - c.width) / 2;
-      }
-      if (document.readyState === 'complete') centre(); else window.addEventListener('load', centre);
-    })();
   </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
 </body>

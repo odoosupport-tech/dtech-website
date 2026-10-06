@@ -29,6 +29,8 @@ const TOPICS = {
   jiva: 'JIVA Siemens SPM Industrial Automation',
   kiosk: 'AT-GTS Safety & Group Training Kiosk',
   cctv: 'CCTV Surveillance & AI Vision Analytics',
+  gps: 'GPS Vehicle Tracking & Fleet Telematics',
+  messaging: 'WhatsApp, SMS, Instagram & Chatbot Messaging',
   other: 'Other Custom Systems Integration',
 };
 const GENERAL_TOPIC = 'General enquiry';
