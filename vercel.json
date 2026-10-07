@@ -213,6 +213,16 @@
       "permanent": true
     },
     {
+      "source": "/sap-services(\\.html)?",
+      "destination": "/sap-adobe",
+      "permanent": true
+    },
+    {
+      "source": "/adobe-experience(\\.html)?",
+      "destination": "/sap-adobe#adobe",
+      "permanent": true
+    },
+    {
       "source": "/(contact-us|tally-offers)(\\.html)?",
       "destination": "/contact",
       "permanent": true
