@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#17324a">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <title>Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL</title>
-  <meta name="description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
+  <title>Adobe Experience Manager &amp; Learning Manager | D-TECH SIPL</title>
+  <meta name="description" content="D-TECH plans, implements, extends and supports Adobe Experience Manager for websites and digital assets, and Adobe Learning Manager for training.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL">
-  <meta property="og:description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
+  <meta property="og:title" content="Adobe Experience Manager &amp; Learning Manager | D-TECH SIPL">
+  <meta property="og:description" content="D-TECH plans, implements, extends and supports Adobe Experience Manager for websites and digital assets, and Adobe Learning Manager for training.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL">
-  <meta name="twitter:description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
-  <link rel="canonical" href="https://www.dtechindia.com/tfms">
-  <meta property="og:url" content="https://www.dtechindia.com/tfms">
+  <meta name="twitter:title" content="Adobe Experience Manager &amp; Learning Manager | D-TECH SIPL">
+  <meta name="twitter:description" content="D-TECH plans, implements, extends and supports Adobe Experience Manager for websites and digital assets, and Adobe Learning Manager for training.">
+  <link rel="canonical" href="https://www.dtechindia.com/adobe-experience">
+  <meta property="og:url" content="https://www.dtechindia.com/adobe-experience">
   <meta property="og:site_name" content="D-TECH Solution Integrators">
   <meta property="og:image" content="https://www.dtechindia.com/assets/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -74,7 +74,7 @@
     "alternateName": "D-TECH SIPL",
     "logo": "https://www.dtechindia.com/assets/dtech-logo-blue.webp",
     "image": "https://www.dtechindia.com/assets/og-image.png",
-    "url": "https://www.dtechindia.com/tfms",
+    "url": "https://www.dtechindia.com/adobe-experience",
     "email": "sales@dtechindia.com",
     "telephone": ["+91-95588-09163", "+91-99989-03042", "+91-2642-264596"],
     "foundingDate": "2003",
@@ -108,8 +108,45 @@
     <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
     <link rel="stylesheet" href="assets/sections.min.css?v=22f9c62e43">
     <link rel="stylesheet" href="assets/light-chrome.min.css?v=59d08dbca7">
+    <style>
+      .sol-mock { margin:0; border:1px solid var(--line-strong); border-radius:14px; background:var(--surface); overflow:hidden; box-shadow:0 24px 48px -32px rgba(15,35,60,.45); }
+      .sol-mock-bar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); font:600 13px/1.2 var(--text-face); color:var(--ink); }
+      .sol-live { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--c-green); }
+      .sol-live::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+      .sol-map { display:block; width:100%; height:auto; background:var(--paper); }
+      .sol-map .grid { stroke:var(--line); stroke-width:1; }
+      .sol-map .road { fill:none; stroke:var(--line-strong); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .route { fill:none; stroke:var(--signal-deep); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .fence { fill:none; stroke:var(--c-orange); stroke-width:2; stroke-dasharray:6 5; }
+      .sol-map .pin { fill:var(--signal-deep); stroke:var(--surface); stroke-width:3; }
+      .sol-map .pin.idle { fill:var(--ink-soft); }
+      .sol-map .pin.alert { fill:var(--c-orange); }
+      .sol-rows { list-style:none; margin:0; padding:0; }
+      .sol-rows li { display:flex; justify-content:space-between; gap:12px; padding:11px 16px; border-top:1px solid var(--line); font-size:14px; line-height:1.35; }
+      .sol-rows b { color:var(--ink); font-weight:600; }
+      .sol-rows span { color:var(--ink-soft); text-align:right; }
+      .sol-rows .is-alert span { color:var(--c-orange-text); font-weight:600; }
+      .sol-mock figcaption { padding:10px 16px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-soft); }
+      .sol-chips { display:flex; flex-wrap:wrap; gap:6px; }
+      .sol-chips span { padding:5px 10px; border:1px solid var(--line-strong); border-radius:999px; font:500 12px/1 var(--text-face); color:var(--ink-soft); }
+      .sol-chips .is-on { background:var(--signal-deep); border-color:transparent; color:#fff; }
+      .sol-thread { display:flex; flex-direction:column; gap:10px; padding:20px 16px; background:var(--paper); }
+      .sol-msg { max-width:82%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.45; }
+      .sol-msg small { display:block; margin-top:4px; font-size:11px; opacity:.75; }
+      .sol-msg.in { align-self:flex-start; background:var(--surface); border:1px solid var(--line); color:var(--ink); border-bottom-left-radius:4px; }
+      .sol-msg.out { align-self:flex-end; background:var(--signal-deep); color:#fff; border-bottom-right-radius:4px; }
+      .sol-replies { align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+      .sol-replies span { padding:6px 11px; border:1px solid var(--signal-deep); border-radius:999px; background:var(--surface); font:600 12px/1 var(--text-face); color:var(--signal-deep); }
+      .sol-note { align-self:center; padding:4px 10px; border-radius:6px; background:var(--surface); font:500 11px/1.4 var(--mono); color:var(--ink-soft); }
+      @media (min-width:901px) {
+        .dt-product .jiva-cards.sol-cards-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) { border-left:0!important; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) .jiva-card-body { padding-left:0; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(n+4) { border-top:1px solid var(--line-strong)!important; }
+      }
+    </style>
 </head>
-<body data-page="tfms" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
+<body data-page="adobe" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="utility-bar"><div class="executive-container"><span>Industrial technology. Integrated with precision.</span><div class="utility-phones"><a href="tel:+919998903042" class="utility-agent"><img src="/assets/support/care-agent-avatar.webp" alt="" width="28" height="28" class="utility-avatar" decoding="async"><span class="utility-lead">Customer care</span><span>+91 99989 03042 ↗</span></a><a href="tel:+919558809163"><span class="utility-tag">Sales</span><span>+91 95588 09163 ↗</span></a><a href="tel:+912642264596"><span>+91 2642 264596 ↗</span></a><a href="mailto:sales@dtechindia.com"><span>sales@dtechindia.com ↗</span></a><a href="https://support.dtechindia.com" target="_blank" rel="noopener"><span class="utility-tag">Support</span><span>support.dtechindia.com ↗</span></a></div></div></div>
   <header class="site-header"><div class="executive-container header-inner">
@@ -142,9 +179,9 @@
     <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white py-14 sm:py-18 border-b border-slate-800">
       <div class="executive-container">
         <div class="max-w-3xl space-y-4">
-          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <span class="text-white">TFMS</span></nav>
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">Automated Tanker Fleet Management System</h1>
-          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">Real-time tracking, optimised operations, regulatory compliance, cost savings and enhanced safety, delivered with efficiency and reliability.</p>
+          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <a href="solutions" class="hover:text-white">Solutions</a> <span class="text-slate-400">/</span> <span class="text-white">Adobe Experience &amp; Learning</span></nav>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">Adobe Experience Manager &amp; Learning Manager</h1>
+          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">Websites, digital assets and training on Adobe's enterprise platforms, set up and supported by D-TECH.</p>
         </div>
       </div>
     </section>
@@ -153,54 +190,48 @@
       <div class="executive-container">
         <div class="jiva-intro">
           <div class="space-y-5">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Manless tanker management for terminals and depots</h2>
-            <p class="lead">Our automated (manless) Tanker Fleet Management System is a complete digital solution for managing tanker movement within terminals, depots and industrial facilities.</p>
-            <p class="text-slate-600">By eliminating manual processes, it delivers faster turnaround, improved transparency and smooth traffic flow, without human intervention. Built with industrial-grade, weather-proof hardware, the system runs reliably 24×7, even in rain, dust and harsh outdoor environments.</p>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Content and learning, managed properly</h2>
+            <p class="lead">Adobe Experience Manager runs your websites and digital assets. Adobe Learning Manager runs training for employees, partners and customers.</p>
+            <p class="text-slate-600">D-TECH helps you decide what each platform should do for you, sets it up to your requirements, builds the features and integrations it lacks out of the box, and trains and supports your team once it is live.</p>
+            <div class="hero-actions"><a class="button button-primary" href="contact?subject=adobe">Contact Us <span>↗</span></a></div>
           </div>
-          <figure class="jiva-figure jiva-lead-photo is-portrait"><button type="button" data-jiva-zoom aria-label="Enlarge photo: LED board showing live tanker loading tokens"><img src="assets/tfms/token-kiosk-led-queue-board.webp" srcset="assets/tfms/token-kiosk-led-queue-board-480.webp 480w, assets/tfms/token-kiosk-led-queue-board.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 458px, 458px" alt="TFMS cabin with an LED board showing Petronet LNG tanker loading token numbers above the kiosk window" width="690" height="1035" decoding="async" loading="lazy" decoding="async"></button><figcaption>LED board showing live tanker loading tokens</figcaption></figure>
+          <figure class="sol-mock" role="img" aria-label="Illustration of a learning dashboard: four training programmes with their completion status">
+            <div class="sol-mock-bar"><span>Training overview</span><span class="sol-live">Live</span></div>
+            <ul class="sol-rows">
+              <li><b>Plant safety induction</b><span>92% complete</span></li>
+              <li><b>Dealer product training</b><span>64% complete</span></li>
+              <li class="is-alert"><b>Compliance refresher</b><span>Due in 5 days</span></li>
+              <li><b>New joiner programme</b><span>18 enrolled</span></li>
+            </ul>
+            <div class="sol-mock-bar"><span class="sol-chips"><span class="is-on">Courses</span><span>Learning paths</span><span>Certificates</span><span>Reports</span></span></div>
+            <figcaption>Illustration. Actual screens depend on how the platform is set up.</figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
       <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">What the system delivers</h2></div>
-        <div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="gauge"></i></span><span>Enhanced operational efficiency</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="radar"></i></span><span>Real-time tracking</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="shield-check"></i></span><span>Improved safety</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="clipboard-check"></i></span><span>Regulatory compliance</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="indian-rupee"></i></span><span>Cost optimisation</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="chart-line"></i></span><span>Data-driven decision making</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="smile"></i></span><span>Customer satisfaction</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="list-ordered"></i></span><span>Real-time queue control</span></div></div>
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Two platforms, one partner</h2></div><div class="jiva-cards jiva-accent"><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="layout-grid"></i></span><h3>Adobe Experience Manager (AEM)</h3><p>A content management system with digital asset management built in, so new pages and campaigns reach the market faster.</p><ul><li><i data-lucide="check"></i>Websites and landing pages from reusable components</li><li><i data-lucide="check"></i>One library for images, video and documents</li><li><i data-lucide="check"></i>Review and approval before anything is published</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="graduation-cap"></i></span><h3>Adobe Learning Manager (ALM)</h3><p>A learning management system to create, run and track training for everyone who needs it.</p><ul><li><i data-lucide="check"></i>Courses, learning paths and certifications</li><li><i data-lucide="check"></i>Training for employees, partners and customers</li><li><i data-lucide="check"></i>Completion tracking and reports</li></ul></div></article></div>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
       <div class="executive-container">
-        <div class="jiva-intro">
+        <div class="kiosk-lists">
           <div class="space-y-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">A weather-proof system built for uninterrupted operations</h2>
-            <ol class="jiva-list jiva-accent"><li><div><strong>Digital token issuance</strong><span>Tokens are issued digitally, with real-time queue control for organised tanker movement.</span></div></li><li><div><strong>Live LED display boards</strong><span>LED boards show live tanker status and token numbers.</span></div></li><li><div><strong>Built for tough conditions</strong><span>Rugged, weather-resistant hardware designed for uninterrupted 24×7 operation and continuous fleet performance.</span></div></li><li><div><strong>Accuracy and access control</strong><span>Minimises human error, prevents unauthorised access and ensures operational accuracy.</span></div></li></ol>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">How D-TECH helps</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Strategy and planning</strong><span>We start from your business goals and agree what each platform should deliver.</span></div></li><li><div><strong>Implementation and deployment</strong><span>Set up and configured to your requirements, then rolled out.</span></div></li><li><div><strong>Custom development</strong><span>Features and integrations the standard product does not cover.</span></div></li><li><div><strong>Training</strong><span>Sessions for authors, administrators and learners.</span></div></li><li><div><strong>Ongoing support</strong><span>Help with fixes, changes and new needs after go-live.</span></div></li></ol>
           </div>
-          <figure class="jiva-figure jiva-lead-photo is-banner"><button type="button" data-jiva-zoom aria-label="Enlarge photo: Tanker truck illustration labelled with hazard announcement, driving behaviour monitoring, fuel monitoring, geofencing and tanker lid monitoring"><img src="assets/tfms/tanker-monitoring-features.webp" srcset="assets/tfms/tanker-monitoring-features-480.webp 480w, assets/tfms/tanker-monitoring-features.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Tanker truck illustration labelled with hazard announcement, driving behaviour monitoring, fuel monitoring, geofencing and tanker lid monitoring" width="690" height="388" loading="lazy" decoding="async"></button></figure>
+          <div class="space-y-6">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Where it fits</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Corporate and product websites</strong><span>Many sites, brands or languages run from one system.</span></div></li><li><div><strong>Dealer and partner portals</strong><span>Product content and training in one place.</span></div></li><li><div><strong>Plant safety and SOP training</strong><span>Inductions and refreshers, with records of who completed what.</span></div></li><li><div><strong>Compliance and certification</strong><span>Due dates, reminders and audit-ready reports.</span></div></li><li><div><strong>Customer onboarding</strong><span>Self-paced courses that cut repeat support questions.</span></div></li></ol>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
-      <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">A smarter way to manage tanker flow and reduce waiting time</h2></div>
-        <div class="jiva-gallery is-portrait"><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Drivers collecting tokens at the kiosk"><img src="assets/tfms/drivers-at-token-kiosk.webp" srcset="assets/tfms/drivers-at-token-kiosk-480.webp 480w, assets/tfms/drivers-at-token-kiosk.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Two tanker drivers collecting tokens at the TFMS kiosk under the LED queue board" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Drivers collecting tokens at the kiosk</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Touchscreen kiosk with token printer"><img src="assets/tfms/token-kiosk-touchscreen-printer.webp" srcset="assets/tfms/token-kiosk-touchscreen-printer-480.webp 480w, assets/tfms/token-kiosk-touchscreen-printer.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Touchscreen token kiosk with a ticket printer mounted inside a cabin window" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Touchscreen kiosk with token printer</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Weather-proof cabin at the terminal"><img src="assets/tfms/tfms-cabin-petronet-lng.webp" srcset="assets/tfms/tfms-cabin-petronet-lng-480.webp 480w, assets/tfms/tfms-cabin-petronet-lng.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Weather-proof TFMS cabin branded Petronet LNG Limited at a terminal" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Weather-proof cabin at the terminal</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: D-TECH cabin with LED token board"><img src="assets/tfms/tfms-cabin-dtech-branded.webp" srcset="assets/tfms/tfms-cabin-dtech-branded-480.webp 480w, assets/tfms/tfms-cabin-dtech-branded.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="D-TECH branded TFMS cabin with the LED token board mounted above the kiosk window" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>D-TECH cabin with LED token board</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: LED token board at the terminal"><img src="assets/tfms/led-queue-board-sunset.webp" srcset="assets/tfms/led-queue-board-sunset-480.webp 480w, assets/tfms/led-queue-board-sunset.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="TFMS cabin and LED token board at a gas terminal at sunset" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>LED token board at the terminal</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Built to run 24×7 in the rain"><img src="assets/tfms/led-queue-board-rain.webp" srcset="assets/tfms/led-queue-board-rain-480.webp 480w, assets/tfms/led-queue-board-rain.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="TFMS cabin with its LED token board lit up in the rain" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Built to run 24×7 in the rain</figcaption></figure></div>
-      </div>
-    </section>
-
-    <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
-      <div class="executive-container">
-        <div class="jiva-intro">
-          <div class="space-y-4">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Manless tanker operations, anytime, in any weather</h2>
-            <p class="lead text-lg text-slate-700 leading-relaxed">Our system combines automation, reliability and durability to deliver a truly manless tanker management experience. With proven performance in real-world industrial environments, it keeps tanker operations running smoothly, anytime and in any weather.</p>
-          </div>
-          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge photo: Petronet LNG and D-TECH TFMS cabins at the terminal gate"><img src="assets/tfms/tfms-cabins-terminal-wide.webp" srcset="assets/tfms/tfms-cabins-terminal-wide-480.webp 480w, assets/tfms/tfms-cabins-terminal-wide-800.webp 800w, assets/tfms/tfms-cabins-terminal-wide.webp 1200w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Petronet LNG cabin beside the D-TECH TFMS cabin and LED token board at a terminal gate" width="1200" height="800" loading="lazy" decoding="async"></button><figcaption>Petronet LNG and D-TECH TFMS cabins at the terminal gate</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Planning tanker automation at your site?</h2><p>Tell us about your terminal, depot or plant gate, and our team will get back to you. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=tfms">Contact Us</a></div></section>
+    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Talk to us about AEM or Learning Manager</h2><p>Tell us what you want your website or training programme to do, and D-TECH will suggest the setup, the work involved and how we would support it. Plant training on a kiosk? See also <a class="hx-link" href="kiosk">Safety &amp; Training Kiosk</a>. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=adobe">Contact Us</a></div></section>
 
   </main>
 
@@ -291,44 +322,6 @@
       const menu = document.getElementById('mobile-menu');
       if (menu) menu.classList.toggle('hidden');
     }
-  </script>
-  <dialog class="jiva-lightbox" id="jiva-lightbox" aria-label="Photo viewer">
-    <button type="button" data-jiva-close aria-label="Close photo">✕</button>
-    <img decoding="async" alt="">
-    <p></p>
-  </dialog>
-  <script>
-    (function () {
-      var box = document.getElementById('jiva-lightbox');
-      if (!box || typeof box.showModal !== 'function') return;
-      var big = box.querySelector('img'), text = box.querySelector('p');
-      document.addEventListener('click', function (event) {
-        var trigger = event.target.closest('[data-jiva-zoom]');
-        if (trigger) {
-          var photo = trigger.querySelector('img');
-          var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.src;
-          big.alt = photo.alt;
-          text.textContent = caption ? caption.textContent : photo.alt;
-          box.showModal();
-          return;
-        }
-        if (event.target === box || event.target.closest('[data-jiva-close]')) box.close();
-      });
-      box.addEventListener('close', function () { big.removeAttribute('src'); });
-    })();
-    (function () {
-      // On narrow screens the section menu scrolls sideways; bring the current section into view.
-      // Runs after load: icons and web fonts change the tab widths.
-      function centre() {
-        var current = document.querySelector('.jiva-subnav [aria-current="page"]');
-        var rail = current && current.closest('ol');
-        if (!rail || rail.scrollWidth <= rail.clientWidth) return;
-        var r = rail.getBoundingClientRect(), c = current.getBoundingClientRect();
-        rail.scrollLeft += (c.left - r.left) - (r.width - c.width) / 2;
-      }
-      if (document.readyState === 'complete') centre(); else window.addEventListener('load', centre);
-    })();
   </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
 </body>

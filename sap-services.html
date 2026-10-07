@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#17324a">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <title>Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL</title>
-  <meta name="description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
+  <title>SAP Implementation &amp; Support | S/4HANA | D-TECH SIPL</title>
+  <meta name="description" content="SAP S/4HANA implementation, migration and post go-live support from D-TECH, with integrations, ABAP and BASIS, and SAP and IT consultants on contract.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL">
-  <meta property="og:description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
+  <meta property="og:title" content="SAP Implementation &amp; Support | S/4HANA | D-TECH SIPL">
+  <meta property="og:description" content="SAP S/4HANA implementation, migration and post go-live support from D-TECH, with integrations, ABAP and BASIS, and SAP and IT consultants on contract.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Automated Tanker Fleet Management System (TFMS) | D-TECH SIPL">
-  <meta name="twitter:description" content="Manless tanker fleet management: digital tokens, real-time queue control, live LED status boards and weather-proof hardware for 24×7 terminals and depots.">
-  <link rel="canonical" href="https://www.dtechindia.com/tfms">
-  <meta property="og:url" content="https://www.dtechindia.com/tfms">
+  <meta name="twitter:title" content="SAP Implementation &amp; Support | S/4HANA | D-TECH SIPL">
+  <meta name="twitter:description" content="SAP S/4HANA implementation, migration and post go-live support from D-TECH, with integrations, ABAP and BASIS, and SAP and IT consultants on contract.">
+  <link rel="canonical" href="https://www.dtechindia.com/sap-services">
+  <meta property="og:url" content="https://www.dtechindia.com/sap-services">
   <meta property="og:site_name" content="D-TECH Solution Integrators">
   <meta property="og:image" content="https://www.dtechindia.com/assets/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -74,7 +74,7 @@
     "alternateName": "D-TECH SIPL",
     "logo": "https://www.dtechindia.com/assets/dtech-logo-blue.webp",
     "image": "https://www.dtechindia.com/assets/og-image.png",
-    "url": "https://www.dtechindia.com/tfms",
+    "url": "https://www.dtechindia.com/sap-services",
     "email": "sales@dtechindia.com",
     "telephone": ["+91-95588-09163", "+91-99989-03042", "+91-2642-264596"],
     "foundingDate": "2003",
@@ -108,8 +108,49 @@
     <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
     <link rel="stylesheet" href="assets/sections.min.css?v=22f9c62e43">
     <link rel="stylesheet" href="assets/light-chrome.min.css?v=59d08dbca7">
+    <style>
+      .sol-mock { margin:0; border:1px solid var(--line-strong); border-radius:14px; background:var(--surface); overflow:hidden; box-shadow:0 24px 48px -32px rgba(15,35,60,.45); }
+      .sol-mock-bar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); font:600 13px/1.2 var(--text-face); color:var(--ink); }
+      .sol-live { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--c-green); }
+      .sol-live::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+      .sol-map { display:block; width:100%; height:auto; background:var(--paper); }
+      .sol-map .grid { stroke:var(--line); stroke-width:1; }
+      .sol-map .road { fill:none; stroke:var(--line-strong); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .route { fill:none; stroke:var(--signal-deep); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
+      .sol-map .fence { fill:none; stroke:var(--c-orange); stroke-width:2; stroke-dasharray:6 5; }
+      .sol-map .pin { fill:var(--signal-deep); stroke:var(--surface); stroke-width:3; }
+      .sol-map .pin.idle { fill:var(--ink-soft); }
+      .sol-map .pin.alert { fill:var(--c-orange); }
+      .sol-rows { list-style:none; margin:0; padding:0; }
+      .sol-rows li { display:flex; justify-content:space-between; gap:12px; padding:11px 16px; border-top:1px solid var(--line); font-size:14px; line-height:1.35; }
+      .sol-rows b { color:var(--ink); font-weight:600; }
+      .sol-rows span { color:var(--ink-soft); text-align:right; }
+      .sol-rows .is-alert span { color:var(--c-orange-text); font-weight:600; }
+      .sol-mock figcaption { padding:10px 16px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-soft); }
+      .sol-chips { display:flex; flex-wrap:wrap; gap:6px; }
+      .sol-chips span { padding:5px 10px; border:1px solid var(--line-strong); border-radius:999px; font:500 12px/1 var(--text-face); color:var(--ink-soft); }
+      .sol-chips .is-on { background:var(--signal-deep); border-color:transparent; color:#fff; }
+      .sol-thread { display:flex; flex-direction:column; gap:10px; padding:20px 16px; background:var(--paper); }
+      .sol-msg { max-width:82%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.45; }
+      .sol-msg small { display:block; margin-top:4px; font-size:11px; opacity:.75; }
+      .sol-msg.in { align-self:flex-start; background:var(--surface); border:1px solid var(--line); color:var(--ink); border-bottom-left-radius:4px; }
+      .sol-msg.out { align-self:flex-end; background:var(--signal-deep); color:#fff; border-bottom-right-radius:4px; }
+      .sol-replies { align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+      .sol-replies span { padding:6px 11px; border:1px solid var(--signal-deep); border-radius:999px; background:var(--surface); font:600 12px/1 var(--text-face); color:var(--signal-deep); }
+      .sol-note { align-self:center; padding:4px 10px; border-radius:6px; background:var(--surface); font:500 11px/1.4 var(--mono); color:var(--ink-soft); }
+      @media (min-width:901px) {
+        .dt-product .jiva-cards.sol-cards-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) { border-left:0!important; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) .jiva-card-body { padding-left:0; }
+        .dt-product .sol-cards-3 .jiva-card:nth-child(n+4) { border-top:1px solid var(--line-strong)!important; }
+        .dt-product .jiva-cards.sol-cards-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .dt-product .sol-cards-2 .jiva-card:nth-child(2n+1) { border-left:0!important; }
+        .dt-product .sol-cards-2 .jiva-card:nth-child(2n+1) .jiva-card-body { padding-left:0; }
+        .dt-product .sol-cards-2 .jiva-card:nth-child(n+3) { border-top:1px solid var(--line-strong)!important; }
+      }
+    </style>
 </head>
-<body data-page="tfms" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
+<body data-page="sap" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
 <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="utility-bar"><div class="executive-container"><span>Industrial technology. Integrated with precision.</span><div class="utility-phones"><a href="tel:+919998903042" class="utility-agent"><img src="/assets/support/care-agent-avatar.webp" alt="" width="28" height="28" class="utility-avatar" decoding="async"><span class="utility-lead">Customer care</span><span>+91 99989 03042 ↗</span></a><a href="tel:+919558809163"><span class="utility-tag">Sales</span><span>+91 95588 09163 ↗</span></a><a href="tel:+912642264596"><span>+91 2642 264596 ↗</span></a><a href="mailto:sales@dtechindia.com"><span>sales@dtechindia.com ↗</span></a><a href="https://support.dtechindia.com" target="_blank" rel="noopener"><span class="utility-tag">Support</span><span>support.dtechindia.com ↗</span></a></div></div></div>
   <header class="site-header"><div class="executive-container header-inner">
@@ -142,9 +183,9 @@
     <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white py-14 sm:py-18 border-b border-slate-800">
       <div class="executive-container">
         <div class="max-w-3xl space-y-4">
-          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <span class="text-white">TFMS</span></nav>
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">Automated Tanker Fleet Management System</h1>
-          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">Real-time tracking, optimised operations, regulatory compliance, cost savings and enhanced safety, delivered with efficiency and reliability.</p>
+          <nav aria-label="Breadcrumb" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-mono"><a href="/" class="hover:text-white">Home</a> <span class="text-slate-400">/</span> <a href="solutions" class="hover:text-white">Solutions</a> <span class="text-slate-400">/</span> <span class="text-white">SAP Implementation &amp; Support</span></nav>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">SAP Implementation &amp; Support</h1>
+          <p class="text-base sm:text-lg text-slate-300 leading-relaxed">SAP S/4HANA projects, post go-live support and SAP consultants for manufacturing and process industries.</p>
         </div>
       </div>
     </section>
@@ -153,54 +194,67 @@
       <div class="executive-container">
         <div class="jiva-intro">
           <div class="space-y-5">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Manless tanker management for terminals and depots</h2>
-            <p class="lead">Our automated (manless) Tanker Fleet Management System is a complete digital solution for managing tanker movement within terminals, depots and industrial facilities.</p>
-            <p class="text-slate-600">By eliminating manual processes, it delivers faster turnaround, improved transparency and smooth traffic flow, without human intervention. Built with industrial-grade, weather-proof hardware, the system runs reliably 24×7, even in rain, dust and harsh outdoor environments.</p>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">SAP that fits how your plant runs</h2>
+            <p class="lead">From a first S/4HANA rollout to keeping a live system healthy, D-TECH plans, configures and supports SAP around your processes.</p>
+            <p class="text-slate-600">We sit with your plant, finance and IT teams to map each process end to end, configure the modules you need, connect SAP to the machines and systems around it, and stay on after go-live. When you need people rather than a project, we provide SAP and IT consultants on contract.</p>
+            <div class="hero-actions"><a class="button button-primary" href="contact?subject=sap">Contact Us <span>↗</span></a></div>
           </div>
-          <figure class="jiva-figure jiva-lead-photo is-portrait"><button type="button" data-jiva-zoom aria-label="Enlarge photo: LED board showing live tanker loading tokens"><img src="assets/tfms/token-kiosk-led-queue-board.webp" srcset="assets/tfms/token-kiosk-led-queue-board-480.webp 480w, assets/tfms/token-kiosk-led-queue-board.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 458px, 458px" alt="TFMS cabin with an LED board showing Petronet LNG tanker loading token numbers above the kiosk window" width="690" height="1035" decoding="async" loading="lazy" decoding="async"></button><figcaption>LED board showing live tanker loading tokens</figcaption></figure>
+          <figure class="sol-mock" role="img" aria-label="Illustration of an SAP project plan: five phases from planning to support, with the modules in scope">
+            <div class="sol-mock-bar"><span>S/4HANA project plan</span><span class="sol-live">On track</span></div>
+            <ul class="sol-rows">
+              <li><b>1 · Plan</b><span>Scope, team and timeline agreed</span></li>
+              <li><b>2 · Design</b><span>Fit-gap workshops by module</span></li>
+              <li class="is-alert"><b>3 · Build</b><span>Configuration, interfaces, data load</span></li>
+              <li><b>4 · Go-live</b><span>User training and cut-over</span></li>
+              <li><b>5 · Support</b><span>Help desk and improvements</span></li>
+            </ul>
+            <div class="sol-mock-bar"><span class="sol-chips"><span class="is-on">FI/CO</span><span class="is-on">MM</span><span class="is-on">SD</span><span class="is-on">PP</span><span class="is-on">QM</span><span>PM</span><span>PS</span></span></div>
+            <figcaption>Illustration. Phases and modules are agreed for each project.</figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
       <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">What the system delivers</h2></div>
-        <div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="gauge"></i></span><span>Enhanced operational efficiency</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="radar"></i></span><span>Real-time tracking</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="shield-check"></i></span><span>Improved safety</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="clipboard-check"></i></span><span>Regulatory compliance</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="indian-rupee"></i></span><span>Cost optimisation</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="chart-line"></i></span><span>Data-driven decision making</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="smile"></i></span><span>Customer satisfaction</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="list-ordered"></i></span><span>Real-time queue control</span></div></div>
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">What we do</h2><p class="text-base text-slate-600 leading-relaxed">One team for the whole life of your SAP system, from the first workshop to the next upgrade.</p></div><div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="workflow"></i></span><span>New S/4HANA implementations</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="repeat"></i></span><span>Re-implementation and migration, including ECC to S/4HANA</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="life-buoy"></i></span><span>Post go-live support and help desk</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="gauge"></i></span><span>Performance tuning and upgrade planning</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="code"></i></span><span>ABAP development and BASIS administration</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="users"></i></span><span>SAP and IT consultants on contract</span></div></div>
       </div>
     </section>
 
     <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
       <div class="executive-container">
-        <div class="jiva-intro">
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Modules we configure</h2></div><div class="jiva-cards jiva-accent sol-cards-2"><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="indian-rupee"></i></span><h3>Finance and controlling (FI/CO)</h3><p>Books, costs and statutory reporting in one place.</p><ul><li><i data-lucide="check"></i>General ledger, payables and receivables</li><li><i data-lucide="check"></i>Cost centres and product costing</li><li><i data-lucide="check"></i>GST and TDS reconciliation</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="package"></i></span><h3>Materials and sales (MM, SD)</h3><p>From purchase order to invoice and dispatch.</p><ul><li><i data-lucide="check"></i>Local and import purchasing</li><li><i data-lucide="check"></i>Inventory, valuation and stock ageing</li><li><i data-lucide="check"></i>Sales orders, pricing and billing</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="factory"></i></span><h3>Production and quality (PP, PP-PI, QM)</h3><p>Discrete and process manufacturing, batch by batch.</p><ul><li><i data-lucide="check"></i>Production planning and orders</li><li><i data-lucide="check"></i>Batch management and shelf-life tracking</li><li><i data-lucide="check"></i>Inspections and quality records</li></ul></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="wrench"></i></span><h3>Maintenance and projects (PM, PS)</h3><p>Keep equipment running and projects on budget.</p><ul><li><i data-lucide="check"></i>Preventive and breakdown maintenance</li><li><i data-lucide="check"></i>Project structures, budgets and progress</li><li><i data-lucide="check"></i>Plant-level cost reporting</li></ul></div></article></div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
+      <div class="executive-container">
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Connected to the systems around SAP</h2><p class="text-base text-slate-600 leading-relaxed">Data entered once, where the work happens, and carried into SAP without retyping.</p></div><div class="jiva-features jiva-accent"><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="scale"></i></span><span>Weighbridge integration</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="pencil-ruler"></i></span><span>Cutting and nesting optimisation tools</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="users"></i></span><span>HR and payroll systems</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="smartphone"></i></span><span>Mobile apps for field and shop-floor teams</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="chart-line"></i></span><span>BI and management reporting</span></div><div class="jiva-feature"><span class="jiva-icon"><i data-lucide="plug"></i></span><span>Interfaces to your other business software</span></div></div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
+      <div class="executive-container">
+        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Industries we know</h2></div><div class="jiva-cards jiva-accent sol-cards-3"><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="hammer"></i></span><h3>Engineering and fabrication</h3><p>Project-based manufacturing, cut optimisation and reporting across many sites.</p></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="soup"></i></span><h3>Food and edible oils</h3><p>Process manufacturing with weighbridge links and batch traceability.</p></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="clipboard-check"></i></span><h3>Pharma and APIs</h3><p>Batch determination, shelf-life and ageing reports, validated processes.</p></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="weight"></i></span><h3>Steel and metals</h3><p>Raw material to finished product tracking, with import purchasing.</p></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="graduation-cap"></i></span><h3>Education and healthcare</h3><p>Finance, purchasing and sales across a group of institutions.</p></div></article><article class="jiva-card cafe-card ais-card"><div class="jiva-card-body"><span class="jiva-icon"><i data-lucide="wallet"></i></span><h3>Payments and financial services</h3><p>Finance and controlling linked to BI reporting.</p></div></article></div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
+      <div class="executive-container">
+        <div class="kiosk-lists">
           <div class="space-y-6">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">A weather-proof system built for uninterrupted operations</h2>
-            <ol class="jiva-list jiva-accent"><li><div><strong>Digital token issuance</strong><span>Tokens are issued digitally, with real-time queue control for organised tanker movement.</span></div></li><li><div><strong>Live LED display boards</strong><span>LED boards show live tanker status and token numbers.</span></div></li><li><div><strong>Built for tough conditions</strong><span>Rugged, weather-resistant hardware designed for uninterrupted 24×7 operation and continuous fleet performance.</span></div></li><li><div><strong>Accuracy and access control</strong><span>Minimises human error, prevents unauthorised access and ensures operational accuracy.</span></div></li></ol>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Ways to work with us</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Turnkey implementation</strong><span>Agreed scope, from design workshops to go-live.</span></div></li><li><div><strong>Support contract</strong><span>Help desk, fixes and small changes every month.</span></div></li><li><div><strong>Consulting</strong><span>Process reviews and fit-gap studies before you commit.</span></div></li><li><div><strong>Data migration</strong><span>Masters and open items cleaned, loaded and checked.</span></div></li><li><div><strong>Training</strong><span>Key users and end users trained on their own processes.</span></div></li></ol>
           </div>
-          <figure class="jiva-figure jiva-lead-photo is-banner"><button type="button" data-jiva-zoom aria-label="Enlarge photo: Tanker truck illustration labelled with hazard announcement, driving behaviour monitoring, fuel monitoring, geofencing and tanker lid monitoring"><img src="assets/tfms/tanker-monitoring-features.webp" srcset="assets/tfms/tanker-monitoring-features-480.webp 480w, assets/tfms/tanker-monitoring-features.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Tanker truck illustration labelled with hazard announcement, driving behaviour monitoring, fuel monitoring, geofencing and tanker lid monitoring" width="690" height="388" loading="lazy" decoding="async"></button></figure>
+          <div class="space-y-6">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">SAP and IT consultants</h2>
+            <ol class="jiva-list jiva-accent"><li><div><strong>Contract to hire</strong><span>Start on contract, move to your payroll when it suits you.</span></div></li><li><div><strong>Permanent placement</strong><span>Screened candidates for your own team.</span></div></li><li><div><strong>Part-time, by the hour</strong><span>Specialist time when you need it.</span></div></li><li><div><strong>Work packages</strong><span>A defined piece of work, delivered and handed over.</span></div></li><li><div><strong>Project leads</strong><span>Project managers and solution architects as well as module consultants.</span></div></li></ol>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="py-16 sm:py-20 bg-slate-50 border-b border-slate-200">
-      <div class="executive-container">
-        <div class="max-w-3xl mb-10 space-y-3"><h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">A smarter way to manage tanker flow and reduce waiting time</h2></div>
-        <div class="jiva-gallery is-portrait"><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Drivers collecting tokens at the kiosk"><img src="assets/tfms/drivers-at-token-kiosk.webp" srcset="assets/tfms/drivers-at-token-kiosk-480.webp 480w, assets/tfms/drivers-at-token-kiosk.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Two tanker drivers collecting tokens at the TFMS kiosk under the LED queue board" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Drivers collecting tokens at the kiosk</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Touchscreen kiosk with token printer"><img src="assets/tfms/token-kiosk-touchscreen-printer.webp" srcset="assets/tfms/token-kiosk-touchscreen-printer-480.webp 480w, assets/tfms/token-kiosk-touchscreen-printer.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Touchscreen token kiosk with a ticket printer mounted inside a cabin window" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Touchscreen kiosk with token printer</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Weather-proof cabin at the terminal"><img src="assets/tfms/tfms-cabin-petronet-lng.webp" srcset="assets/tfms/tfms-cabin-petronet-lng-480.webp 480w, assets/tfms/tfms-cabin-petronet-lng.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="Weather-proof TFMS cabin branded Petronet LNG Limited at a terminal" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Weather-proof cabin at the terminal</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: D-TECH cabin with LED token board"><img src="assets/tfms/tfms-cabin-dtech-branded.webp" srcset="assets/tfms/tfms-cabin-dtech-branded-480.webp 480w, assets/tfms/tfms-cabin-dtech-branded.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="D-TECH branded TFMS cabin with the LED token board mounted above the kiosk window" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>D-TECH cabin with LED token board</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: LED token board at the terminal"><img src="assets/tfms/led-queue-board-sunset.webp" srcset="assets/tfms/led-queue-board-sunset-480.webp 480w, assets/tfms/led-queue-board-sunset.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="TFMS cabin and LED token board at a gas terminal at sunset" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>LED token board at the terminal</figcaption></figure><figure class="jiva-figure "><button type="button" data-jiva-zoom aria-label="Enlarge photo: Built to run 24×7 in the rain"><img src="assets/tfms/led-queue-board-rain.webp" srcset="assets/tfms/led-queue-board-rain-480.webp 480w, assets/tfms/led-queue-board-rain.webp 690w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 447px, 454px" alt="TFMS cabin with its LED token board lit up in the rain" width="690" height="1035" loading="lazy" decoding="async"></button><figcaption>Built to run 24×7 in the rain</figcaption></figure></div>
-      </div>
-    </section>
-
-    <section class="py-16 sm:py-20 bg-white border-b border-slate-200">
-      <div class="executive-container">
-        <div class="jiva-intro">
-          <div class="space-y-4">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Manless tanker operations, anytime, in any weather</h2>
-            <p class="lead text-lg text-slate-700 leading-relaxed">Our system combines automation, reliability and durability to deliver a truly manless tanker management experience. With proven performance in real-world industrial environments, it keeps tanker operations running smoothly, anytime and in any weather.</p>
-          </div>
-          <figure class="jiva-figure jiva-lead-photo"><button type="button" data-jiva-zoom aria-label="Enlarge photo: Petronet LNG and D-TECH TFMS cabins at the terminal gate"><img src="assets/tfms/tfms-cabins-terminal-wide.webp" srcset="assets/tfms/tfms-cabins-terminal-wide-480.webp 480w, assets/tfms/tfms-cabins-terminal-wide-800.webp 800w, assets/tfms/tfms-cabins-terminal-wide.webp 1200w" sizes="(max-width: 767px) 100vw, (max-width: 1279px) 940px, 649px" alt="Petronet LNG cabin beside the D-TECH TFMS cabin and LED token board at a terminal gate" width="1200" height="800" loading="lazy" decoding="async"></button><figcaption>Petronet LNG and D-TECH TFMS cabins at the terminal gate</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Planning tanker automation at your site?</h2><p>Tell us about your terminal, depot or plant gate, and our team will get back to you. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=tfms">Contact Us</a></div></section>
+    <section class="project-cta"><div class="executive-container"><div><span class="dt-cut" aria-hidden="true"></span><h2>Planning an SAP project?</h2><p>Tell us where you are, whether a first implementation, a migration or a live system that needs support, and D-TECH will propose the scope, team and timeline. Prefer to talk? Call +91 95588 09163.</p></div><a class="button button-primary" href="contact?subject=sap">Contact Us</a></div></section>
 
   </main>
 
@@ -291,44 +345,6 @@
       const menu = document.getElementById('mobile-menu');
       if (menu) menu.classList.toggle('hidden');
     }
-  </script>
-  <dialog class="jiva-lightbox" id="jiva-lightbox" aria-label="Photo viewer">
-    <button type="button" data-jiva-close aria-label="Close photo">✕</button>
-    <img decoding="async" alt="">
-    <p></p>
-  </dialog>
-  <script>
-    (function () {
-      var box = document.getElementById('jiva-lightbox');
-      if (!box || typeof box.showModal !== 'function') return;
-      var big = box.querySelector('img'), text = box.querySelector('p');
-      document.addEventListener('click', function (event) {
-        var trigger = event.target.closest('[data-jiva-zoom]');
-        if (trigger) {
-          var photo = trigger.querySelector('img');
-          var caption = trigger.parentElement.querySelector('figcaption');
-          big.src = photo.src;
-          big.alt = photo.alt;
-          text.textContent = caption ? caption.textContent : photo.alt;
-          box.showModal();
-          return;
-        }
-        if (event.target === box || event.target.closest('[data-jiva-close]')) box.close();
-      });
-      box.addEventListener('close', function () { big.removeAttribute('src'); });
-    })();
-    (function () {
-      // On narrow screens the section menu scrolls sideways; bring the current section into view.
-      // Runs after load: icons and web fonts change the tab widths.
-      function centre() {
-        var current = document.querySelector('.jiva-subnav [aria-current="page"]');
-        var rail = current && current.closest('ol');
-        if (!rail || rail.scrollWidth <= rail.clientWidth) return;
-        var r = rail.getBoundingClientRect(), c = current.getBoundingClientRect();
-        rail.scrollLeft += (c.left - r.left) - (r.width - c.width) / 2;
-      }
-      if (document.readyState === 'complete') centre(); else window.addEventListener('load', centre);
-    })();
   </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
 </body>

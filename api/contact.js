@@ -34,6 +34,7 @@ const TOPICS = {
   amc: 'AMC / CAMC Maintenance Services',
   fms: 'FMS / Managed IT Services',
   sap: 'SAP Implementation, Support & Resource Augmentation',
+  adobe: 'Adobe Experience Manager & Learning Manager',
   software: 'Custom Software, ERP & CRM',
   'ai-agents': 'AI Agents & Document Automation',
   robotics: 'Robotics & Material Handling',

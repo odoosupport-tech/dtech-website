@@ -476,7 +476,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const r = await call(data, req('GET', null, { headers: { cookie } }));
       eq(r.statusCode, 200);
       for (const k of ['requirements', 'applicants', 'leads', 'jobs', 'caseStudies']) assert(Array.isArray(r.body[k]), k);
-      eq(r.body.requirements.length, 25); // area 2: the valid enquiry, the auto-responder, markup, free-text topic, 4 flood posts, one per subject (16) and the Rahul-copy check
+      eq(r.body.requirements.length, 26); // area 2: the valid enquiry, the auto-responder, markup, free-text topic, 4 flood posts, one per subject (17) and the Rahul-copy check
       eq(r.body.applicants.length, 2); // PDF + DOCX applications from area 3
       eq(r.body.leads.length, 8); // PDF and summary requests from area 4
     }],
