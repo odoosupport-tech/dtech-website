@@ -67,19 +67,15 @@ main .eyebrow {
 }
 
 /* ---- 4 · Cards: 18px plates, full-width accent bar, lift on hover ------ */
-:is(.jiva-card,.jiva-feature,.partner-card,.news-item) {
+:is(.jiva-card,.jiva-feature,.partner-card) {
   border-radius:var(--r-panel)!important;
   overflow:hidden;
 }
-.news-item {
-  border-left:1px solid var(--line)!important;
-  border-top:4px solid var(--jiva-c,var(--signal))!important;
-}
 .jiva-card,.jiva-feature { border-top-width:4px!important; }
-:is(.jiva-card,.jiva-feature,.partner-card,.news-item) {
+:is(.jiva-card,.jiva-feature,.partner-card) {
   transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .2s ease!important;
 }
-:is(.jiva-card,.jiva-feature,.news-item,.partner-card):hover {
+:is(.jiva-card,.jiva-feature,.partner-card):hover {
   transform:translateY(-3px);
   box-shadow:var(--p-lift),var(--p-edge)!important;
 }
@@ -110,7 +106,7 @@ html[data-theme="dark"] .partner-logo-box { border-color:rgba(255,255,255,.08)!i
 main :is(.button,.cs-btn) { border-radius:var(--r-control); min-height:44px; }
 
 @media (prefers-reduced-motion:reduce) {
-  :is(.jiva-card,.jiva-feature,.news-item,.partner-card):hover { transform:none; }
+  :is(.jiva-card,.jiva-feature,.partner-card):hover { transform:none; }
 }
 
 /* ---- 8 · Header ring motif (echoes the ring in the D-TECH mark) --------- */

@@ -59,12 +59,12 @@
   <script src="assets/refined.min.js?v=6e26a30715" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=6b3272901c">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=88039106d3">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=2b46b8afab">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-var.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InterTight-var.woff2" crossorigin>
-  <link rel="stylesheet" href="assets/jiva.min.css?v=f8a32eb53f">
+  <link rel="stylesheet" href="assets/jiva.min.css?v=18f4a1d9fb">
   <script>try{var __dt='light';try{if(localStorage.getItem('dtech-theme')==='dark'){__dt='dark';}}catch(e){}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
   <script type="application/ld+json">
   {
@@ -105,22 +105,14 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
-    <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
-    <link rel="stylesheet" href="assets/sections.min.css?v=22f9c62e43">
+    <link rel="stylesheet" href="assets/refresh.min.css?v=1981d65747">
+    <link rel="stylesheet" href="assets/sections.min.css?v=6d05c9a0d3">
     <link rel="stylesheet" href="assets/light-chrome.min.css?v=59d08dbca7">
     <style>
       .sol-mock { margin:0; border:1px solid var(--line-strong); border-radius:14px; background:var(--surface); overflow:hidden; box-shadow:0 24px 48px -32px rgba(15,35,60,.45); }
       .sol-mock-bar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); font:600 13px/1.2 var(--text-face); color:var(--ink); }
       .sol-live { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--c-green); }
       .sol-live::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
-      .sol-map { display:block; width:100%; height:auto; background:var(--paper); }
-      .sol-map .grid { stroke:var(--line); stroke-width:1; }
-      .sol-map .road { fill:none; stroke:var(--line-strong); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
-      .sol-map .route { fill:none; stroke:var(--signal-deep); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
-      .sol-map .fence { fill:none; stroke:var(--c-orange); stroke-width:2; stroke-dasharray:6 5; }
-      .sol-map .pin { fill:var(--signal-deep); stroke:var(--surface); stroke-width:3; }
-      .sol-map .pin.idle { fill:var(--ink-soft); }
-      .sol-map .pin.alert { fill:var(--c-orange); }
       .sol-rows { list-style:none; margin:0; padding:0; }
       .sol-rows li { display:flex; justify-content:space-between; gap:12px; padding:11px 16px; border-top:1px solid var(--line); font-size:14px; line-height:1.35; }
       .sol-rows b { color:var(--ink); font-weight:600; }
@@ -130,14 +122,6 @@
       .sol-chips { display:flex; flex-wrap:wrap; gap:6px; }
       .sol-chips span { padding:5px 10px; border:1px solid var(--line-strong); border-radius:999px; font:500 12px/1 var(--text-face); color:var(--ink-soft); }
       .sol-chips .is-on { background:var(--signal-deep); border-color:transparent; color:#fff; }
-      .sol-thread { display:flex; flex-direction:column; gap:10px; padding:20px 16px; background:var(--paper); }
-      .sol-msg { max-width:82%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.45; }
-      .sol-msg small { display:block; margin-top:4px; font-size:11px; opacity:.75; }
-      .sol-msg.in { align-self:flex-start; background:var(--surface); border:1px solid var(--line); color:var(--ink); border-bottom-left-radius:4px; }
-      .sol-msg.out { align-self:flex-end; background:var(--signal-deep); color:#fff; border-bottom-right-radius:4px; }
-      .sol-replies { align-self:flex-end; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
-      .sol-replies span { padding:6px 11px; border:1px solid var(--signal-deep); border-radius:999px; background:var(--surface); font:600 12px/1 var(--text-face); color:var(--signal-deep); }
-      .sol-note { align-self:center; padding:4px 10px; border-radius:6px; background:var(--surface); font:500 11px/1.4 var(--mono); color:var(--ink-soft); }
       @media (min-width:901px) {
         .dt-product .jiva-cards.sol-cards-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
         .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) { border-left:0!important; }
@@ -390,11 +374,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       window.lucide?.createIcons();
     });
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      if (menu) menu.classList.toggle('hidden');
-    }
   </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>
 </body>

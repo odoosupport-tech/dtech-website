@@ -59,12 +59,12 @@
   <script src="assets/refined.min.js?v=6e26a30715" defer></script>
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=6b3272901c">
-  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=88039106d3">
+  <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=2b46b8afab">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff">
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-var.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/InterTight-var.woff2" crossorigin>
-  <link rel="stylesheet" href="assets/jiva.min.css?v=f8a32eb53f">
+  <link rel="stylesheet" href="assets/jiva.min.css?v=18f4a1d9fb">
   <script>try{var __dt='light';try{if(localStorage.getItem('dtech-theme')==='dark'){__dt='dark';}}catch(e){}if(__dt!=='dark'){var __dl=document.getElementById('theme-dark-css');if(__dl){__dl.disabled=true;}}document.documentElement.setAttribute('data-theme',__dt);}catch(e){}</script>
   <script type="application/ld+json">
   {
@@ -105,8 +105,8 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/dtech-logo-blue.webp" fetchpriority="high">
-    <link rel="stylesheet" href="assets/refresh.min.css?v=f593408afb">
-    <link rel="stylesheet" href="assets/sections.min.css?v=22f9c62e43">
+    <link rel="stylesheet" href="assets/refresh.min.css?v=1981d65747">
+    <link rel="stylesheet" href="assets/sections.min.css?v=6d05c9a0d3">
     <link rel="stylesheet" href="assets/light-chrome.min.css?v=59d08dbca7">
 </head>
 <body data-page="cafeteria" class="bg-white text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col min-h-screen">
@@ -299,11 +299,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       window.lucide?.createIcons();
     });
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      if (menu) menu.classList.toggle('hidden');
-    }
   </script>
   <dialog class="jiva-lightbox" id="jiva-lightbox" aria-label="Photo viewer">
     <button type="button" data-jiva-close aria-label="Close photo">✕</button>
@@ -329,18 +324,6 @@
         if (event.target === box || event.target.closest('[data-jiva-close]')) box.close();
       });
       box.addEventListener('close', function () { big.removeAttribute('src'); });
-    })();
-    (function () {
-      // On narrow screens the section menu scrolls sideways; bring the current section into view.
-      // Runs after load: icons and web fonts change the tab widths.
-      function centre() {
-        var current = document.querySelector('.jiva-subnav [aria-current="page"]');
-        var rail = current && current.closest('ol');
-        if (!rail || rail.scrollWidth <= rail.clientWidth) return;
-        var r = rail.getBoundingClientRect(), c = current.getBoundingClientRect();
-        rail.scrollLeft += (c.left - r.left) - (r.width - c.width) / 2;
-      }
-      if (document.readyState === 'complete') centre(); else window.addEventListener('load', centre);
     })();
   </script>
 <script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}</script>

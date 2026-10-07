@@ -65,9 +65,6 @@ body { letter-spacing:-.003em; }
 /* ---- motorola.html link card: the logo is black with a white "M" in its
    emblem. A plain invert makes it white on the dark surface and keeps the M
    (brightness(0) first, as the small marquee logos use, would blank the M). */
-.partner-fallback img {
-  filter: invert(1);
-}
 
 /* ---- Marquee logos in Dark Mode:
    Preserve authentic brand colors across all logos.

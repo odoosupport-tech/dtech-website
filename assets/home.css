@@ -106,16 +106,6 @@
 .hx-practice-link::after { content:"\2192"; display:inline-block; margin-left:8px; text-decoration:none; transition:transform .2s ease; }
 .hx-practice-link:hover::after,.hx-practice-link:focus-visible::after { transform:translateX(4px); }
 @media (prefers-reduced-motion:reduce) { .hx-practice-link::after { transition:none; } }
-.hx-products {
-  display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:28px 0 0; padding-top:22px;
-  border-top:1px solid var(--line); font-size:14px;
-}
-.hx-products>span { margin-right:6px; font-weight:700; color:var(--ink); }
-.hx-products a {
-  padding:7px 12px; border-radius:999px; background:var(--well);
-  font-size:13px; font-weight:600; color:var(--ink); transition:background-color .15s ease;
-}
-.hx-products a:hover { background:var(--signal-wash); }
 
 
 /* ---- Responsive -------------------------------------------------------- */

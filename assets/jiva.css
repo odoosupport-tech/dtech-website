@@ -271,18 +271,6 @@ body[data-page="video-analytics"] main h2 { letter-spacing:-.03em; }
 
 /* ---- News and careers lists -------------------------------------------- */
 body[data-page="news"] main h2,body[data-page="careers"] main h2 { letter-spacing:-.03em; }
-.news-list { display:grid; gap:16px; }
-.news-item { padding:24px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--jiva-c,var(--signal)); }
-.news-item h3 { margin:10px 0 8px; font-size:20px; line-height:1.25; }
-.news-item p { margin:0; color:var(--ink-soft); font-size:15px; line-height:1.65; }
-.news-meta,.news-foot { display:flex; flex-wrap:wrap; align-items:center; gap:14px; font:500 12px/1.4 var(--mono); color:var(--muted); }
-.news-meta svg { width:14px; height:14px; margin-right:4px; vertical-align:-2px; }
-.news-foot { margin-top:16px; }
-.news-badge { padding:4px 10px; border-radius:999px; background:var(--c-green-wash); color:var(--c-green); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-.news-list .news-item:nth-child(4n+1) { border-left-color:var(--signal); }
-.news-list .news-item:nth-child(4n+2) { border-left-color:var(--c-green); }
-.news-list .news-item:nth-child(4n+3) { border-left-color:var(--c-orange); }
-.news-list .news-item:nth-child(4n+4) { border-left-color:var(--c-red); }
 
 /* ---- Careers apply dialog ---------------------------------------------- */
 .apply-dialog { width:min(620px,94vw); padding:0; border:0; border-radius:14px; background:var(--surface); color:var(--ink); box-shadow:0 40px 80px -20px rgba(7,15,30,.6); }
@@ -302,7 +290,6 @@ body[data-page="news"] main h2,body[data-page="careers"] main h2 { letter-spacin
 .apply-feedback[data-state="ok"] { background:var(--c-green-wash); color:#1d8a5c; }
 .apply-feedback[data-state="error"] { background:var(--c-red-wash); color:#c9291c; }
 .apply-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; }
-.news-foot .button { padding:10px 16px; min-height:40px; gap:12px; }
 .apply-dialog [hidden] { display:none !important; }
 
 /* ---- About: self-hosted interactive company intro ----------------------- */
