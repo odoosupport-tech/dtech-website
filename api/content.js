@@ -53,8 +53,10 @@ module.exports = async function handler(req, res) {
   }
   try {
     const list = publicList(name);
-    // Same freshness as the static files it replaces: revalidated on every page load.
-    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    // The lists are read from files bundled with this deployment, so they only change
+    // on a redeploy (publishing from the console commits, which redeploys), and each
+    // deploy clears the CDN cache. Browsers revalidate; the CDN answers.
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800');
     return res.status(200).json(list);
   } catch (err) {
     console.error(`Reading the ${name} list failed:`, err.message);

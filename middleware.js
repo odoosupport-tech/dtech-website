@@ -10,7 +10,10 @@
 // Runs on the Edge runtime, so it signs with Web Crypto rather than node:crypto.
 // Fails closed: without PDF_LINK_SECRET / ADMIN_SECRET no PDF is served.
 
-export const config = { matcher: '/:path*' };
+// Runs on every route except plain static assets: a path under /assets/ (outside the
+// gated PDF folder) with no '%', '\\' or '..' cannot reach an internal file, and
+// skipping those keeps each page view to one middleware call instead of dozens.
+export const config = { matcher: '/((?!assets/(?!case-studies/pdf)(?!.*\\.\\.)[^%\\\\]*$).*)' };
 
 const KEY_LABEL = 'dtech-case-study-pdf-link-v1'; // must match api/_pdf-link.js
 const TOKEN_RE = /^(\d{13,16})\.([A-Za-z0-9_-]{43})$/;

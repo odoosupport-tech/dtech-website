@@ -1378,7 +1378,16 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }
   };
   await area('13. Lead-gated case-study PDFs (middleware.js)', [
-    ['the gate covers every route before static routing', () => eq(gateConfig.matcher, '/:path*')],
+    ['the gate covers every route except plain static assets', () => {
+      const covers = new RegExp(`^${gateConfig.matcher}$`);
+      for (const p of ['/', '/about', '/api/contact', '/api/_store.js', '/data/jobs.json', '/data%2Fjobs.json', '/middleware.js', '/.env',
+        '/assets/case-studies/pdf/x.pdf', '/assets/..%2Fdata/jobs.json', '/assets/%2e%2e/data/jobs.json', '/assets/../data/jobs.json', '/assets\\..\\data']) {
+        assert(covers.test(p), `middleware must run for ${p}`);
+      }
+      for (const p of ['/assets/bundle.min.css', '/assets/fonts/Inter-var.woff2', '/assets/case-studies/logos/custom/x.png']) {
+        assert(!covers.test(p), `middleware should skip ${p}`);
+      }
+    }],
     ['internal files are blocked through plain, encoded and double-encoded aliases', async () => {
       for (const route of [
         '/data/case-studies.json', '/data%2Fcase-studies.json', '/%64ata%2Fjobs.json',
