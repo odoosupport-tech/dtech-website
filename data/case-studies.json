@@ -2110,5 +2110,89 @@
     "pdf_file": "assets/case-studies/pdf/custom/neo-smiles-eva-healthcare-infra.pdf",
     "published": true,
     "custom": true
+  },
+  {
+    "id": "netafim-cctv-central-monitoring",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "network",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Vadodara, Jaipur, Pune, Hyderabad, Bengaluru & 6 more sites",
+    "period": "Site orders Dec 2018 – Jan 2019",
+    "arch_tag": "Multi-Location CCTV & Central Monitoring",
+    "summary": "CCTV for 11 Netafim locations across India: each site records its own cameras locally, with a server-based design so an authorised central team can view live video and review incidents, and role-based access so every user sees only their own locations.",
+    "outcomes": [
+      "88 4 MP cameras ordered across 11 site packages",
+      "8-port PoE NVRs with two 4 TB drives per site package",
+      "1 kVA UPS and 6U rack at each site",
+      "Cat 6 cabling, camera mounting and NVR configuration by D-TECH",
+      "Role-based access design: central security, site users, management, incident review and IT"
+    ],
+    "metrics": [
+      [
+        "Locations",
+        "11"
+      ],
+      [
+        "Cameras",
+        "88 × 4 MP"
+      ],
+      [
+        "Storage",
+        "2 × 4 TB per site"
+      ],
+      [
+        "Orders",
+        "Dec 2018 – Jan 2019"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-cctv-central-monitoring.pdf"
+  },
+  {
+    "id": "netafim-cisco-network",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "network",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "GIDC Manjusar, Savli, Vadodara",
+    "period": "Orders dated 16 Jul 2014",
+    "arch_tag": "Cisco Switching & Controller-Based Wi-Fi",
+    "summary": "Supply and commissioning of Netafim's Cisco plant network at Manjusar: Catalyst access and core switching with controller-managed Wi-Fi, delivered against a detailed configuration, testing and handover plan.",
+    "outcomes": [
+      "13 Catalyst 2960-S access switches (6 PoE + 7 data)",
+      "Catalyst 3750-X core / aggregation switch",
+      "Cisco 2504 wireless controller with 15-AP licence package",
+      "11 Aironet 1602I access points",
+      "Installation and commissioning with SMARTnet service lines"
+    ],
+    "metrics": [
+      [
+        "Access Switches",
+        "13"
+      ],
+      [
+        "Access Points",
+        "11"
+      ],
+      [
+        "Switch Ports",
+        "624"
+      ],
+      [
+        "Orders",
+        "Jul 2014"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-cisco-network.pdf"
   }
 ]
