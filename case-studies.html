@@ -83,7 +83,7 @@
   <script src="assets/agent-a.min.js?v=97914f52d2" defer></script>
   <link rel="stylesheet" href="assets/bundle.min.css?v=a2a8eda14e">
   <link id="theme-dark-css" rel="stylesheet" href="assets/skin-dark.min.css?v=2b46b8afab">
-  <link rel="stylesheet" href="assets/case-studies.min.css?v=a99f2c404c">
+  <link rel="stylesheet" href="assets/case-studies.min.css?v=f2bd586c73">
   <link rel="stylesheet" href="assets/sections.min.css?v=6d05c9a0d3">
   <!-- Built from tools/tailwind; loads last, where the Play CDN used to inject it. -->
   <link rel="stylesheet" href="assets/fonts.min.css?v=98176d8aff">
@@ -494,7 +494,7 @@
           </div>
 
           <!-- Email Gate Form -->
-          <form id="email-gate-form" class="space-y-4">
+          <form id="email-gate-form" class="space-y-4" novalidate>
             <!-- Honeypot for bots: hidden from people and assistive tech -->
             <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
               <label for="gate-website">Website</label>
@@ -507,9 +507,12 @@
                 type="email" 
                 id="gate-email" 
                 required 
+                autocomplete="email"
+                aria-describedby="gate-email-error"
                 placeholder="name@enterprise.com"
                 class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
               >
+              <p id="gate-email-error" class="gate-field-error" hidden></p>
             </div>
 
             <div>
@@ -518,21 +521,28 @@
                 type="text" 
                 id="gate-name" 
                 required 
+                autocomplete="name"
+                aria-describedby="gate-name-error"
                 placeholder="e.g. Vikram Mehta"
                 class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
               >
+              <p id="gate-name-error" class="gate-field-error" hidden></p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="gate-phone" class="block text-xs font-semibold text-slate-700 mb-1">Phone / Mobile *</label>
+                <label for="gate-phone" class="block text-xs font-semibold text-slate-700 mb-1">Mobile Number *</label>
                 <input 
                   type="tel" 
                   id="gate-phone" 
                   required 
+                  inputmode="tel"
+                  autocomplete="tel"
+                  aria-describedby="gate-phone-error"
                   placeholder="+91 98765 43210"
                   class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
                 >
+                <p id="gate-phone-error" class="gate-field-error" hidden></p>
               </div>
               <div>
                 <label for="gate-company" class="block text-xs font-semibold text-slate-700 mb-1">Company / Plant</label>
@@ -1178,6 +1188,7 @@
           pendingAction = action;
           targetCaseId = caseId;
           prefillGateForm();
+          ['email', 'name', 'phone'].forEach(f => setGateError(f, ''));
           const c = allCases.find(x => x.id === caseId) || allCases[0];
 
           document.getElementById('gate-target-client').textContent = c.client + ' — ' + c.arch_tag;
@@ -1232,7 +1243,7 @@
               signal: controller.signal
             });
             const data = await r.json().catch(() => ({}));
-            return r.ok && data.ok ? { ok: true } : { ok: false, error: data.error || 'We could not send the email right now.' };
+            return r.ok && data.ok ? { ok: true } : { ok: false, error: data.error || 'We could not send the email right now.', field: r.status === 400 && (data.field === 'email' || data.field === 'phone') ? data.field : undefined };
           } catch (e) {
             return { ok: false, error: 'We could not reach the email service. Please try again or contact sales@dtechindia.com.' };
           } finally {
@@ -1251,9 +1262,15 @@
               body: JSON.stringify({ request: 'summary', caseId, email, name, phone, company, website: document.getElementById('gate-website')?.value || '', formStart: window.__formStart }),
               signal: controller.signal
             });
+            if (r.status === 400) {
+              const data = await r.json().catch(() => ({}));
+              if (data.field === 'email' || data.field === 'phone') return { field: data.field, error: data.error };
+            }
             if (!r.ok) console.warn('Recording the summary request failed: HTTP ' + r.status);
+            return {};
           } catch (e) {
             console.warn('Recording the summary request failed:', e.message);
+            return {};
           } finally {
             clearTimeout(timer);
           }
@@ -1347,12 +1364,76 @@
         }
 
         // Handle Gate Form Submission
+        // Contact checks before anything is saved or sent. They mirror
+        // emailProblem() and normalizeMobile() in api/_http.js; the server
+        // re-checks both and also confirms the email domain accepts mail.
+        const GATE_DOMAIN_TYPOS = {
+          'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gnail.com': 'gmail.com',
+          'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com', 'gmail.con': 'gmail.com', 'gmaill.com': 'gmail.com',
+          'yahooo.com': 'yahoo.com', 'yaho.com': 'yahoo.com', 'yahoo.co': 'yahoo.com', 'yahoo.con': 'yahoo.com',
+          'hotmial.com': 'hotmail.com', 'hotmal.com': 'hotmail.com', 'hotmail.co': 'hotmail.com', 'hotmail.con': 'hotmail.com',
+          'outlok.com': 'outlook.com', 'outloo.com': 'outlook.com', 'outlook.co': 'outlook.com', 'outlook.con': 'outlook.com',
+          'rediffmai.com': 'rediffmail.com', 'redifmail.com': 'rediffmail.com'
+        };
+        const GATE_EMAIL_RE = /^(?!\.)(?!.*\.\.)[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}(?<!\.)@(?=.{4,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,24}$/;
+
+        function gateEmailProblem(value) {
+          if (!value) return 'Please enter your email address.';
+          if (!GATE_EMAIL_RE.test(value)) return 'Please enter a valid email address, e.g. name@company.com.';
+          const at = value.lastIndexOf('@');
+          const domain = value.slice(at + 1).toLowerCase();
+          if (GATE_DOMAIN_TYPOS[domain]) return `Please check the email address. Did you mean ${value.slice(0, at)}@${GATE_DOMAIN_TYPOS[domain]}?`;
+          return '';
+        }
+
+        function gateMobile(value) {
+          const raw = String(value || '').trim();
+          if (!raw || /[^\d\s()+.-]/.test(raw) || raw.indexOf('+') > 0) return '';
+          let digits = raw.replace(/\D/g, '');
+          if (raw.startsWith('+')) {
+            if (digits.startsWith('91')) return /^91[6-9]\d{9}$/.test(digits) ? '+' + digits : '';
+            return /^[1-9]\d{7,14}$/.test(digits) ? '+' + digits : '';
+          }
+          if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
+          else if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+          return /^[6-9]\d{9}$/.test(digits) ? '+91' + digits : '';
+        }
+
+        function setGateError(field, message) {
+          const input = document.getElementById('gate-' + field);
+          const box = document.getElementById('gate-' + field + '-error');
+          if (!input || !box) return;
+          input.setAttribute('aria-invalid', message ? 'true' : 'false');
+          box.textContent = message || '';
+          box.hidden = !message;
+        }
+
+        // Shows every problem at once and focuses the first; true when all is well.
+        function validateGateForm() {
+          const email = document.getElementById('gate-email').value.trim();
+          const name = document.getElementById('gate-name').value.trim();
+          const phone = document.getElementById('gate-phone').value.trim();
+          const problems = {
+            email: gateEmailProblem(email),
+            name: name ? '' : 'Please enter your name.',
+            phone: !phone ? 'Please enter your mobile number.' : (gateMobile(phone) ? '' : 'Please enter a valid mobile number, e.g. +91 98765 43210.')
+          };
+          let first = null;
+          ['email', 'name', 'phone'].forEach(f => {
+            setGateError(f, problems[f]);
+            if (problems[f] && !first) first = f;
+          });
+          if (first) document.getElementById('gate-' + first).focus();
+          return !first;
+        }
+
         function handleEmailGateSubmit(e) {
           e.preventDefault();
           const email = document.getElementById('gate-email').value.trim();
           const name = document.getElementById('gate-name').value.trim();
           const phone = document.getElementById('gate-phone').value.trim();
           const company = document.getElementById('gate-company').value.trim();
+          if (!validateGateForm()) return;
 
           const c = allCases.find(x => x.id === targetCaseId) || allCases[0];
 
@@ -1369,18 +1450,31 @@
           const feedbackText = document.getElementById('gate-feedback-text');
 
           if (pendingAction === 'view_details') {
-            feedbackText.textContent = `Access granted for ${name}! Unlocking engineering details...`;
-            feedbackBox.classList.remove('hidden');
-            document.getElementById('gate-submit-btn').classList.add('hidden');
+            const submitBtn = document.getElementById('gate-submit-btn');
+            submitBtn.disabled = true;
+            document.getElementById('gate-submit-btn-text').textContent = 'Checking…';
 
-            // The summary opens even if recording the request fails: the visitor
-            // has already given their details.
+            // The server re-checks the details (and that the email domain takes
+            // mail); a rejected detail goes back to its field. If the server
+            // cannot be reached the summary still opens: the details passed here.
             const caseId = targetCaseId;
-            const shown = new Promise(resolve => setTimeout(resolve, 900));
-            Promise.all([recordSummaryView({ email, name, phone, company, caseId }), shown]).then(() => {
-              closeEmailGateModal();
-              renderCaseDetailModal(caseId, email);
-              showToast(`Unlocked engineering dossier for ${c.client}`);
+            const shown = new Promise(resolve => setTimeout(resolve, 600));
+            Promise.all([recordSummaryView({ email, name, phone, company, caseId }), shown]).then(([recorded]) => {
+              submitBtn.disabled = false;
+              document.getElementById('gate-submit-btn-text').textContent = 'Unlock Engineering Details';
+              if (recorded && recorded.field) {
+                setGateError(recorded.field, recorded.error);
+                document.getElementById('gate-' + recorded.field).focus();
+                return;
+              }
+              feedbackText.textContent = `Access granted for ${name}! Unlocking engineering details...`;
+              feedbackBox.classList.remove('hidden');
+              submitBtn.classList.add('hidden');
+              setTimeout(() => {
+                closeEmailGateModal();
+                renderCaseDetailModal(caseId, email);
+                showToast(`Unlocked engineering dossier for ${c.client}`);
+              }, 500);
             });
 
           } else {
@@ -1390,6 +1484,11 @@
             sendStoredWhitepaper(targetCaseId).then(result => {
               submitBtn.disabled = false;
               document.getElementById('gate-submit-btn-text').textContent = 'Email Me the PDF';
+              if (!result.ok && result.field) {
+                setGateError(result.field, result.error);
+                document.getElementById('gate-' + result.field).focus();
+                return;
+              }
               if (!result.ok) {
                 feedbackBox.dataset.state = 'error';
                 feedbackText.textContent = result.error;
@@ -1542,6 +1641,7 @@
             tabs[to].focus();
           });
           document.getElementById('email-gate-form').addEventListener('submit', handleEmailGateSubmit);
+          ['email', 'name', 'phone'].forEach(f => document.getElementById('gate-' + f).addEventListener('input', () => setGateError(f, '')));
           fetch('/api/content?list=case-studies', { cache: 'no-cache', headers: { Accept: 'application/json' } })
             .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(list => {
