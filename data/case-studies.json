@@ -2529,5 +2529,47 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/sml-panoli-fibre-network.pdf"
+  },
+  {
+    "id": "pi-industries-hpe-server",
+    "client": "PI Industries Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/pi-industries.png",
+    "category": "network",
+    "industry": "Agrochemicals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Plot 640, GIDC, Panoli, Bharuch",
+    "period": "PO dated 18 Mar 2025",
+    "arch_tag": "HPE Server & Windows Server Installation",
+    "summary": "Supply and installation design for a single HPE ProLiant DL360 Gen10 Plus at PI Industries' Panoli unit: rack mounting, redundant power, local SSD storage on a RAID controller, iLO management and Windows Server 2022, taken through to commissioning tests and technical handover.",
+    "outcomes": [
+      "1 × HPE ProLiant DL360 Gen10 Plus with Intel Xeon 4309Y (8 cores)",
+      "32 GB RDIMM memory and 3 × 960 GB SATA SSDs on an MR416i-a controller",
+      "2 × 800 W hot-plug power supplies and four 1 GbE ports",
+      "Windows Server 2022 Standard (16-core ROK) and iLO 5 Standard",
+      "3-year next-business-day HPE support"
+    ],
+    "metrics": [
+      [
+        "Server",
+        "DL360 Gen10 Plus"
+      ],
+      [
+        "CPU",
+        "8-core Xeon 4309Y"
+      ],
+      [
+        "Storage",
+        "3 × 960 GB SSD"
+      ],
+      [
+        "Support",
+        "3 yr NBD"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/pi-industries-hpe-server.pdf"
   }
 ]
