@@ -2571,5 +2571,47 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/pi-industries-hpe-server.pdf"
+  },
+  {
+    "id": "ineos-dell-endpoint",
+    "client": "INEOS Styrolution India Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/ineos-styrolution.png",
+    "category": "network",
+    "industry": "Chemicals · Styrenics",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "OHM Business Park, Subhanpura, Vadodara",
+    "period": "Reference PO dated 31 Mar 2022",
+    "arch_tag": "Dell Latitude Endpoint Solution Design",
+    "summary": "A solution design for a controlled Dell Latitude 5420 laptop rollout at INEOS Styrolution's Vadodara office: approved build, secure access, user data migration, acceptance testing and a clear support route. The referenced PO line shows quantity 15 but is marked deleted, so this is a proposed approach, not a record of a delivered order.",
+    "outcomes": [
+      "Reference model: Dell Latitude 5420, quantity 15 on the referenced PO line",
+      "Pilot-first build and batch rollout with asset-to-user mapping",
+      "Customer access policy, endpoint protection and encryption with recovery-key custody",
+      "Backup-verified user data transfer with user and IT sign-off",
+      "Ticketed support from triage to customer closure"
+    ],
+    "metrics": [
+      [
+        "Model",
+        "Dell Latitude 5420"
+      ],
+      [
+        "PO quantity",
+        "15 (line deleted)"
+      ],
+      [
+        "Reference PO",
+        "4500530295"
+      ],
+      [
+        "Status",
+        "Solution design"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/ineos-dell-endpoint.pdf"
   }
 ]
