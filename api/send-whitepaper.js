@@ -35,7 +35,7 @@ const WHITEPAPERS = require('./_whitepapers.json');
 const { isConfigured, sendMail, salesEmail } = require('./_mail');
 const store = require('./_store');
 const { signedPdfPath, canSignPdfLinks, EMAIL_LINK_MS, FETCH_LINK_MS } = require('./_pdf-link');
-const { EMAIL_RE, createRateLimiter, allowedOrigin, submittedTooFast, esc, clean } = require('./_http');
+const { createRateLimiter, allowedOrigin, submittedTooFast, esc, clean, emailProblem, normalizeMobile, emailDomainProblem } = require('./_http');
 
 // Copied on every case-study email sent to a visitor.
 const CASE_STUDY_CC = 'director@dtechindia.com';
@@ -219,7 +219,14 @@ module.exports = async function handler(req, res) {
   const caseId = clean(body.caseId, 80);
   const builtIn = Object.prototype.hasOwnProperty.call(WHITEPAPERS, caseId) ? WHITEPAPERS[caseId] : null;
 
-  if (!EMAIL_RE.test(lead.email)) return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
+  const badEmail = emailProblem(lead.email);
+  if (badEmail) return res.status(400).json({ ok: false, error: badEmail, field: 'email' });
+  // A mobile number is required for every request, so sales can call back.
+  const mobile = normalizeMobile(lead.phone);
+  if (!mobile) {
+    return res.status(400).json({ ok: false, error: lead.phone ? 'Please enter a valid mobile number, e.g. +91 98765 43210.' : 'Please enter your mobile number.', field: 'phone' });
+  }
+  lead.phone = mobile;
   if (!builtIn && !CASE_ID_RE.test(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 
   const ip = String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
@@ -228,6 +235,11 @@ module.exports = async function handler(req, res) {
     ? overLimit('view-ip:' + ip, 30, 10 * 60 * 1000) || overLimit('view-to:' + lead.email.toLowerCase(), 30, 60 * 60 * 1000)
     : overLimit('ip:' + ip, 5, 10 * 60 * 1000) || overLimit('to:' + lead.email.toLowerCase(), 3, 60 * 60 * 1000);
   if (limited) return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
+
+  // The domain must exist and accept mail, which catches most typos before a
+  // PDF goes nowhere or a lead is filed with an address nobody can answer.
+  const deadDomain = await emailDomainProblem(lead.email);
+  if (deadDomain) return res.status(400).json({ ok: false, error: deadDomain, field: 'email' });
 
   if (builtIn && await isUnpublishedBuiltIn(caseId)) return res.status(400).json({ ok: false, error: 'Unknown case study.' });
 

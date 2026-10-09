@@ -56,6 +56,16 @@ const sent = [];
 const mail = require(path.join(REPO, 'api/_mail.js'));
 mail.sendMail = async (msg) => { sent.push(msg); return { id: `mock-${sent.length}` }; };
 
+// DNS stays offline in tests: every domain accepts mail except these.
+const DEAD_DOMAINS = new Set(['no-such-domain-dtech.test']);
+const NULL_MX = new Set(['nomail.example']);
+const dnsError = (code) => Object.assign(new Error(code), { code });
+require(path.join(REPO, 'api/_http.js')).setDnsResolver({
+  resolveMx: async (d) => { if (DEAD_DOMAINS.has(d)) throw dnsError('ENOTFOUND'); return NULL_MX.has(d) ? [{ exchange: '', priority: 0 }] : [{ exchange: `mx.${d}`, priority: 10 }]; },
+  resolve4: async (d) => { throw dnsError('ENODATA'); },
+  resolve6: async (d) => { throw dnsError('ENODATA'); },
+});
+
 const api = (p) => require(path.join(REPO, 'api', p));
 const jobs = api('jobs.js'), contact = api('contact.js'), apply = api('apply.js'), whitepaper = api('send-whitepaper.js');
 const content = api('content.js');
@@ -329,13 +339,13 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         if (c.logo) assert(fs.existsSync(path.join(REPO, c.logo)), `${c.id} logo ${c.logo} missing`);
       }
     }],
-    ['unknown caseId → 400', async () => eq((await call(whitepaper, req('POST', { email: 'lead@example.com', caseId: 'nope' }))).statusCode, 400)],
+    ['unknown caseId → 400', async () => eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'lead@example.com', caseId: 'nope' }))).statusCode, 400)],
     ['on Vercel a forged Host cannot change the email link or the PDF fetch', async () => {
       Object.assign(process.env, { VERCEL: '1', VERCEL_PROJECT_PRODUCTION_URL: 'dtech.test' });
       try {
         const before = sent.length;
         const forged = { host: 'evil.test', 'x-forwarded-host': 'evil.test', origin: 'https://evil.test' };
-        const r = await call(whitepaper, req('POST', { email: 'host@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }));
+        const r = await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'host@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }));
         eq(r.statusCode, 200, JSON.stringify(r.body));
         const visitor = sent.slice(before).find(m => m.to === 'host@example.com');
         assert(visitor && visitor.attachments.length === 1, 'PDF fetched from the production address');
@@ -343,7 +353,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         // Without the attachment the email carries a download link: it must point at production.
         failPdfFetch = true;
         const mark = sent.length;
-        eq((await call(whitepaper, req('POST', { email: 'link@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }))).statusCode, 200);
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'link@example.com', name: 'Lead', caseId: 'petronet-fms' }, { headers: forged }))).statusCode, 200);
         const linked = sent.slice(mark).find(m => m.to === 'link@example.com');
         assert(linked.html.includes('https://dtech.test/assets/case-studies/pdf/'), 'download link on the production address');
         assert(!linked.html.includes('evil.test'), 'forged host in the download link');
@@ -351,7 +361,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['petronet-fms → visitor gets the PDF attached, sales gets lead alert, lead filed', async () => {
       const before = sent.length;
-      const r = await call(whitepaper, req('POST', { email: 'lead@example.com', name: 'Lead Person', company: 'Acme', caseId: 'petronet-fms' }));
+      const r = await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'lead@example.com', name: 'Lead Person', company: 'Acme', caseId: 'petronet-fms' }));
       eq(r.statusCode, 200); eq(r.body.ok, true);
       const [visitor, sales] = sent.slice(before);
       eq(visitor.to, 'lead@example.com');
@@ -367,33 +377,49 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['summary request → filed as a "summary" lead, nothing emailed; PDF requests are filed as "pdf"', async () => {
       const leads = () => JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8'));
       const before = sent.length;
-      const r = await call(whitepaper, req('POST', { request: 'summary', email: 'reader@example.com', name: 'Reader', company: 'Acme', caseId: 'mrf' }));
+      const r = await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'reader@example.com', name: 'Reader', company: 'Acme', caseId: 'mrf' }));
       eq(r.statusCode, 200, JSON.stringify(r.body)); eq(r.body.filed, true);
       eq(sent.length, before, 'a summary view must not send email');
       const filed = leads().find(l => l.email === 'reader@example.com');
       eq(filed.request, 'summary'); eq(filed.caseId, 'mrf'); assert(filed.caseTitle && filed.id && filed.date);
+      eq(filed.phone, '+919825012345', 'mobile saved in one standard form');
       eq(leads().find(l => l.email === 'lead@example.com').request, 'pdf');
     }],
     ['the same visitor asking again: every request is its own record, summaries not held to the 3-PDF limit', async () => {
       const leads = () => JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).filter(l => l.email === 'repeat@example.com');
       for (const caseId of ['mrf', 'indofil', 'bostik', 'krystal', 'mrf']) {
-        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'repeat@example.com', name: 'Repeat', caseId }))).statusCode, 200, caseId);
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'repeat@example.com', name: 'Repeat', caseId }))).statusCode, 200, caseId);
       }
       eq(leads().length, 5, 'five summary views, five records');
       assert.deepStrictEqual(leads().map(l => l.caseId).sort(), ['bostik', 'indofil', 'krystal', 'mrf', 'mrf']);
     }],
     ['summary request: bad email, unknown case, bot trap', async () => {
-      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'nope', caseId: 'mrf' }))).statusCode, 400);
-      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'x@example.com', caseId: 'does-not-exist' }))).statusCode, 400);
+      eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'nope', caseId: 'mrf' }))).statusCode, 400);
+      // Contact details are checked for summaries too: they unlock nothing until valid.
+      const bad = async (body) => (await call(whitepaper, req('POST', { request: 'summary', caseId: 'mrf', name: 'Lead', ...body })));
+      for (const email of ['a@b', 'name@company', 'x@gmial.com', 'a..b@x.com']) {
+        const r = await bad({ email, phone: '+91 98250 12345' });
+        eq(r.statusCode, 400, email); eq(r.body.field, 'email', email);
+      }
+      assert(/Did you mean x@gmail\.com/.test((await bad({ email: 'x@gmial.com', phone: '9825012345' })).body.error), 'typo suggestion');
+      const dead = await bad({ email: 'lead@no-such-domain-dtech.test', phone: '9825012345' });
+      eq(dead.statusCode, 400); eq(dead.body.field, 'email'); assert(/could not find the email domain/.test(dead.body.error), dead.body.error);
+      eq((await bad({ email: 'lead@nomail.example', phone: '9825012345' })).body.field, 'email', 'null MX');
+      for (const phone of [undefined, '', '123', 'abc', '5825012345', '+91 2642 264596']) {
+        const r = await bad({ email: 'lead@example.com', ...(phone === undefined ? {} : { phone }) });
+        eq(r.statusCode, 400, String(phone)); eq(r.body.field, 'phone', String(phone));
+      }
+      assert(/Please enter your mobile number/.test((await bad({ email: 'lead@example.com' })).body.error), 'missing mobile message');
+      eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'x@example.com', caseId: 'does-not-exist' }))).statusCode, 400);
       const count = JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).length;
-      eq((await call(whitepaper, req('POST', { request: 'summary', email: 'bot@example.com', caseId: 'mrf', website: 'spam' }))).statusCode, 200);
+      eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'bot@example.com', caseId: 'mrf', website: 'spam' }))).statusCode, 200);
       eq(JSON.parse(fs.readFileSync('.portal-data/leads.json', 'utf8')).length, count, 'bot filed a lead');
     }],
     ['PDF cannot be fetched → visitor still gets a signed download link, no attachment', async () => {
       failPdfFetch = true;
       try {
         const before = sent.length;
-        const r = await call(whitepaper, req('POST', { email: 'lead5@example.com', caseId: 'petronet-fms' }));
+        const r = await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'lead5@example.com', caseId: 'petronet-fms' }));
         eq(r.statusCode, 200, JSON.stringify(r.body));
         const visitor = sent[before];
         eq(visitor.attachments.length, 0);
@@ -687,14 +713,14 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))]; // fresh list cache
       const fresh = api('send-whitepaper.js');
       let before = sent.length;
-      let r = await call(fresh, req('POST', { email: 'lead2@example.com', caseId: uploadedCase.id }));
+      let r = await call(fresh, req('POST', { phone: '+91 98250 12345', email: 'lead2@example.com', caseId: uploadedCase.id }));
       eq(r.statusCode, 200, JSON.stringify(r.body));
       eq(sent[before].attachments[0].filename, path.basename(uploadedCase.pdf_file));
-      eq((await call(fresh, req('POST', { email: 'lead3@example.com', caseId: linkedCase.id }))).statusCode, 400, 'draft sent');
+      eq((await call(fresh, req('POST', { phone: '+91 98250 12345', email: 'lead3@example.com', caseId: linkedCase.id }))).statusCode, 400, 'draft sent');
       await post({ type: 'caseStudy', action: 'toggle', id: linkedCase.id, value: true });
       delete require.cache[require.resolve(path.join(REPO, 'api/send-whitepaper.js'))];
       before = sent.length;
-      r = await call(api('send-whitepaper.js'), req('POST', { email: 'lead4@example.com', caseId: linkedCase.id }));
+      r = await call(api('send-whitepaper.js'), req('POST', { phone: '+91 98250 12345', email: 'lead4@example.com', caseId: linkedCase.id }));
       eq(r.statusCode, 200, JSON.stringify(r.body));
       eq(sent[before].attachments.length, 0);
       assert(sent[before].html.includes('href="https://files.example.com/case.pdf"'), 'link in email');
@@ -1075,7 +1101,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     ['apply and whitepaper also drop too-fast posts', async () => {
       const before = sent.length;
       eq((await call(apply, req('POST', { ...applicant, email: 'fast@example.com', formStart: Date.now() }))).statusCode, 200);
-      eq((await call(whitepaper, req('POST', { caseId: Object.keys(papers)[0] || 'x', email: 'fast@example.com', formStart: Date.now() }))).statusCode, 200);
+      eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', caseId: Object.keys(papers)[0] || 'x', email: 'fast@example.com', formStart: Date.now() }))).statusCode, 200);
       eq(sent.length, before, 'mail sent for fast bot');
     }],
     ['CV_STORAGE=email → CV emailed, not filed, record flagged', async () => {
@@ -1127,14 +1153,14 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const unpublish = await post({ type: 'caseStudy', action: 'toggle', id: 'rockwool', value: false });
       eq(unpublish.statusCode, 200, JSON.stringify(unpublish.body));
       const before = sent.length;
-      const r = await call(fresh(), req('POST', { email: 'unpub@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
+      const r = await call(fresh(), req('POST', { phone: '+91 98250 12345', email: 'unpub@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
       eq(r.statusCode, 400); eq(r.body.error, 'Unknown case study.'); eq(sent.length, before, 'mail sent for an unpublished case study');
       // other original case studies are unaffected
-      const other = await call(fresh(), req('POST', { email: 'still@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
+      const other = await call(fresh(), req('POST', { phone: '+91 98250 12345', email: 'still@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
       eq(other.statusCode, 200, JSON.stringify(other.body));
       // publishing it again makes it deliverable again
       eq((await post({ type: 'caseStudy', action: 'toggle', id: 'rockwool', value: true })).statusCode, 200);
-      const again = await call(fresh(), req('POST', { email: 'again@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
+      const again = await call(fresh(), req('POST', { phone: '+91 98250 12345', email: 'again@example.com', name: 'Lead', caseId: 'rockwool', formStart: stale() }));
       eq(again.statusCode, 200, JSON.stringify(again.body));
     }],
   ]);
@@ -1325,8 +1351,8 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['case-study summary view and PDF lead → messages by id', async () => {
       const writes = await recordWrites(async () => {
-        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'mrf', formStart: stale() }))).statusCode, 200);
-        eq((await call(whitepaper, req('POST', { email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'mrf', formStart: stale() }))).statusCode, 200);
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'asha.verma@example.com', name: 'Asha Verma', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
       });
       assertAnonymous(writes, 2);
       assert.match(writes[0].message, /^Add case-study summary view [a-z0-9]+-[0-9a-f]{8}$/);
@@ -1442,9 +1468,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       await withEnv({ ADMIN_SECRET: undefined, PDF_LINK_SECRET: undefined }, async () => {
         eq(await through(link), false);
         assert.throws(() => pdfLink.signedPdfPath(PDF, 60000), /cannot be signed/);
-        const r = await call(whitepaper, req('POST', { email: 'nosecret@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
+        const r = await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'nosecret@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }));
         eq(r.statusCode, 503);
-        eq((await call(whitepaper, req('POST', { request: 'summary', email: 'nosecret@example.com', name: 'Lead', caseId: 'mrf', formStart: stale() }))).statusCode, 200, 'summary views need no PDF');
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', request: 'summary', email: 'nosecret@example.com', name: 'Lead', caseId: 'mrf', formStart: stale() }))).statusCode, 200, 'summary views need no PDF');
       });
     }],
     ['PDF_LINK_SECRET, when set, signs instead of ADMIN_SECRET (and both sides agree)', async () => {
@@ -1457,12 +1483,12 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['PDF emailed → attached via a signed fetch; a fallback link is signed for 14 days', async () => {
       const before = sent.length;
-      eq((await call(whitepaper, req('POST', { email: 'gated@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+      eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'gated@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
       eq(sent.slice(before).find(m => m.to === 'gated@example.com').attachments.length, 1, 'signed fetch got through the gate');
       failPdfFetch = true;
       try {
         const mark = sent.length;
-        eq((await call(whitepaper, req('POST', { email: 'gated-link@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
+        eq((await call(whitepaper, req('POST', { phone: '+91 98250 12345', email: 'gated-link@example.com', name: 'Lead', caseId: 'petronet-fms', formStart: stale() }))).statusCode, 200);
         const html = sent.slice(mark).find(m => m.to === 'gated-link@example.com').html;
         const m = /href="https:\/\/dtech\.test(\/assets\/case-studies\/pdf\/[^"?]+)\?t=([^"]+)"/.exec(html);
         assert(m, 'signed download link in the email');

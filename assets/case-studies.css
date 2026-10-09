@@ -232,3 +232,15 @@ html[data-theme="dark"] .cs-search-input:focus { border-color:var(--signal); }
   .cs-card:hover .cs-logo { transform:none; }
 }
 
+
+/* Case-study request form: a message under the field that needs fixing. */
+.gate-field-error {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #b91c1c;
+}
+#email-gate-form input[aria-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px #dc2626;
+}
