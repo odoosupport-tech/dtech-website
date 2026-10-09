@@ -2194,5 +2194,340 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/netafim-cisco-network.pdf"
+  },
+  {
+    "id": "gacl-amc-fms",
+    "client": "Gujarat Alkalies and Chemicals Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/gacl.png",
+    "category": "services",
+    "industry": "Chemicals · Chlor-Alkali",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Vadodara CSL, Dahej Complex & Dahej D-II/9",
+    "period": "Work orders Nov 2025 – Feb 2026",
+    "arch_tag": "Multi-Location AMC & Onsite FMS",
+    "summary": "Workplace IT support for GACL across three service areas: onsite L2 desktop and basic network engineers at Vadodara and the new CLM plant at Dahej D-II/9, plus a hardware AMC and FMS schedule for the Dahej Complex, all run through one ticketed complaint, escalation and closure process.",
+    "outcomes": [
+      "1 onsite L2 engineer at Vadodara CSL (12 Feb 2026 – 11 Feb 2027)",
+      "1 onsite L2 engineer at Dahej D-II/9 (1 Dec 2025 – 30 Nov 2026)",
+      "Hardware AMC at Dahej for desktops, laptops, scanners and printers",
+      "8 × 6 onsite availability, Monday–Saturday, with 24 × 7 offline support",
+      "Minimum 23 days engineer availability per billing month"
+    ],
+    "metrics": [
+      [
+        "Service areas",
+        "3"
+      ],
+      [
+        "Onsite engineers",
+        "2"
+      ],
+      [
+        "Coverage",
+        "8 × 6 onsite"
+      ],
+      [
+        "AMC families",
+        "4"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/gacl-amc-fms.pdf"
+  },
+  {
+    "id": "netafim-meraki-network",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "network",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "GIDC Manjusar, Savli, Vadodara",
+    "period": "PO dated 31 Dec 2020",
+    "arch_tag": "Cisco Meraki Cloud-Managed Campus",
+    "summary": "Replacement of Netafim's existing campus switches with a Cisco Meraki network: a stacked MS390 core, MS350 PoE access switches over a 10G fibre backbone and Meraki Wi-Fi, all managed from Meraki Dashboard, with installation, programming, testing and documentation.",
+    "outcomes": [
+      "2 × MS390-24 core switches with 8-port 10G uplink modules, data- and power-stacked",
+      "6 × MS350-48FP PoE access switches (288 copper access ports)",
+      "30 × MR46 Wi-Fi 6 indoor and 5 × MR70 outdoor access points",
+      "3-year licences for all 43 managed devices",
+      "Removal of old switches, cable dressing, testing and documentation"
+    ],
+    "metrics": [
+      [
+        "Core switches",
+        "2 × MS390"
+      ],
+      [
+        "Access switches",
+        "6 × MS350"
+      ],
+      [
+        "Access points",
+        "35"
+      ],
+      [
+        "Licence term",
+        "3 years"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-meraki-network.pdf"
+  },
+  {
+    "id": "netafim-dc-dr-racks",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "network",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Manjusar, Savli, Vadodara",
+    "period": "PO dated 19 Dec 2015",
+    "arch_tag": "DC, DR & Near-DR Rack Revamping",
+    "summary": "Completed rack rework across Netafim's primary data centre, DR and Near-DR locations: Rittal TS8 rack-with-AC packages, installation and revamping of the existing systems so equipment, cooling and cabling are orderly and serviceable.",
+    "outcomes": [
+      "2 Rittal TS8 rack-with-AC packages (800 W × 2000 H × 1200 D mm)",
+      "Glass front door, rear double door and side-panel cooling",
+      "Mounting angles, cable-entry plates, shelves and horizontal cable managers",
+      "Rack installation and revamping of existing systems",
+      "Transport, loading and unloading at the customer premises"
+    ],
+    "metrics": [
+      [
+        "Locations",
+        "DC · DR · Near-DR"
+      ],
+      [
+        "Rack packages",
+        "2 × Rittal TS8"
+      ],
+      [
+        "Cooling",
+        "Side-mounted AC"
+      ],
+      [
+        "Status",
+        "Completed"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-dc-dr-racks.pdf"
+  },
+  {
+    "id": "netafim-dell-workplace",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "network",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "GIDC Manjusar, Savli, Vadodara",
+    "period": "POs dated 30 Dec 2017",
+    "arch_tag": "Dell Laptops & Touch Workspace",
+    "summary": "Supply of Dell Latitude business laptops in two configuration tiers and a Dell touch monitor for an interactive workspace at Netafim's Manjusar site, under two purchase orders.",
+    "outcomes": [
+      "4 × Dell Latitude 3480, Core i3, 256 GB SSD, Windows 10 Pro",
+      "1 × Dell Latitude 3480, Core i7, 8 GB RAM, 2 GB graphics",
+      "3-year onsite service terms on the laptops",
+      "1 × Dell P2418HT 24-inch touch monitor",
+      "4 backpacks supplied with the laptops"
+    ],
+    "metrics": [
+      [
+        "Laptops",
+        "5 × Latitude 3480"
+      ],
+      [
+        "Touch monitor",
+        "1 × P2418HT"
+      ],
+      [
+        "Service terms",
+        "3 years"
+      ],
+      [
+        "Orders",
+        "30 Dec 2017"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-dell-workplace.pdf"
+  },
+  {
+    "id": "netafim-server-amc",
+    "client": "Netafim Irrigation India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/netafim.png",
+    "category": "services",
+    "industry": "Agriculture · Precision Irrigation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "GIDC Manjusar, Savli, Vadodara",
+    "period": "PO dated 7 Aug 2026",
+    "arch_tag": "Server AMC & Ticketed Support",
+    "summary": "A one-year comprehensive AMC for Netafim's Dell EMC PowerEdge R740xd server, with a ticketed support route covering diagnosis, remote or onsite work, covered-part repair or replacement and confirmed closure.",
+    "outcomes": [
+      "Comprehensive AMC for 1 × Dell EMC PowerEdge R740xd",
+      "Requests logged through the D-TECH support portal or customer care",
+      "Remote, onsite and OEM / covered-hardware resolution routes",
+      "Client validation before every ticket is closed"
+    ],
+    "metrics": [
+      [
+        "Server",
+        "PowerEdge R740xd"
+      ],
+      [
+        "AMC type",
+        "Comprehensive"
+      ],
+      [
+        "Term",
+        "1 year"
+      ],
+      [
+        "Order",
+        "7 Aug 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/netafim-server-amc.pdf"
+  },
+  {
+    "id": "pi-health-hpe-vmware",
+    "client": "PI Health Sciences Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/pi-health.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Biotech Park, Sitapura, Jaipur",
+    "period": "Orders Mar 2025",
+    "arch_tag": "HPE & VMware Datacenter Migration",
+    "summary": "Move of PI Health Sciences' legacy server services onto two HPE ProLiant hosts running VMware ESXi 8.0 and vCenter 8.0, with Windows Server and vSphere Foundation licensing and a controlled migration and cutover plan.",
+    "outcomes": [
+      "2 × HPE ProLiant DL380 Gen10 rack servers",
+      "VMware vSphere Foundation 8, 32 core units",
+      "2 × Windows Server 2025 Datacenter 16-core licences",
+      "5 man-days of installation and migration",
+      "Client confirmed working access to iLO, both ESXi hosts, Windows and vCenter"
+    ],
+    "metrics": [
+      [
+        "HPE servers",
+        "2 × DL380 Gen10"
+      ],
+      [
+        "VMware",
+        "32 cores"
+      ],
+      [
+        "Platform",
+        "ESXi / vCenter 8.0"
+      ],
+      [
+        "Install effort",
+        "5 man-days"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/pi-health-hpe-vmware.pdf"
+  },
+  {
+    "id": "pcbl-dcs-video-wall",
+    "client": "Phillips Carbon Black Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/pcbl.png",
+    "category": "network",
+    "industry": "Carbon Black · Chemicals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Palej Plant, Bharuch",
+    "period": "",
+    "arch_tag": "DCS Networking & Video Wall",
+    "summary": "A 2 × 2 Samsung LCD video wall in the Palej plant control room showing DeltaV DCS graphics, with Kramer AV connectivity, network work and D-TECH control software, while process control stays with the existing operator stations.",
+    "outcomes": [
+      "2 × 2 Samsung LCD wall mounted and aligned",
+      "Kramer AV routing of the approved DCS display output",
+      "AV management kept separate from the plant OT network",
+      "D-TECH software for sources, presets, device status and user roles",
+      "Commissioning, documentation and ongoing service support"
+    ],
+    "metrics": [
+      [
+        "Display",
+        "2 × 2 Samsung LCD"
+      ],
+      [
+        "AV",
+        "Kramer"
+      ],
+      [
+        "DCS",
+        "DeltaV graphics"
+      ],
+      [
+        "Software",
+        "D-TECH"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/pcbl-dcs-video-wall.pdf"
+  },
+  {
+    "id": "sml-panoli-fibre-network",
+    "client": "SML Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/sml.png",
+    "category": "network",
+    "industry": "Agrochemicals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Panoli Unit-II, Ankleshwar",
+    "period": "POs dated 3 Feb 2023",
+    "arch_tag": "Plant Fibre Link & Rack Installation",
+    "summary": "Network job for SML's new P-3 Domino machine at Panoli Unit-II: Gigabit switches with single-mode SFPs, fibre termination units, splicing and a dressed 6U wall rack connecting the machine to the plant network.",
+    "outcomes": [
+      "2 D-Link 10-port Gigabit switches",
+      "2 × DEM-310GT 1000BASE-LX single-mode SFP modules",
+      "2 loaded 12-port LC single-mode LIUs and 12 pigtails",
+      "6U wall-mount rack with cable management panels",
+      "Fibre splicing, rack installation and cable dressing"
+    ],
+    "metrics": [
+      [
+        "Switches",
+        "2 × Gigabit"
+      ],
+      [
+        "Optics",
+        "2 × SM SFP"
+      ],
+      [
+        "Rack",
+        "6U wall"
+      ],
+      [
+        "Orders",
+        "3 Feb 2023"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/sml-panoli-fibre-network.pdf"
   }
 ]
