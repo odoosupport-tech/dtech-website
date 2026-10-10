@@ -38,6 +38,7 @@ const crypto = require('crypto');
 const store = require('../_store');
 const { requireSession, jsonBody } = require('../_admin');
 const { allowedOrigin, clean } = require('../_http');
+const eventsAdmin = require('./_events-admin');
 
 const CATEGORIES = ['network', 'services', 'safety'];
 const TONES = ['info', 'highlight', 'warning'];
@@ -370,6 +371,7 @@ module.exports = async function handler(req, res) {
     return res.status(415).json({ ok: false, error: 'Unsupported content type' });
   }
   const body = jsonBody(req);
+  if (body.type === 'events') return eventsAdmin.post(req, res, body); // events: see _events-admin.js
   const cfg = Object.prototype.hasOwnProperty.call(TYPES, body.type) ? TYPES[body.type] : null;
   if (!cfg) return res.status(400).json({ ok: false, error: 'Unknown section.' });
   if (!cfg.actions.includes(body.action)) return res.status(400).json({ ok: false, error: 'Unknown action.' });

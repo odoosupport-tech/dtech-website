@@ -1004,7 +1004,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     assert(rule, 'no redirect hiding api source files');
     const re = new RegExp(`^${rule.source}$`);
     for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
-    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console', '/api/detail']) assert(!re.test(p), `${p} endpoint would be redirected`);
+    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console', '/api/detail', '/api/events']) assert(!re.test(p), `${p} endpoint would be redirected`);
   };
   // 6c. "Check email": settings report, failure explanations, test send, no secrets.
   const mailCheck = api('admin/mail-check.js');
@@ -1540,7 +1540,13 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
 
   // 14. Events: publishing, registration, payment confirmation, storage races.
   // GitHub is a fake contents API with real SHA semantics; SMTP is the suite's mock.
-  const eventsAdmin = api('admin/events.js'), eventsPublic = api('events.js'), eventsLib = api('_events.js');
+  // The admin events code is served through admin/data.js (GET ?events=1) and admin/update.js (POST type:"events").
+  const eventsAdmin = (rq, rs) => {
+    if (rq.method === 'GET') { rq.query = { events: '1', ...rq.query }; return data(rq, rs); }
+    if (rq.body && typeof rq.body === 'object') rq.body = { type: 'events', ...rq.body };
+    return update(rq, rs);
+  };
+  const eventsPublic = api('events.js'), eventsLib = api('_events.js');
   let evRepoN = 0;
   const tick = () => new Promise(r => setImmediate(r));
   const sleepMs = ms => new Promise(r => setTimeout(r, ms));
@@ -1628,7 +1634,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   const atTime = async (ms, fn) => { const real = Date.now; Date.now = () => ms; try { return await fn(); } finally { Date.now = real; } };
   const withMail = async (impl, fn) => { const real = mail.sendMail; mail.sendMail = impl; try { return await fn(); } finally { mail.sendMail = real; } };
 
-  await area('14a. Events admin API (api/admin/events.js)', [
+  await area('14a. Events admin API (api/admin/_events-admin.js)', [
     ['no session → 404 everywhere; sign-in cookie is the only credential', () => withEvents(async () => {
       eq((await call(eventsAdmin, req('GET'))).statusCode, 404);
       eq((await call(eventsAdmin, req('POST', { action: 'save', item: baseEvent() }))).statusCode, 404);
@@ -2120,7 +2126,10 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   await area('14e. Events site wiring (pages, CSP, service worker, build)', [
     ['vercel.json: functions configured, source files hidden, endpoints reachable', () => {
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
-      for (const f of ['api/events.js', 'api/admin/events.js']) eq(cfg.functions[f].maxDuration, 30, f);
+      eq(cfg.functions['api/events.js'].maxDuration, 30);
+      for (const f of Object.keys(cfg.functions)) assert(fs.existsSync(path.join(REPO, f)), `${f} is configured but does not exist`);
+      const countFns = dir => fs.readdirSync(dir, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? countFns(path.join(dir, e.name)) : (e.name.endsWith('.js') && !e.name.startsWith('_') ? 1 : 0)), 0);
+      assert(countFns(path.join(REPO, 'api')) <= 12, `Vercel Hobby allows 12 functions; api/ has ${countFns(path.join(REPO, 'api'))}`);
       const hide = new RegExp(`^${cfg.redirects.find(r => r.source.startsWith('/api/')).source}$`);
       assert(hide.test('/api/_events.js') && !hide.test('/api/events') && !hide.test('/api/admin/events'));
     }],

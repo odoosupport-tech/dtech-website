@@ -7,6 +7,7 @@
 //                        under assets/case-studies/pdf/ (lead-gated; see _pdf-link.js)
 //   GET ?case=<id>       a redirect to that case study's PDF: a signed link as above,
 //                        or its outside https link (which the public list hides)
+//   GET ?events=1        the events console data (see _events-admin.js); with &export=<id> an attendee CSV
 //   GET ?deployed=<file> the copy of jobs.json, case-studies.json or banners.json in
 //                        this deployment, so the console can tell when a change is
 //                        live (the public never sees the raw files, drafts included)
@@ -16,6 +17,7 @@ const path = require('path');
 const store = require('../_store');
 const { requireSession } = require('../_admin');
 const { signedPdfPath, FETCH_LINK_MS } = require('../_pdf-link');
+const eventsAdmin = require('./_events-admin');
 
 const ID_RE = /^[a-z0-9-]{1,40}$/;
 const SITE_FILES = ['jobs.json', 'case-studies.json', 'banners.json'];
@@ -80,6 +82,7 @@ module.exports = async function handler(req, res) {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
+  if (req.query && req.query.events) return eventsAdmin.get(req, res);
   try {
     if (req.query && req.query.cv) return await sendCv(req, res, String(req.query.cv));
     if (req.query && req.query.pdf) {

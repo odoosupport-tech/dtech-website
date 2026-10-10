@@ -37,9 +37,6 @@
     "api/events.js": {
       "maxDuration": 30
     },
-    "api/admin/events.js": {
-      "maxDuration": 30
-    },
     "api/content.js": {
       "includeFiles": "data/*.json"
     },

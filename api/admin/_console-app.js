@@ -1591,7 +1591,7 @@
 
   function loadEvents() {
     state.eventsError = '';
-    return api('/api/admin/events').then(function (res) {
+    return api('/api/admin/data?events=1').then(function (res) {
       applyEvents(res);
       renderChrome();
       if (state.tab === 'events') renderPanel();
@@ -1629,14 +1629,14 @@
   }
   function canSaveEvents() { return !!(state.eventsMeta && state.eventsMeta.canSave); }
 
-  // POST to /api/admin/events; the answer is the committed state of every event.
+  // POST to /api/admin/update with type "events"; the answer is the committed state of every event.
   function eventsCall(payload, opts) {
     opts = opts || {};
     setBusy(true, { inModal: opts.inModal, label: opts.label || 'Saving…' });
-    return api('/api/admin/events', {
+    return api('/api/admin/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(Object.assign({ type: 'events' }, payload))
     }).then(function (res) {
       applyEvents(res);
       renderChrome();
@@ -1827,7 +1827,7 @@
       (e.admission === 'paid' ? '<p class="dc-note">' + esc(UTR_NOTE) + ' Payment is verified by hand: nothing here is checked automatically.</p>' : '') +
       stackTable(headers, rows, 'Nobody has registered yet.'),
       '<button type="button" class="dc-btn" data-copy-emails="' + esc(e.id) + '"' + (e.attendees.length ? '' : ' disabled') + '>Copy emails</button>' +
-      '<a class="dc-btn" href="/api/admin/events?export=' + encodeURIComponent(e.id) + '" download>' + icon('file-spreadsheet') + 'Export CSV</a>' +
+      '<a class="dc-btn" href="/api/admin/data?events=1&export=' + encodeURIComponent(e.id) + '" download>' + icon('file-spreadsheet') + 'Export CSV</a>' +
       '<button type="button" class="dc-btn" data-close>Close</button>', { size: 'wide' });
     modal.dataset.attendees = e.id;
   }

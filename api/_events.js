@@ -1,6 +1,6 @@
 // Events and registrations: the model, validation and storage rules shared by
 // the public API (api/events.js) and the management console API
-// (api/admin/events.js).
+// (api/admin/_events-admin.js, served through api/admin/data.js and update.js).
 //
 // Everything lives in ONE document in the private data repository, events.json:
 //

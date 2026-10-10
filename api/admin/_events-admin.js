@@ -1,8 +1,10 @@
-// /api/admin/events: event management for the console (session required).
+// Event management for the console. Not a function of its own (Vercel's Hobby plan
+// allows 12): api/admin/data.js and api/admin/update.js hand requests to it after
+// their session, origin and content-type checks.
 //
-//   GET                     { ok, canSave, mailConfigured, events: [...full, with attendees], payment }
-//   GET ?export=<event id>  that event's attendees as a CSV download (formula-safe)
-//   POST { action, ... }    every change answers { ok, events, payment, ...extras } with the
+//   GET  /api/admin/data?events=1                  { ok, canSave, mailConfigured, events: [...full, with attendees], payment }
+//   GET  /api/admin/data?events=1&export=<id>      that event's attendees as a CSV download (formula-safe)
+//   POST /api/admin/update  { type: "events", action, ... }   every change answers { ok, events, payment, ...extras } with the
 //                           committed state, or { ok: false, error, field? }
 //
 //     save          { id?, item: { title, description, startLocal, endLocal?, deadlineLocal?, timezone,
@@ -19,8 +21,8 @@
 
 const events = require('../_events');
 const mail = require('../_mail');
-const { requireSession, readSession, jsonBody } = require('../_admin');
-const { allowedOrigin, clean } = require('../_http');
+const { readSession } = require('../_admin');
+const { clean } = require('../_http');
 
 const ACTIONS = ['save', 'status', 'delete', 'payment', 'confirm', 'resend', 'release'];
 
@@ -65,8 +67,7 @@ async function handleGet(req, res) {
   return res.status(200).json(snapshot(doc));
 }
 
-async function handlePost(req, res) {
-  const body = jsonBody(req);
+async function handlePost(req, res, body) {
   if (!ACTIONS.includes(body.action)) return res.status(400).json({ ok: false, error: 'Unknown action.' });
   if (!events.isStorageReady()) {
     return res.status(503).json({ ok: false, error: 'Event storage is not set up yet. Ask your website administrator to finish the private storage setup (GITHUB_DATA_REPO).' });
@@ -115,27 +116,22 @@ async function handlePost(req, res) {
   return res.status(200).json(snapshot(sent.doc || doc, { ticketId, delivery: { kind: sent.kind, state: sent.state } }));
 }
 
-module.exports = async function handler(req, res) {
-  if (!(await requireSession(req, res))) return;
+// Both entry points answer for themselves: the caller has already checked the session.
+async function get(req, res) {
   try {
-    if (req.method === 'GET') {
-      try {
-        return await handleGet(req, res);
-      } catch (err) {
-        console.error('Loading events failed:', err.message);
-        return res.status(502).json({ ok: false, error: 'The latest events could not be loaded. Please try again in a minute.' });
-      }
-    }
-    if (req.method === 'POST') {
-      if (!allowedOrigin(req)) return res.status(403).json({ ok: false, error: 'Forbidden' });
-      if (!/^application\/json\b/i.test(String(req.headers['content-type'] || ''))) {
-        return res.status(415).json({ ok: false, error: 'Unsupported content type' });
-      }
-      return await handlePost(req, res);
-    }
+    return await handleGet(req, res);
+  } catch (err) {
+    console.error('Loading events failed:', err.message);
+    return res.status(502).json({ ok: false, error: 'The latest events could not be loaded. Please try again in a minute.' });
+  }
+}
+
+async function post(req, res, body) {
+  try {
+    return await handlePost(req, res, body);
   } catch (err) {
     return failure(res, err);
   }
-  res.setHeader('Allow', 'GET, POST');
-  return res.status(405).json({ ok: false, error: 'Method not allowed' });
-};
+}
+
+module.exports = { get, post };
