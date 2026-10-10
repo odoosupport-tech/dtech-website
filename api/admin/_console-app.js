@@ -72,6 +72,9 @@
     '.dc-mail-table th,.dc-mail-table td{text-align:left;padding:6px 8px;border-bottom:1px solid #e2e8f0;overflow-wrap:anywhere}',
     '.dc-mail-table th{font-weight:600;color:var(--muted);width:45%}',
     '.dc-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}',
+    '.dc-actions-col{flex-direction:column;align-items:stretch;min-width:132px}',
+    '.dc-modal .dc-table,.dc-stack{min-width:0}',
+    '.dc-stack td[data-label]::before{content:attr(data-label) ": ";color:var(--muted);font-size:12px}',
     '.dc-empty{padding:48px 16px;text-align:center;color:var(--muted)}',
     '.dc-note{border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;border:1px solid #fde68a;background:#fffbeb;color:#92400e}',
     '.dc-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px;user-select:none}',
@@ -234,7 +237,7 @@
     '@keyframes dc-bar{to{left:100%}}',
     '@keyframes dc-pulse{50%{opacity:.25}}',
     '@media (max-width:900px){.dc-split{grid-template-columns:1fr}.dc-preview{position:static}}',
-    '@media (max-width:640px){.dc-form,.dc-section{grid-template-columns:1fr}.dc-dl{grid-template-columns:1fr}.dc-counts{margin-left:0}.dc-search{min-width:0;flex:1}}',
+    '@media (max-width:640px){.dc-stack thead{display:none}.dc-stack,.dc-stack tbody,.dc-stack tr,.dc-stack td{display:block;width:100%}.dc-stack tr{padding:12px 0;border-bottom:1px solid var(--line)}.dc-stack tr:last-child{border-bottom:0}.dc-stack td{border:0;padding:4px 14px}.dc-stack .dc-actions,.dc-stack .dc-actions-col{flex-direction:row;justify-content:flex-start;min-width:0}.dc-bar:has(.dc-btn ~ .dc-btn) .dc-search{flex:1 1 100%;order:3}.dc-form,.dc-section{grid-template-columns:1fr}.dc-dl{grid-template-columns:1fr}.dc-counts{margin-left:0}.dc-search{min-width:0;flex:1}}',
     '@media (prefers-reduced-motion:reduce){.dc *{transition:none!important}.dc-spin,.dc-progress::after,.dc-dot{animation-duration:3s!important}}'
   ].join('\n');
 
@@ -244,7 +247,8 @@
     { id: 'applicants', label: '👥 Job Applicants' },
     { id: 'leads', label: '📑 Case Study Leads' },
     { id: 'jobs', label: '💼 Manage Careers' },
-    { id: 'caseStudies', label: '🏆 Manage Case Studies' }
+    { id: 'caseStudies', label: '🏆 Manage Case Studies' },
+    { id: 'events', label: '📅 Manage Events' }
   ];
   var CATEGORIES = { network: 'Network & IT Infrastructure', services: 'Managed Services', safety: 'Safety, Communication & Automation' };
   var LOCATIONS = ['Bharuch', 'Dahej', 'Jhagadia', 'Ankleshwar', 'Vadodara'];
@@ -291,7 +295,7 @@
   };
 
   // show: status filter per inbox tab. reorder: the unsaved order (list of ids) per site list.
-  var state = { tab: 'dashboard', data: null, query: {}, show: {}, reorder: {}, busy: false, leaving: false };
+  var state = { tab: 'dashboard', data: null, events: null, eventPayment: null, eventsMeta: null, eventsError: '', query: {}, show: {}, reorder: {}, busy: false, leaving: false };
   var deploy = { pending: {}, started: 0, timer: 0, hideTimer: 0 };
   var root, toastEl, modal, progressEl;
 
@@ -385,6 +389,7 @@
           if (!r.ok || !body.ok) {
             var err = new Error(body.error || (r.status === 413 ? 'That file is too large to upload.' : 'Something went wrong. Please try again.'));
             err.field = body.field;
+            err.code = body.code;
             throw err;
           }
           return body;
@@ -667,7 +672,8 @@
       leads: d.leads.filter(isOpen).length,
       jobs: d.jobs.filter(function (j) { return j.isActive; }).length,
       caseStudies: d.caseStudies.filter(function (c) { return c.published !== false; }).length,
-      banners: d.banners.filter(function (b) { return b.isActive; }).length
+      banners: d.banners.filter(function (b) { return b.isActive; }).length,
+      events: state.events ? state.events.filter(function (e) { return e.status === 'published'; }).length : '–'
     };
   }
 
@@ -1569,6 +1575,378 @@
       .then(forceClose, function (err) { serverError(form, err); });
   }
 
+  // ---------- events ----------
+  // Events are read live from the private repository by the public site, so a
+  // save here is visible on /events at once: no commit to the site, no redeploy.
+  var ZONES = [['Asia/Kolkata', 'India (IST)'], ['Asia/Dubai', 'Dubai (GST)'], ['Asia/Singapore', 'Singapore (SGT)'], ['Europe/London', 'London'], ['America/New_York', 'New York'], ['UTC', 'UTC']];
+  var EVENT_CHIPS = {
+    draft: ['dc-chip-off', 'Draft: not on the website'],
+    cancelled: ['dc-chip-warn', 'Cancelled'],
+    open: ['dc-chip-live', 'Live: open for registration'],
+    sold_out: ['dc-chip-wait', 'Live: sold out'],
+    closed: ['dc-chip-off', 'Live: registration closed']
+  };
+  var MAIL_LABEL = { sent: 'Emailed', failed: 'Email failed', not_configured: 'Email not set up' };
+  var UTR_NOTE = 'References are what attendees typed. Check each one against your bank statement before confirming.';
+
+  function loadEvents() {
+    state.eventsError = '';
+    return api('/api/admin/events').then(function (res) {
+      applyEvents(res);
+      renderChrome();
+      if (state.tab === 'events') renderPanel();
+      return true;
+    }, function (err) {
+      if (err.message === 'Signed out') return false;
+      state.eventsError = err.message;
+      if (state.tab === 'events') renderPanel();
+      return false;
+    });
+  }
+
+  function applyEvents(res) {
+    state.events = res.events || [];
+    state.eventPayment = res.payment || { gaps: [] };
+    state.eventsMeta = { canSave: res.canSave !== false, mailConfigured: res.mailConfigured !== false };
+  }
+
+  function findEvent(id) {
+    return (state.events || []).filter(function (e) { return e.id === id; })[0];
+  }
+  function fmtEventTime(iso, tz) {
+    try {
+      return new Date(iso).toLocaleString('en-IN', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+    } catch (e) { return fmtDate(iso); }
+  }
+  function money(n) { return '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
+  function eventChip(e) {
+    var c = EVENT_CHIPS[e.status === 'published' ? e.state : e.status] || EVENT_CHIPS.draft;
+    return '<span class="dc-chip ' + c[0] + '">' + esc(c[1]) + '</span>';
+  }
+  // A table whose rows become stacked blocks on phones, so action buttons never sit off-screen.
+  function stackTable(headers, rows, empty) {
+    return table(headers, rows, empty).replace('<table class="dc-table">', '<table class="dc-table dc-stack">');
+  }
+  function canSaveEvents() { return !!(state.eventsMeta && state.eventsMeta.canSave); }
+
+  // POST to /api/admin/events; the answer is the committed state of every event.
+  function eventsCall(payload, opts) {
+    opts = opts || {};
+    setBusy(true, { inModal: opts.inModal, label: opts.label || 'Saving…' });
+    return api('/api/admin/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      applyEvents(res);
+      renderChrome();
+      renderPanel();
+      return res;
+    }).finally(function () { setBusy(false, { inModal: opts.inModal }); });
+  }
+
+  function reportEventError(err, inForm) {
+    if (err.message === 'Signed out') return;
+    if (err.code === 'payment_config') { toast(err.message, 'bad'); paymentForm(); return; }
+    if (inForm) { serverError(inForm, err); return; }
+    toast(err.message, 'bad');
+  }
+
+  function deliveryToast(res, verb) {
+    var d = res.delivery || {};
+    if (d.state === 'sent') return toast(verb + ' The ticket email was sent.', 'ok');
+    if (d.state === 'not_configured') return toast(verb + ' But email is not set up, so no ticket was sent. Fix the email settings, then use Resend ticket.', 'bad');
+    if (d.state === 'failed') return toast(verb + ' But the ticket email could not be sent. Use Resend ticket to try again.', 'bad');
+    return toast(verb, 'ok');
+  }
+
+  VIEWS.events = function () {
+    if (!state.events) {
+      return bar('Manage Events', null) + (state.eventsError
+        ? '<div class="dc-empty">' + esc(state.eventsError) + ' <button type="button" class="dc-btn" data-events-reload>Try again</button></div>'
+        : '<div class="dc-loading">Loading events…</div>');
+    }
+    var can = canSaveEvents();
+    var q = state.query.events || '';
+    var list = state.events.filter(function (e) { return matches(e, ['title', 'publicLocation', 'description'], q); });
+    var gaps = (state.eventPayment && state.eventPayment.gaps) || [];
+    var notes = '';
+    if (!can) notes += '<p class="dc-note">Events cannot be saved yet. Ask your website administrator to finish the private storage setup (GITHUB_DATA_REPO).</p>';
+    if (can && state.eventsMeta && !state.eventsMeta.mailConfigured) notes += '<p class="dc-note">Email is not set up, so registrants will not get tickets by email. Use “Check email” at the top to fix it.</p>';
+    return bar('Manage Events', q,
+      '<button type="button" class="dc-btn" data-event-payment' + disabledUnless(can) + '>' + (gaps.length ? '⚠ ' : '') + 'Payment settings</button>' +
+      '<button type="button" class="dc-btn dc-btn-accent" data-new-event' + disabledUnless(can) + '>+ New Event</button>') +
+      '<p class="dc-intro">Published events appear on the <a href="/events" target="_blank" rel="noopener">Events page</a> the moment you save: there is no deployment to wait for. Free events send a ticket immediately; for paid events attendees submit a payment reference, you check it against your bank statement and confirm it, and the ticket is then emailed.</p>' +
+      notes +
+      stackTable(['Event', 'Admission', 'Registrations', 'Status', ''], list.map(function (e) {
+        var c = e.counts;
+        var published = e.status === 'published';
+        var live = e.status !== 'cancelled';
+        var paymentWarn = e.admission === 'paid' && gaps.length && e.status === 'draft' ? '<div class="dc-sub" style="color:var(--warn)">Add payment settings before publishing.</div>' : '';
+        return '<tr><td><div class="dc-strong">' + esc(e.title) + '</div><div class="dc-sub">' + esc(fmtEventTime(e.startsAt, e.timezone)) + '</div>' +
+          '<div class="dc-sub">' + (e.mode === 'online' ? 'Online' : 'In person') + (e.publicLocation ? ' · ' + esc(e.publicLocation) : '') + '</div></td>' +
+          '<td data-label="Admission">' + (e.admission === 'paid' ? money(e.feeInr) : 'Free') + paymentWarn + '</td>' +
+          '<td data-label="Registrations"><div class="dc-strong" style="display:inline-block">' + c.active + ' / ' + e.capacity + '</div><div class="dc-sub">' + c.confirmed + ' confirmed' + (c.pending ? ' · <b>' + c.pending + ' awaiting payment check</b>' : '') + '</div><div class="dc-sub">' + c.seatsLeft + (c.seatsLeft === 1 ? ' seat left' : ' seats left') + '</div></td>' +
+          '<td>' + eventChip(e) + '</td>' +
+          '<td><div class="dc-actions dc-actions-row"><button type="button" class="dc-btn' + (c.pending ? ' dc-btn-primary' : '') + '" data-event-attendees="' + esc(e.id) + '">Attendees (' + e.attendeeTotal + ')</button>' +
+          (live ? '<button type="button" class="dc-btn" data-edit-event="' + esc(e.id) + '"' + disabledUnless(can) + '>Edit</button>' : '') +
+          (live ? '<button type="button" class="dc-btn" data-event-status="' + (published ? 'draft' : 'published') + '" data-id="' + esc(e.id) + '"' + disabledUnless(can) + '>' + (published ? 'Unpublish' : 'Publish') + '</button>' : '') +
+          (live && (published || e.attendeeTotal) ? '<button type="button" class="dc-btn dc-btn-danger" data-event-status="cancelled" data-id="' + esc(e.id) + '"' + disabledUnless(can) + '>Cancel event</button>' : '') +
+          (!e.attendeeTotal && e.status === 'draft' ? '<button type="button" class="dc-btn dc-btn-danger" data-delete-event="' + esc(e.id) + '"' + disabledUnless(can) + '>Delete</button>' : '') +
+          '</div></td></tr>';
+      }), q ? 'No events match your search.' : 'No events yet. Use “New Event” to create one; it stays a draft until you publish it.');
+  };
+
+  // ----- event form -----
+  function eventForm(ev) {
+    var e = ev || { timezone: 'Asia/Kolkata', mode: 'offline', admission: 'free', capacity: 50 };
+    var zones = ZONES.slice();
+    if (!zones.some(function (z) { return z[0] === e.timezone; })) zones.push([e.timezone, e.timezone]);
+    var locked = ev && ev.attendeeTotal > 0;
+    var body = '<form class="dc-form" id="dc-form" data-kind="event" novalidate>' +
+      section('What & when', '',
+        input({ name: 'title', label: 'Event title', required: true, max: 140, value: e.title, wide: true, placeholder: 'e.g. Industrial network safety workshop' }) +
+        textarea({ name: 'description', label: 'Description / agenda', max: 4000, rows: 6, value: e.description, wide: true, hint: 'Shown to the public. Start a line with “- ” for a bullet. Do not put the meeting link here.' }) +
+        input({ name: 'startLocal', label: 'Starts', type: 'datetime-local', required: true, value: e.startLocal }) +
+        input({ name: 'endLocal', label: 'Ends', type: 'datetime-local', value: e.endLocal, hint: 'Optional.' }) +
+        input({ name: 'deadlineLocal', label: 'Registration closes', type: 'datetime-local', value: e.deadlineLocal, hint: 'Optional. Empty means when the event starts.' }) +
+        select({ name: 'timezone', label: 'Time zone', required: true, hint: 'The times above are in this zone.' },
+          zones.map(function (z) { return '<option value="' + esc(z[0]) + '"' + (z[0] === e.timezone ? ' selected' : '') + '>' + esc(z[1]) + '</option>'; }).join('')) +
+        input({ name: 'capacity', label: 'Capacity (seats)', required: true, type: 'number', value: e.capacity, attrs: 'min="1" max="5000" step="1" inputmode="numeric"',
+          hint: ev ? ev.counts.active + ' registered so far; capacity cannot go below that.' : 'A whole number from 1 to 5000.' })) +
+      section('Where', '',
+        choices('mode', 'Format', [{ value: 'offline', html: 'In person' }, { value: 'online', html: 'Online' }], e.mode, true) +
+        input({ name: 'publicLocation', label: 'Public location', max: 200, value: e.publicLocation, wide: true, placeholder: 'e.g. D-TECH office, Station Road, Bharuch', hint: 'Shown to everyone. For an online event write something like “Online: link emailed after registration”. Required for in-person events.' }) +
+        textarea({ name: 'accessDetails', label: 'Meeting link / access details (confidential)', max: 1000, rows: 3, value: e.accessDetails, wide: true,
+          hint: 'Never shown publicly. Sent only in the ticket email, and shown only to confirmed attendees. Required for online events.' })) +
+      section('Admission', locked ? 'Admission and fee cannot change once people have registered.' : '',
+        choices('admission', 'Admission', [{ value: 'free', html: 'Free <small>ticket issued instantly</small>' }, { value: 'paid', html: 'Paid <small>ticket after payment check</small>' }], e.admission, true) +
+        input({ name: 'feeInr', label: 'Fee per person (₹ INR)', type: 'text', value: e.admission === 'paid' ? e.feeInr : '', show: 'paid', hidden: e.admission !== 'paid', attrs: 'inputmode="decimal"', hint: 'For example 500 or 499.50. Payment details come from “Payment settings”.' })) +
+      '</form><p class="dc-error" id="dc-form-error" role="alert" hidden></p>';
+    openModal(ev ? 'Edit Event' : 'New Event', body, footer(ev ? 'Save Changes' : 'Save as Draft', 'data-save-event="' + esc(e.id || '') + '"'), { size: 'mid', form: true });
+    var form = document.getElementById('dc-form');
+    if (locked) form.querySelectorAll('input[name="admission"],input[name="feeInr"]').forEach(function (el) { el.disabled = true; });
+    syncForm(form);
+  }
+
+  function eventErrors(f) {
+    var e = {};
+    if (f.title.value.trim().length < 3) e.title = 'Enter the event title (at least 3 characters).';
+    if (!f.startLocal.value) e.startLocal = 'Enter the start date and time.';
+    if (f.startLocal.value && f.endLocal.value && f.endLocal.value <= f.startLocal.value) e.endLocal = 'The event must end after it starts.';
+    if (f.startLocal.value && f.deadlineLocal.value && f.deadlineLocal.value > f.startLocal.value) e.deadlineLocal = 'Registration must close at or before the start time.';
+    var cap = f.capacity.value.trim();
+    if (!/^\d+$/.test(cap) || +cap < 1 || +cap > 5000) e.capacity = 'Enter a whole number from 1 to 5000.';
+    var mode = document.querySelector('#dc-form input[name="mode"]:checked');
+    if (!mode) e.mode = 'Choose in person or online.';
+    else if (mode.value === 'offline' && !f.publicLocation.value.trim()) e.publicLocation = 'Add the venue so attendees know where to go.';
+    var adm = document.querySelector('#dc-form input[name="admission"]:checked');
+    if (!adm) e.admission = 'Choose free or paid.';
+    else if (adm.value === 'paid' && !/^\d{1,8}(\.\d{1,2})?$/.test(f.feeInr.value.trim().replace(/,/g, ''))) e.feeInr = 'Enter the fee in rupees, for example 500 or 499.50.';
+    return e;
+  }
+
+  function submitEvent(id) {
+    var form = document.getElementById('dc-form');
+    var f = form.elements;
+    if (!showErrors(form, eventErrors(f))) return;
+    var checked = function (name) { var el = document.querySelector('#dc-form input[name="' + name + '"]:checked'); return el ? el.value : ''; };
+    eventsCall({
+      action: 'save', id: id || undefined,
+      item: {
+        title: f.title.value, description: f.description.value, startLocal: f.startLocal.value, endLocal: f.endLocal.value, deadlineLocal: f.deadlineLocal.value,
+        timezone: f.timezone.value, capacity: Number(f.capacity.value), mode: checked('mode'), publicLocation: f.publicLocation.value, accessDetails: f.accessDetails.value,
+        admission: checked('admission'), feeInr: f.feeInr.value
+      }
+    }, { inModal: true }).then(function () {
+      forceClose();
+      toast(id ? 'Event saved.' + ((findEvent(id) || {}).status === 'published' ? ' The website already shows the change.' : '') : 'Event saved as a draft. Press Publish when it is ready.', 'ok');
+    }, function (err) { reportEventError(err, form); });
+  }
+
+  function setEventStatus(id, to) {
+    var e = findEvent(id);
+    if (!e) return;
+    var active = e.counts.active;
+    var run = function () {
+      eventsCall({ action: 'status', id: id, to: to }).then(function () {
+        toast(to === 'published' ? 'Published. It is on the Events page now.' : to === 'draft' ? 'Unpublished. It is no longer on the website.' : 'Event cancelled. The registrations are kept.', 'ok');
+      }, function (err) { reportEventError(err); });
+    };
+    if (to === 'published') return run();
+    if (to === 'draft') {
+      return active
+        ? confirmBox('Unpublish “' + e.title + '”?', active + ' people are registered. They keep their tickets, but the event disappears from the website and no one new can register. To tell them the event is off, cancel it instead.', 'Unpublish').then(function (yes) { if (yes) run(); })
+        : run();
+    }
+    confirmBox('Cancel “' + e.title + '”?', 'Registration closes at once and the event shows as cancelled on the website. This cannot be undone. ' +
+      (e.attendeeTotal ? 'The ' + e.attendeeTotal + ' registration records are kept. Attendees are not emailed automatically: open Attendees and use “Copy emails” to tell them.' : ''), 'Cancel event')
+      .then(function (yes) { if (yes) run(); });
+  }
+
+  function deleteEvent(id) {
+    var e = findEvent(id);
+    if (!e) return;
+    confirmBox('Delete “' + e.title + '”?', 'This draft has no registrations, so it can be removed for good.', 'Delete').then(function (yes) {
+      if (!yes) return;
+      eventsCall({ action: 'delete', id: id }).then(function () { toast('Draft deleted.', 'ok'); }, function (err) { reportEventError(err); });
+    });
+  }
+
+  // ----- attendees -----
+  var ATTENDEE_STATUS = {
+    confirmed: ['dc-chip-live', 'Confirmed'],
+    pending_verification: ['dc-chip-warn', 'Payment to verify'],
+    cancelled: ['dc-chip-off', 'Released']
+  };
+
+  function showAttendees(id) {
+    var e = findEvent(id);
+    if (!e) { forceClose(); return; }
+    var can = canSaveEvents();
+    var c = e.counts;
+    var rows = e.attendees.map(function (a) {
+      var st = ATTENDEE_STATUS[a.status] || ATTENDEE_STATUS.cancelled;
+      var mailInfo = a.mail ? '<span class="dc-chip ' + (a.mail.state === 'sent' ? 'dc-chip-live' : 'dc-chip-warn') + '" title="' + esc(fmtDate(a.mail.at)) + '">' + esc((a.mail.kind === 'ticket' ? 'Ticket: ' : 'Receipt: ') + (MAIL_LABEL[a.mail.state] || a.mail.state)) + '</span>' : '<span class="dc-sub">No email yet</span>';
+      var verification = a.status === 'confirmed'
+        ? (e.admission === 'paid' ? '<div class="dc-sub">Verified ' + esc(fmtDate(a.confirmedAt)) + '<br>by ' + esc(a.confirmedBy || '') + '</div>' : '<div class="dc-sub">Free: automatic</div>')
+        : a.status === 'cancelled' ? '<div class="dc-sub">Released ' + esc(fmtDate(a.cancelledAt)) + '<br>by ' + esc(a.cancelledBy || '') + '</div>' : '';
+      var actions = '';
+      if (a.status === 'pending_verification') actions += '<button type="button" class="dc-btn dc-btn-primary" data-attendee-action="confirm" data-event="' + esc(e.id) + '" data-ticket="' + esc(a.ticketId) + '"' + disabledUnless(can && e.status !== 'cancelled') + '>Confirm payment</button>';
+      if (a.status === 'confirmed') actions += '<button type="button" class="dc-btn" data-attendee-action="resend" data-event="' + esc(e.id) + '" data-ticket="' + esc(a.ticketId) + '"' + disabledUnless(can && e.status !== 'cancelled') + '>' + (a.mail && a.mail.state === 'sent' ? 'Resend ticket' : 'Send ticket') + '</button>';
+      if (a.status !== 'cancelled') actions += '<button type="button" class="dc-btn dc-btn-danger" data-attendee-action="release" data-event="' + esc(e.id) + '" data-ticket="' + esc(a.ticketId) + '"' + disabledUnless(can) + '>Release seat</button>';
+      return '<tr><td><span class="dc-strong" style="font-family:ui-monospace,Menlo,monospace">' + esc(a.ticketId) + '</span><div class="dc-sub">' + esc(fmtDate(a.registeredAt)) + '</div></td>' +
+        '<td><div class="dc-strong">' + esc(a.name) + '</div><div class="dc-sub">' + esc(a.organization || '—') + '</div><div>' + mail(a.email) + '</div><div>' + tel(a.phone) + '</div></td>' +
+        (e.admission === 'paid' ? '<td data-label="Payment reference"><span style="font-family:ui-monospace,Menlo,monospace">' + esc(a.paymentReference || '—') + '</span></td>' : '') +
+        '<td><span class="dc-chip ' + st[0] + '">' + esc(st[1]) + '</span>' + verification + '<div style="margin-top:4px">' + mailInfo + '</div></td>' +
+        '<td><div class="dc-actions dc-actions-col">' + actions + '</div></td></tr>';
+    });
+    var headers = ['Ticket', 'Attendee'].concat(e.admission === 'paid' ? ['Payment reference'] : [], ['Status', '']);
+    openModal('Attendees: ' + e.title,
+      '<p class="dc-sub">' + esc(fmtEventTime(e.startsAt, e.timezone)) + ' · ' + (e.admission === 'paid' ? money(e.feeInr) + ' per person' : 'Free') + ' · ' + c.confirmed + ' confirmed' + (c.pending ? ', ' + c.pending + ' awaiting payment check' : '') + ' · ' + c.seatsLeft + ' of ' + e.capacity + ' seats left</p>' +
+      (e.admission === 'paid' ? '<p class="dc-note">' + esc(UTR_NOTE) + ' Payment is verified by hand: nothing here is checked automatically.</p>' : '') +
+      stackTable(headers, rows, 'Nobody has registered yet.'),
+      '<button type="button" class="dc-btn" data-copy-emails="' + esc(e.id) + '"' + (e.attendees.length ? '' : ' disabled') + '>Copy emails</button>' +
+      '<a class="dc-btn" href="/api/admin/events?export=' + encodeURIComponent(e.id) + '" download>' + icon('file-spreadsheet') + 'Export CSV</a>' +
+      '<button type="button" class="dc-btn" data-close>Close</button>', { size: 'wide' });
+    modal.dataset.attendees = e.id;
+  }
+
+  function attendeeAction(button) {
+    var d = button.dataset;
+    var e = findEvent(d.event);
+    var a = e && e.attendees.filter(function (x) { return x.ticketId === d.ticket; })[0];
+    if (!a) return;
+    var after = function (res, verb) {
+      showAttendees(d.event);
+      deliveryToast(res, verb);
+    };
+    var fail = function (err) { if (err.message !== 'Signed out') toast(err.message, 'bad'); showAttendees(d.event); };
+    if (d.attendeeAction === 'confirm') {
+      return eventsCall({ action: 'confirm', id: d.event, ticketId: d.ticket }, { inModal: true, label: 'Confirming and sending the ticket…' })
+        .then(function (res) { after(res, res.alreadyConfirmed ? 'Already confirmed: nothing changed.' : 'Payment confirmed.'); }, fail);
+    }
+    if (d.attendeeAction === 'resend') {
+      return eventsCall({ action: 'resend', id: d.event, ticketId: d.ticket }, { inModal: true, label: 'Sending the ticket…' })
+        .then(function (res) { after(res, 'Done.'); }, fail);
+    }
+    if (d.attendeeAction === 'release') {
+      return confirmBox('Release this seat?', 'The registration is marked released and the seat becomes available again. The record is kept. This does not refund anything or email the attendee.', 'Release seat').then(function (yes) {
+        if (!yes) return showAttendees(d.event);
+        eventsCall({ action: 'release', id: d.event, ticketId: d.ticket })
+          .then(function () { showAttendees(d.event); toast('Seat released.', 'ok'); }, fail);
+      });
+    }
+  }
+
+  function copyEmails(id) {
+    var e = findEvent(id);
+    if (!e) return;
+    var list = e.attendees.filter(function (a) { return a.status !== 'cancelled'; }).map(function (a) { return a.email; });
+    if (!list.length) return toast('There are no active registrations to copy.', 'bad');
+    var text = list.join(', ');
+    var done = function () { toast('Copied ' + list.length + ' email address' + (list.length === 1 ? '' : 'es') + '.', 'ok'); };
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('aria-hidden', 'true');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      modal.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      ta.remove();
+      if (ok) done(); else toast('Your browser blocked copying. Use Export CSV instead.', 'bad');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  }
+
+  // ----- payment settings -----
+  function paymentForm() {
+    var p = state.eventPayment || {};
+    var gaps = p.gaps || [];
+    var qrModes = (p.hasQr ? [{ value: 'keep', html: 'Keep current QR' }, { value: 'remove', html: 'Remove it' }] : []).concat([{ value: 'upload', html: p.hasQr ? 'Replace with a new image' : 'Upload a QR image' }]);
+    var body = '<p class="dc-sub">These details are shown to people registering for paid events. They are D-TECH\'s own UPI details: nothing is filled in for you. Payments are checked by hand; there is no payment gateway.</p>' +
+      (gaps.length ? '<p class="dc-note">Paid events cannot be published until you add ' + esc(gaps.join(' and ')) + '.</p>' : '') +
+      '<form class="dc-form" id="dc-form" data-kind="payment" novalidate>' +
+      input({ name: 'payeeName', label: 'Payee name', required: true, max: 80, value: p.payeeName, placeholder: 'The name on the bank account', hint: 'Shown so payers can check the name their UPI app displays.' }) +
+      input({ name: 'upiId', label: 'UPI ID', max: 80, value: p.upiId, placeholder: 'name@bank', hint: 'A UPI ID, a QR image, or both. At least one is required.' }) +
+      textarea({ name: 'instructions', label: 'Payment instructions', max: 600, rows: 4, value: p.instructions, wide: true, hint: 'Optional extra steps, for example “Write the event name in the payment note”.' }) +
+      (p.hasQr ? '<div class="dc-wide dc-f"><span class="dc-f-label">Current QR code</span><img src="' + esc(p.qrUrl) + '" alt="Current UPI QR code" width="140" height="140" style="object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px"></div>' : '') +
+      choices('qrMode', 'UPI QR image', qrModes, p.hasQr ? 'keep' : 'upload', true) +
+      wrap({ name: 'qr', label: 'QR image file', wide: true, hint: 'PNG, JPG or WebP, up to 150 KB. Leave empty if you only use a UPI ID.' },
+        '<input type="file" id="' + fid('qr') + '" name="qr" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-describedby="' + fid('qr') + '-hint ' + fid('qr') + '-err">') +
+      '</form><p class="dc-error" id="dc-form-error" role="alert" hidden></p>';
+    openModal('Payment settings', body, footer('Save payment settings', 'data-save-payment'), { size: 'mid', form: true });
+    syncForm(document.getElementById('dc-form'));
+  }
+
+  function readQr(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(String(reader.result).replace(/^data:[^,]*,/, '')); };
+      reader.onerror = function () { var err = new Error('The QR image could not be read. Please choose it again.'); err.field = 'qr'; reject(err); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function submitPayment() {
+    var form = document.getElementById('dc-form');
+    var f = form.elements;
+    var mode = (document.querySelector('#dc-form input[name="qrMode"]:checked') || {}).value || 'keep';
+    var file = f.qr.files[0];
+    var errors = {};
+    if (!f.payeeName.value.trim()) errors.payeeName = 'Enter the payee name.';
+    var upi = f.upiId.value.trim();
+    if (upi && !/^[A-Za-z0-9._-]{2,64}@[A-Za-z][A-Za-z0-9.-]{1,40}$/.test(upi)) errors.upiId = 'That does not look like a UPI ID. It looks like name@bank.';
+    if (mode === 'upload') {
+      if (!file) errors.qr = 'Choose the QR image to upload.';
+      else if (!/^image\/(png|jpeg|webp)$/.test(file.type) && !/\.(png|jpe?g|webp)$/i.test(file.name)) errors.qr = 'The QR image must be a PNG, JPG or WebP file.';
+      else if (file.size > 150 * 1024) errors.qr = 'That image is ' + Math.ceil(file.size / 1024) + ' KB. The limit is 150 KB, so resize or compress it.';
+    }
+    if (!showErrors(form, errors)) return;
+    (mode === 'upload' ? readQr(file) : Promise.resolve(null)).then(function (data) {
+      var qr = mode === 'upload' ? { mode: 'upload', dataBase64: data } : { mode: mode };
+      return eventsCall({ action: 'payment', item: { payeeName: f.payeeName.value, upiId: f.upiId.value, instructions: f.instructions.value, qr: qr } }, { inModal: true });
+    }).then(function () { forceClose(); toast('Payment settings saved.', 'ok'); }, function (err) { serverError(form, err); });
+  }
+
+  function handleEventClick(t, d) {
+    if ('eventsReload' in d) { loadEvents(); return true; }
+    if ('newEvent' in d) { eventForm(null); return true; }
+    if (d.editEvent) { eventForm(findEvent(d.editEvent)); return true; }
+    if ('saveEvent' in d) { submitEvent(d.saveEvent); return true; }
+    if (d.eventStatus) { setEventStatus(d.id, d.eventStatus); return true; }
+    if (d.deleteEvent) { deleteEvent(d.deleteEvent); return true; }
+    if (d.eventAttendees) { showAttendees(d.eventAttendees); return true; }
+    if (d.attendeeAction) { attendeeAction(t); return true; }
+    if (d.copyEmails) { copyEmails(d.copyEmails); return true; }
+    if ('eventPayment' in d) { paymentForm(); return true; }
+    if ('savePayment' in d) { submitPayment(); return true; }
+    return false;
+  }
+
   // ---------- live form behaviour ----------
   function forceClose() {
     modal.dataset.dirty = '';
@@ -1598,6 +1976,9 @@
       form.querySelectorAll('[data-show]').forEach(function (box) { box.hidden = box.getAttribute('data-show') !== mode; });
     } else if (kind === 'banner') {
       bannerPreview(form);
+    } else if (kind === 'event') {
+      var admission = form.querySelector('input[name="admission"]:checked');
+      form.querySelectorAll('[data-show]').forEach(function (box) { box.hidden = box.getAttribute('data-show') !== (admission ? admission.value : 'free'); });
     }
   }
 
@@ -1618,7 +1999,12 @@
     if (!t) return;
     var d = t.dataset;
     if (t.id === 'dc-menu-btn') { setMenu(t.getAttribute('aria-expanded') !== 'true'); return; }
-    if (d.tab) { state.tab = d.tab; render(); return; }
+    if (d.tab) {
+      state.tab = d.tab;
+      render();
+      if (d.tab === 'events' && !state.events && !state.eventsError) loadEvents();
+      return;
+    }
     if ('close' in d) { closeModal(); return; }
     if (state.busy) return;
     if (t.id === 'dc-refresh') { refresh(t); return; }
@@ -1660,6 +2046,7 @@
     if ('saveJob' in d) return submitJob(d.saveJob);
     if ('saveCs' in d) return submitCase(d.saveCs);
     if ('saveBanner' in d) return submitBanner(d.saveBanner);
+    if (handleEventClick(t, d)) return;
     if (d.delete) {
       var type = d.delete;
       var item = find(TYPES[type].list, d.id);
@@ -1719,6 +2106,7 @@
       state.data = data;
       state.reorder = {}; // an unsaved order may no longer match the reloaded lists
       render();
+      if (state.events || state.tab === 'events') loadEvents();
       return true;
     }, function (err) {
       if (err.message === 'Signed out') return false;
