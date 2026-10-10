@@ -1546,7 +1546,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     if (rq.body && typeof rq.body === 'object') rq.body = { type: 'events', ...rq.body };
     return update(rq, rs);
   };
-  const eventsPublic = api('events.js'), eventsLib = api('_events.js');
+  // /api/events is rewritten (vercel.json) to api/content.js?list=events, which hands over to api/_events-public.js.
+  const eventsPublic = (rq, rs) => { rq.query = { list: 'events', ...(rq.query || {}) }; return content(rq, rs); };
+  const eventsLib = api('_events.js');
   let evRepoN = 0;
   const tick = () => new Promise(r => setImmediate(r));
   const sleepMs = ms => new Promise(r => setTimeout(r, ms));
@@ -1764,7 +1766,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     })],
   ]);
 
-  await area('14b. Public events API: fields, caching, registration (api/events.js)', [
+  await area('14b. Public events API: fields, caching, registration (/api/events)', [
     ['listing is an explicit allowlist: no attendees, contacts, references, access details or drafts', () => withEvents(async () => {
       await setPayment({});
       const paid = await createEvent({ admission: 'paid', feeInr: '750', title: 'Paid briefing' });
@@ -2126,10 +2128,12 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   await area('14e. Events site wiring (pages, CSP, service worker, build)', [
     ['vercel.json: functions configured, source files hidden, endpoints reachable', () => {
       const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
-      eq(cfg.functions['api/events.js'].maxDuration, 30);
+      eq(cfg.functions['api/content.js'].maxDuration, 30, 'content.js also serves registration');
+      assert(cfg.rewrites.some(r => r.source === '/api/events' && r.destination === '/api/content?list=events'), '/api/events rewrite');
       for (const f of Object.keys(cfg.functions)) assert(fs.existsSync(path.join(REPO, f)), `${f} is configured but does not exist`);
       const countFns = dir => fs.readdirSync(dir, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? countFns(path.join(dir, e.name)) : (e.name.endsWith('.js') && !e.name.startsWith('_') ? 1 : 0)), 0);
-      assert(countFns(path.join(REPO, 'api')) <= 12, `Vercel Hobby allows 12 functions; api/ has ${countFns(path.join(REPO, 'api'))}`);
+      const fns = countFns(path.join(REPO, 'api')) + (fs.existsSync(path.join(REPO, 'middleware.js')) ? 1 : 0);
+      assert(fns <= 12, `Vercel Hobby allows 12 functions (middleware.js counts as one); this deployment has ${fns}`);
       const hide = new RegExp(`^${cfg.redirects.find(r => r.source.startsWith('/api/')).source}$`);
       assert(hide.test('/api/_events.js') && !hide.test('/api/events') && !hide.test('/api/admin/events'));
     }],

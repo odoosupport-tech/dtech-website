@@ -1,4 +1,6 @@
 // GET /api/content?list=case-studies|banners
+// (list=events is the public events API, api/_events-public.js, reached as /api/events
+// through a vercel.json rewrite: a function budget workaround, see README "Events".)
 // The public copy of the lists the management console edits. The raw files in
 // data/ are not served (vercel.json sends /data/* to the 404 page), so drafts and
 // hidden banners never leave the server.
@@ -15,6 +17,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const eventsPublic = require('./_events-public');
 
 const LISTS = {
   'case-studies': {
@@ -42,6 +45,7 @@ function publicList(name) {
 }
 
 module.exports = async function handler(req, res) {
+  if (req.query && req.query.list === 'events') return eventsPublic(req, res);
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });

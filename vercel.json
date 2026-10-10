@@ -34,11 +34,9 @@
     "api/admin/mail-check.js": {
       "maxDuration": 30
     },
-    "api/events.js": {
-      "maxDuration": 30
-    },
     "api/content.js": {
-      "includeFiles": "data/*.json"
+      "includeFiles": "data/*.json",
+      "maxDuration": 30
     },
     "api/detail.js": {
       "includeFiles": "data/*.json"
@@ -267,6 +265,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/events",
+      "destination": "/api/content?list=events"
+    },
     {
       "source": "/admin-dtech",
       "destination": "/portal"

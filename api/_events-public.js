@@ -1,5 +1,9 @@
 // /api/events: the public events API (listing, detail and registration).
 //
+// Not a function of its own (the project is at Vercel Hobby's limit of 12, counting
+// middleware.js): vercel.json rewrites /api/events to api/content.js?list=events,
+// which hands the request to this module.
+//
 //   GET                 { ok, events: [...], payment, generatedAt }
 //                       Published events that are upcoming or just over, plus recently
 //                       cancelled ones, as explicit public fields only. Read live from the
