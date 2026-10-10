@@ -34,6 +34,12 @@
     "api/admin/mail-check.js": {
       "maxDuration": 30
     },
+    "api/events.js": {
+      "maxDuration": 30
+    },
+    "api/admin/events.js": {
+      "maxDuration": 30
+    },
     "api/content.js": {
       "includeFiles": "data/*.json"
     },
@@ -388,7 +394,7 @@
       ]
     },
     {
-      "source": "/api/((?!jobs$).*)",
+      "source": "/api/((?!jobs$|events$).*)",
       "headers": [
         {
           "key": "Cache-Control",

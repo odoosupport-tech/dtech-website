@@ -167,4 +167,4 @@ function jsonBody(req) {
   return body && typeof body === 'object' ? body : {};
 }
 
-module.exports = { secret, passkeyMatches, credentialsMatch, hasSession, startSession, endSession, requireSession, notFound, jsonBody };
+module.exports = { secret, passkeyMatches, credentialsMatch, hasSession, readSession, startSession, endSession, requireSession, notFound, jsonBody };

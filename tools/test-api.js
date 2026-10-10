@@ -1538,6 +1538,635 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
   ]);
 
+  // 14. Events: publishing, registration, payment confirmation, storage races.
+  // GitHub is a fake contents API with real SHA semantics; SMTP is the suite's mock.
+  const eventsAdmin = api('admin/events.js'), eventsPublic = api('events.js'), eventsLib = api('_events.js');
+  let evRepoN = 0;
+  const tick = () => new Promise(r => setImmediate(r));
+  const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+
+  // A private repository holding files; PUT needs the current SHA or answers 409.
+  function fakeEventsRepo() {
+    const repo = `test-owner/events-data-${++evRepoN}`;
+    const base = `https://api.github.com/repos/${repo}`;
+    const files = new Map();
+    let shaN = 0;
+    const hooks = { beforePut: null, failGets: false, failPutsWith: 0 };
+    const log = { puts: [], conflicts: 0, gets: 0 };
+    const reply = (status, body) => ({ ok: status < 300, status, json: async () => body, text: async () => JSON.stringify(body) });
+    const write = (file, text) => files.set(file, { text, sha: `sha${++shaN}` });
+    const fetchImpl = async (url, opts = {}) => {
+      url = String(url);
+      await tick();
+      if (url === base) return reply(200, { private: true });
+      const m = new RegExp(`^${base}/contents/([^?]+)`).exec(url);
+      assert(m, `unexpected url ${url}`);
+      const file = m[1];
+      if (opts.method === 'GET') {
+        log.gets++;
+        if (hooks.failGets) return reply(500, { message: 'boom' });
+        const hit = files.get(file);
+        return hit ? reply(200, { sha: hit.sha, encoding: 'base64', content: Buffer.from(hit.text).toString('base64') }) : reply(404, {});
+      }
+      assert.strictEqual(opts.method, 'PUT', `unexpected ${opts.method}`);
+      const body = JSON.parse(opts.body);
+      if (hooks.failPutsWith) return reply(hooks.failPutsWith, { message: 'down' });
+      if (hooks.beforePut) await hooks.beforePut(file, { files, write, log });
+      const hit = files.get(file);
+      if ((hit && body.sha !== hit.sha) || (!hit && body.sha)) { log.conflicts++; return reply(409, { message: 'sha mismatch' }); }
+      write(file, Buffer.from(body.content, 'base64').toString('utf8'));
+      log.puts.push({ file, message: body.message });
+      return reply(201, {});
+    };
+    return { repo, files, hooks, log, fetchImpl, write, doc: () => JSON.parse(files.get('events.json').text) };
+  }
+  async function withEvents(fn) {
+    const gh = fakeEventsRepo();
+    const saved = { fetch: globalThis.fetch, repo: process.env.GITHUB_DATA_REPO, token: process.env.GITHUB_DATA_TOKEN, vercel: process.env.VERCEL };
+    Object.assign(process.env, { GITHUB_DATA_REPO: gh.repo, GITHUB_DATA_TOKEN: 'test-token' });
+    delete process.env.VERCEL;
+    globalThis.fetch = gh.fetchImpl;
+    sent.length = 0;
+    try { return await fn(gh); } finally {
+      globalThis.fetch = saved.fetch;
+      for (const [k, v] of [['GITHUB_DATA_REPO', saved.repo], ['GITHUB_DATA_TOKEN', saved.token], ['VERCEL', saved.vercel]]) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+    }
+  }
+
+  const evSignIn = await call(auth, req('POST', { id: 'admin', key: process.env.ADMIN_SECRET }));
+  const evCookie = evSignIn.headers['set-cookie'].split(';')[0];
+  const adminGet = (query, headers) => call(eventsAdmin, req('GET', null, { query: query || {}, headers: { cookie: evCookie, ...(headers || {}) } }));
+  const adminPost = (body, headers) => call(eventsAdmin, req('POST', body, { headers: { cookie: evCookie, ...(headers || {}) } }));
+  const publicGet = query => call(eventsPublic, req('GET', null, { query: query || {} }));
+  const publicPost = (body, extra) => call(eventsPublic, req('POST', body, extra));
+
+  const istDay = ms => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms));
+  const futureLocal = (days, hm = '10:00') => `${istDay(Date.now() + days * 864e5)}T${hm}`;
+  const baseEvent = over => ({
+    title: 'Plant network safety workshop', description: '- Agenda one\n- Agenda two', startLocal: futureLocal(10), endLocal: futureLocal(10, '13:00'),
+    deadlineLocal: futureLocal(9), timezone: 'Asia/Kolkata', capacity: 3, mode: 'offline', publicLocation: 'D-TECH office, Station Road, Bharuch',
+    accessDetails: 'Gate 3, ask for Rahul. Backup link: https://meet.example.com/room-42', admission: 'free', feeInr: '', ...over,
+  });
+  let regN = 0;
+  const regBody = (eventId, over) => {
+    const n = ++regN;
+    return { eventId, requestId: `request-${String(n).padStart(6, '0')}-abcdefgh`, name: `Asha Verma ${n}`, email: `asha${n}@example.com`, phone: '98765 43210', organization: 'ACME Ltd', paymentReference: '', website: '', formStart: stale(), ...over };
+  };
+  const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(64, 7)]).toString('base64');
+  async function createEvent(over, { publish = true } = {}) {
+    const saved = await adminPost({ action: 'save', item: baseEvent(over) });
+    eq(saved.statusCode, 200, JSON.stringify(saved.body));
+    const id = saved.body.eventId;
+    if (publish) { const p = await adminPost({ action: 'status', id, to: 'published' }); eq(p.statusCode, 200, JSON.stringify(p.body)); }
+    return id;
+  }
+  const setPayment = (over, status = 200) => adminPost({ action: 'payment', item: { payeeName: 'D-TECH Solution Integrators', upiId: 'dtech@testbank', instructions: 'Add the event name in the note.', qr: { mode: 'keep' }, ...over } })
+    .then(r => { eq(r.statusCode, status, JSON.stringify(r.body)); return r; });
+  const findOne = (body, id) => body.events.find(e => e.id === id);
+  const atTime = async (ms, fn) => { const real = Date.now; Date.now = () => ms; try { return await fn(); } finally { Date.now = real; } };
+  const withMail = async (impl, fn) => { const real = mail.sendMail; mail.sendMail = impl; try { return await fn(); } finally { mail.sendMail = real; } };
+
+  await area('14a. Events admin API (api/admin/events.js)', [
+    ['no session → 404 everywhere; sign-in cookie is the only credential', () => withEvents(async () => {
+      eq((await call(eventsAdmin, req('GET'))).statusCode, 404);
+      eq((await call(eventsAdmin, req('POST', { action: 'save', item: baseEvent() }))).statusCode, 404);
+      eq((await call(eventsAdmin, req('GET', null, { query: { export: 'evt-0000000000' } }))).statusCode, 404);
+    })],
+    ['same-origin JSON only: cross-origin 403, wrong content type 415, bad action 400, other methods 405', () => withEvents(async () => {
+      eq((await adminPost({ action: 'save', item: baseEvent() }, { origin: 'https://evil.test' })).statusCode, 403);
+      eq((await adminPost({ action: 'save', item: baseEvent() }, { origin: undefined })).statusCode, 403);
+      eq((await adminPost({ action: 'save', item: baseEvent() }, { 'content-type': 'text/plain' })).statusCode, 415);
+      eq((await adminPost({ action: 'nope' })).statusCode, 400);
+      const r = await call(eventsAdmin, req('DELETE', null, { headers: { cookie: evCookie } }));
+      eq(r.statusCode, 405);
+    })],
+    ['storage not configured → GET says canSave:false, POST 503 (nothing written)', async () => {
+      process.env.VERCEL = '1';
+      try {
+        const g = await adminGet();
+        eq(g.statusCode, 200); eq(g.body.canSave, false); eq(g.body.events.length, 0);
+        const p = await adminPost({ action: 'save', item: baseEvent() });
+        eq(p.statusCode, 503); assert.match(p.body.error, /storage is not set up/i);
+      } finally { delete process.env.VERCEL; }
+    }],
+    ['save creates a draft: times stored as UTC, local values round-trip, no public listing', () => withEvents(async (gh) => {
+      const id = await createEvent({}, { publish: false });
+      const ev = findOne((await adminGet()).body, id);
+      eq(ev.status, 'draft'); eq(ev.startLocal, futureLocal(10)); eq(ev.timezone, 'Asia/Kolkata');
+      eq(ev.startsAt.slice(11, 16), '04:30', '10:00 IST is 04:30 UTC');
+      eq(gh.doc().events[0].feePaise, 0);
+      eq((await publicGet()).body.events.length, 0, 'drafts are not public');
+      eq((await publicGet({ id })).statusCode, 404);
+    })],
+    ['validation names the field: impossible date, DST gap, order of times, capacity, fee, links', () => withEvents(async () => {
+      const bad = async (over, field, pattern) => {
+        const r = await adminPost({ action: 'save', item: baseEvent(over) });
+        eq(r.statusCode, 400, JSON.stringify(over)); eq(r.body.field, field, JSON.stringify(r.body));
+        if (pattern) assert.match(r.body.error, pattern);
+      };
+      await bad({ startLocal: '2027-02-30T10:00' }, 'startLocal', /does not exist/);
+      await bad({ startLocal: '2027-03-14T02:30', timezone: 'America/New_York', deadlineLocal: '', endLocal: '' }, 'startLocal', /does not exist/);
+      await bad({ startLocal: 'tomorrow' }, 'startLocal');
+      await bad({ startLocal: futureLocal(-2), endLocal: '', deadlineLocal: '' }, 'startLocal', /future/);
+      await bad({ endLocal: futureLocal(10, '09:00') }, 'endLocal', /after it starts/);
+      await bad({ deadlineLocal: futureLocal(11) }, 'deadlineLocal', /at or before/);
+      await bad({ timezone: 'Mars/Olympus' }, 'timezone');
+      await bad({ capacity: 0 }, 'capacity'); await bad({ capacity: 1.5 }, 'capacity'); await bad({ capacity: 5001 }, 'capacity');
+      await bad({ mode: 'hybrid' }, 'mode');
+      await bad({ admission: 'paid', feeInr: '' }, 'feeInr'); await bad({ admission: 'paid', feeInr: '0' }, 'feeInr');
+      await bad({ admission: 'paid', feeInr: '12.345' }, 'feeInr'); await bad({ admission: 'paid', feeInr: '-5' }, 'feeInr');
+      await bad({ title: 'x' }, 'title'); await bad({ title: 'x'.repeat(141) }, 'title', /too long/);
+      await bad({ description: 'y'.repeat(4001) }, 'description');
+      await bad({ publicLocation: 'javascript:alert(1)' }, 'publicLocation', /http/);
+      await bad({ accessDetails: 'Join at ftp://files.example.com/room' }, 'accessDetails', /http/);
+      await bad({ description: 'See data:text/html;base64,AAAA' }, 'description');
+      const ok = await adminPost({ action: 'save', item: baseEvent({ admission: 'paid', feeInr: '₹1,499.50' }) });
+      eq(ok.statusCode, 200, JSON.stringify(ok.body)); eq(findOne(ok.body, ok.body.eventId).feeInr, 1499.5);
+    })],
+    ['publishing checks completeness: venue, joining details, and (paid) payment configuration', () => withEvents(async () => {
+      const offline = await createEvent({ publicLocation: '' }, { publish: false });
+      let r = await adminPost({ action: 'status', id: offline, to: 'published' });
+      eq(r.statusCode, 400); assert.match(r.body.error, /venue/);
+      const online = await createEvent({ mode: 'online', accessDetails: '' }, { publish: false });
+      r = await adminPost({ action: 'status', id: online, to: 'published' });
+      eq(r.statusCode, 400); assert.match(r.body.error, /meeting link/);
+      const paid = await createEvent({ admission: 'paid', feeInr: '500' }, { publish: false });
+      r = await adminPost({ action: 'status', id: paid, to: 'published' });
+      eq(r.statusCode, 400); eq(r.body.code, 'payment_config');
+      assert.match(r.body.error, /payee name and a UPI ID or a UPI QR code/);
+      eq((await publicGet()).body.events.length, 0);
+      await setPayment({});
+      r = await adminPost({ action: 'status', id: paid, to: 'published' });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq((await publicGet()).body.events.length, 1);
+    })],
+    ['payment settings: UPI id and QR image validated; config in use cannot be stripped', () => withEvents(async () => {
+      await setPayment({ upiId: 'not a upi id' }, 400);
+      await setPayment({ payeeName: '' , upiId: '' }, 200); // incomplete config is allowed while nothing needs it
+      await setPayment({ qr: { mode: 'upload', dataBase64: Buffer.from('hello').toString('base64') } }, 400);
+      await setPayment({ qr: { mode: 'upload', dataBase64: Buffer.alloc(151 * 1024, 1).toString('base64') } }, 413);
+      await setPayment({ qr: { mode: 'upload', dataBase64: '!!!' } }, 400);
+      const ok = await setPayment({ upiId: '', qr: { mode: 'upload', dataBase64: PNG } });
+      eq(ok.body.payment.hasQr, true); assert.deepStrictEqual(ok.body.payment.gaps, []);
+      const paid = await createEvent({ admission: 'paid', feeInr: '500' });
+      const strip = await setPayment({ upiId: '', qr: { mode: 'remove' } }, 400);
+      eq(strip.body.code, 'payment_in_use');
+      await setPayment({ payeeName: '', qr: { mode: 'keep' } }, 400);
+      eq(findOne((await adminGet()).body, paid).status, 'published');
+    })],
+    ['edits are live at once (no deploy); capacity cannot drop below active registrations; price locks', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 5 });
+      for (let i = 0; i < 2; i++) eq((await publicPost(regBody(id))).statusCode, 200);
+      let r = await adminPost({ action: 'save', id, item: baseEvent({ capacity: 1 }) });
+      eq(r.statusCode, 400); eq(r.body.code, 'capacity_below_registered'); eq(r.body.field, 'capacity');
+      r = await adminPost({ action: 'save', id, item: baseEvent({ capacity: 2, title: 'Renamed workshop' }) });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      const pub = (await publicGet()).body.events[0];
+      eq(pub.title, 'Renamed workshop'); eq(pub.seatsLeft, 0); eq(pub.state, 'sold_out');
+      r = await adminPost({ action: 'save', id, item: baseEvent({ capacity: 2, admission: 'paid', feeInr: '10' }) });
+      eq(r.statusCode, 400); eq(r.body.code, 'price_locked');
+      assert(gh.log.puts.every(p => p.file === 'events.json'));
+    })],
+    ['unpublish hides it; cancel keeps attendee history, closes registration and cannot be undone; delete only empty drafts', () => withEvents(async () => {
+      const id = await createEvent({});
+      eq((await publicPost(regBody(id))).statusCode, 200);
+      eq((await adminPost({ action: 'status', id, to: 'draft' })).statusCode, 200);
+      eq((await publicGet()).body.events.length, 0);
+      eq((await publicPost(regBody(id))).statusCode, 404, 'unpublished events take no registrations');
+      eq((await adminPost({ action: 'status', id, to: 'published' })).statusCode, 200);
+      let r = await adminPost({ action: 'delete', id });
+      eq(r.statusCode, 400); eq(r.body.code, 'has_attendees');
+      r = await adminPost({ action: 'status', id, to: 'cancelled' });
+      eq(r.statusCode, 200); eq(findOne(r.body, id).attendees.length, 1, 'history kept'); eq(findOne(r.body, id).status, 'cancelled');
+      const pub = (await publicGet()).body.events[0];
+      eq(pub.state, 'cancelled');
+      const again = await publicPost(regBody(id));
+      eq(again.statusCode, 409); eq(again.body.code, 'cancelled');
+      eq((await adminPost({ action: 'status', id, to: 'published' })).statusCode, 400, 'no reopening');
+      eq((await adminPost({ action: 'save', id, item: baseEvent() })).statusCode, 400, 'no editing');
+      const draft = await createEvent({}, { publish: false });
+      eq((await adminPost({ action: 'delete', id: draft })).statusCode, 200);
+      eq((await adminPost({ action: 'delete', id: draft })).statusCode, 404);
+    })],
+    ['unknown ids are refused before storage is touched', () => withEvents(async (gh) => {
+      eq((await adminPost({ action: 'status', id: '../etc', to: 'published' })).statusCode, 404);
+      eq((await adminPost({ action: 'confirm', id: 'evt-0000000000', ticketId: 'DT-AAAAAAAAAA' })).statusCode, 404);
+      eq((await adminPost({ action: 'confirm', id: 'evt-0000000000', ticketId: 'x' })).statusCode, 404);
+      eq(gh.log.puts.length, 0);
+    })],
+  ]);
+
+  await area('14b. Public events API: fields, caching, registration (api/events.js)', [
+    ['listing is an explicit allowlist: no attendees, contacts, references, access details or drafts', () => withEvents(async () => {
+      await setPayment({});
+      const paid = await createEvent({ admission: 'paid', feeInr: '750', title: 'Paid briefing' });
+      const free = await createEvent({ title: 'Free demo' });
+      await createEvent({ title: 'SECRET DRAFT' }, { publish: false });
+      eq((await publicPost(regBody(free, { name: 'Private Person', email: 'private.person@example.com' }))).statusCode, 200);
+      eq((await publicPost(regBody(paid, { paymentReference: 'UTR1234567890' }))).statusCode, 200);
+      const r = await publicGet();
+      eq(r.statusCode, 200);
+      const text = JSON.stringify(r.body);
+      for (const secret of ['Gate 3', 'meet.example.com', 'private.person', 'Private Person', 'UTR1234567890', 'asha', '98765', 'SECRET DRAFT', 'attendees', 'accessDetails', 'GITHUB', 'test-token', 'events-data']) assert(!text.includes(secret), `leaked ${secret}`);
+      assert.deepStrictEqual(Object.keys(r.body.events[0]).sort(), ['admission', 'capacity', 'description', 'endsAt', 'feeInr', 'id', 'mode', 'publicLocation', 'registrationDeadline', 'seatsLeft', 'startsAt', 'state', 'timezone', 'title']);
+      assert.deepStrictEqual(Object.keys(r.body.payment).sort(), ['instructions', 'payeeName', 'qrUrl', 'upiId']);
+      const detail = await publicGet({ id: free });
+      eq(detail.statusCode, 200); assert(!JSON.stringify(detail.body).includes('Gate 3'));
+      eq((await publicGet({ id: 'evt-ffffffffff' })).statusCode, 404);
+      eq((await publicGet({ id: '../../x' })).statusCode, 404);
+    })],
+    ['cache headers: listing is CDN-cached for seconds; registration and errors are no-store', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      const list = await publicGet();
+      assert.match(list.headers['cache-control'], /public/); assert.match(list.headers['cache-control'], /s-maxage=10/);
+      const reg = await publicPost(regBody(id));
+      eq(reg.headers['cache-control'], 'no-store');
+      eq((await publicPost(regBody(id, { email: 'bad' }))).headers['cache-control'], 'no-store');
+      gh.hooks.failGets = true;
+      const down = await publicGet();
+      eq(down.statusCode, 503); eq(down.headers['cache-control'], 'no-store'); eq(down.body.unavailable, true);
+      const vercel = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      const rule = vercel.headers.find(h => h.source.startsWith('/api/(('));
+      const re = new RegExp(`^${rule.source}$`);
+      assert(!re.test('/api/events') && re.test('/api/admin/events') && re.test('/api/contact'), 'only the public listing may set its own Cache-Control');
+    })],
+    ['a newly published event is on the next fetch, with no redeploy', () => withEvents(async () => {
+      eq((await publicGet()).body.events.length, 0);
+      const id = await createEvent({ title: 'Brand new event' });
+      eq((await publicGet()).body.events[0].title, 'Brand new event');
+      eq((await adminPost({ action: 'status', id, to: 'draft' })).statusCode, 200);
+      eq((await publicGet()).body.events.length, 0);
+    })],
+    ['UPI QR image is served from the API only when configured', () => withEvents(async () => {
+      eq((await publicGet({ qr: '1' })).statusCode, 404);
+      await setPayment({ qr: { mode: 'upload', dataBase64: PNG } });
+      await createEvent({ admission: 'paid', feeInr: '100' });
+      const r = await publicGet({ qr: '1' });
+      eq(r.statusCode, 200); eq(r.headers['content-type'], 'image/png'); assert(Buffer.isBuffer(r.body) && r.body.equals(Buffer.from(PNG, 'base64')));
+      assert.match((await publicGet()).body.payment.qrUrl, /^\/api\/events\?qr=1&v=[0-9a-f]+$/);
+    })],
+    ['free registration: saved first, confirmed ticket with access details, one escaped email', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      const r = await publicPost(regBody(id, { name: 'Asha <b>Verma</b>', organization: '<img src=x onerror=alert(1)>' }));
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(r.body.status, 'confirmed'); eq(r.body.repeated, false);
+      assert.match(r.body.ticket.ticketId, /^DT-[A-Z2-7]{10}$/);
+      assert.match(r.body.ticket.accessDetails, /Gate 3/);
+      eq(r.body.delivery.state, 'sent');
+      eq(sent.length, 1); eq(sent[0].to, r.body.ticket.email);
+      assert(sent[0].html.includes('Gate 3') && sent[0].html.includes(r.body.ticket.ticketId));
+      assert(!sent[0].html.includes('<b>Verma</b>') && !sent[0].html.includes('<img'), 'user text escaped in the email');
+      assert(sent[0].html.includes('href="https://meet.example.com/room-42"'));
+      const stored = gh.doc().events[0].attendees[0];
+      eq(stored.status, 'confirmed'); eq(stored.phone, '+919876543210'); eq(stored.mail.state, 'sent'); eq(stored.mail.kind, 'ticket');
+    })],
+    ['paid registration: reference required, seat reserved as pending, acknowledgement only (no access details)', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500' });
+      for (const ref of ['', 'abc', 'bad ref!!', 'x'.repeat(50)]) {
+        const r = await publicPost(regBody(id, { paymentReference: ref }));
+        eq(r.statusCode, 400, ref); eq(r.body.field, 'paymentReference');
+      }
+      eq(gh.doc().events[0].attendees.length, 0);
+      const r = await publicPost(regBody(id, { paymentReference: '412345678901' }));
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(r.body.status, 'pending_verification'); eq(r.body.ticket.accessDetails, undefined);
+      assert(!JSON.stringify(r.body).includes('Gate 3'));
+      eq(r.body.delivery.kind, 'acknowledgement'); eq(r.body.delivery.state, 'sent');
+      eq(sent.length, 1); assert(!sent[0].html.includes('Gate 3') && !sent[0].text.includes('meet.example.com'));
+      assert.match(sent[0].subject, /Registration received/); assert.match(sent[0].html, /not yet your ticket/);
+      assert(!/verified payment|payment (is|was) verified/i.test(sent[0].html.replace(/once the payment is verified/i, '')), 'must not claim verification');
+      eq(findOne((await adminGet()).body, id).counts.pending, 1);
+      eq((await publicGet()).body.events[0].seatsLeft, 2, 'a pending registration holds a seat');
+      const dupRef = await publicPost(regBody(id, { paymentReference: '412345678901' }));
+      eq(dupRef.statusCode, 409); eq(dupRef.body.code, 'duplicate_reference');
+    })],
+    ['duplicate email → clear message; repeated requestId → same registration, no second seat or email', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 5 });
+      const first = regBody(id, { email: 'Same.Person@Example.com' });
+      const a = await publicPost(first);
+      eq(a.statusCode, 200);
+      const dup = await publicPost(regBody(id, { email: 'same.person@example.com' }));
+      eq(dup.statusCode, 409); eq(dup.body.code, 'duplicate'); assert.match(dup.body.error, /already registered/);
+      const mailsBefore = sent.length;
+      const again = await publicPost(first);
+      eq(again.statusCode, 200); eq(again.body.repeated, true); eq(again.body.ticket.ticketId, a.body.ticket.ticketId);
+      eq(gh.doc().events[0].attendees.length, 1);
+      eq(sent.length, mailsBefore, 'the ticket was already emailed, so a repeat does not email again');
+      const reuse = await publicPost({ ...first, email: 'someone.else@example.com' });
+      eq(reuse.statusCode, 409); eq(reuse.body.code, 'request_reuse');
+      eq(gh.doc().events[0].attendees.length, 1);
+    })],
+    ['input checks: name, email, phone, honeypot, form timing, origin, content type, rate limit', () => withEvents(async () => {
+      const id = await createEvent({});
+      const bad = async (over, status, field) => { const r = await publicPost(regBody(id, over)); eq(r.statusCode, status, JSON.stringify(over)); if (field) eq(r.body.field, field); return r; };
+      await bad({ name: 'A' }, 400, 'name'); await bad({ email: 'nope' }, 400, 'email'); await bad({ email: 'x@gmial.com' }, 400, 'email');
+      await bad({ email: 'x@no-such-domain-dtech.test' }, 400, 'email');
+      await bad({ phone: '12345' }, 400, 'phone'); await bad({ phone: 'call me' }, 400, 'phone');
+      await bad({ requestId: 'short' }, 400); await bad({ eventId: 'evt-zzzz' }, 404);
+      const trap = await bad({ website: 'http://spam.example' }, 400);
+      assert(!trap.body.ok);
+      await bad({ formStart: Date.now() }, 400);
+      eq((await publicPost(regBody(id), { headers: { origin: 'https://evil.test' } })).statusCode, 403);
+      eq((await publicPost(regBody(id), { headers: { 'content-type': 'text/plain' } })).statusCode, 415);
+      eq((await call(eventsPublic, req('PUT', {}))).statusCode, 405);
+      const ip = { headers: { 'x-real-ip': '203.0.113.9' } };
+      let last;
+      for (let i = 0; i < 31; i++) last = await publicPost(regBody('evt-aaaaaaaaaa'), ip);
+      eq(last.statusCode, 429);
+    })],
+    ['closed, started, full, draft and cancelled events take no registration', () => withEvents(async () => {
+      const soon = Date.now() + 10 * 60 * 1000;
+      const local = ms => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(ms)).replace(' ', 'T');
+      const id = await createEvent({ startLocal: local(soon + 3 * 3600e3), deadlineLocal: local(soon), endLocal: '' });
+      const closed = await atTime(soon + 60e3, () => publicPost(regBody(id)));
+      eq(closed.statusCode, 409); eq(closed.body.code, 'closed'); assert.match(closed.body.error, /closed/);
+      eq((await atTime(soon + 60e3, () => publicGet())).body.events[0].state, 'closed');
+      const started = await atTime(soon + 4 * 3600e3, () => publicPost(regBody(id)));
+      eq(started.statusCode, 409); assert.match(started.body.error, /started|closed/);
+      eq((await publicPost(regBody(id))).statusCode, 200, 'still open before the deadline');
+      const full = await createEvent({ capacity: 1 });
+      eq((await publicPost(regBody(full))).statusCode, 200);
+      const over = await publicPost(regBody(full));
+      eq(over.statusCode, 409); eq(over.body.code, 'sold_out');
+      eq((await publicGet()).body.events.find(e => e.id === full).state, 'sold_out');
+    })],
+  ]);
+
+  await area('14c. Races, retries, storage and email failures', [
+    ['two visitors race for the last seat: one ticket, one "full", one email, a real SHA conflict happened', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 1 });
+      sent.length = 0;
+      const [a, b] = await Promise.all([publicPost(regBody(id)), publicPost(regBody(id))]);
+      eq([a.statusCode, b.statusCode].sort().join(), '200,409', JSON.stringify([a.body, b.body]));
+      eq([a, b].find(r => r.statusCode === 409).body.code, 'sold_out');
+      eq(gh.doc().events[0].attendees.length, 1);
+      assert(gh.log.conflicts >= 1, 'the losing write was rejected by GitHub (stale SHA)');
+      eq(sent.length, 1, 'only the saved registration was emailed');
+    })],
+    ['five parallel registrations for three seats never overbook', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 3 });
+      const rs = await Promise.all([1, 2, 3, 4, 5].map(() => publicPost(regBody(id))));
+      eq(rs.filter(r => r.statusCode === 200).length, 3, JSON.stringify(rs.map(r => r.statusCode)));
+      eq(rs.filter(r => r.statusCode === 409).length, 2);
+      eq(gh.doc().events[0].attendees.length, 3);
+      eq(new Set(gh.doc().events[0].attendees.map(a => a.ticketId)).size, 3);
+    })],
+    ['a conflict retry keeps another writer\'s changes and sends the email once', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 5 });
+      const other = await createEvent({ title: 'Other event' });
+      sent.length = 0;
+      let injected = false;
+      gh.hooks.beforePut = async (file, { files, write }) => {
+        if (injected || file !== 'events.json') return;
+        injected = true; // another writer lands between our read and our write
+        const doc = JSON.parse(files.get(file).text);
+        doc.events.find(e => e.id === other).attendees.push({ ticketId: 'DT-ZZZZZZZZZZ', requestId: 'other-writer-request-1', name: 'Other', email: 'other@example.com', phone: '+919999999999', organization: '', status: 'confirmed', paymentReference: '', registeredAt: new Date().toISOString() });
+        doc.events.find(e => e.id === id).title = 'Edited by another admin';
+        doc.settings.payment.payeeName = 'Changed concurrently';
+        write(file, JSON.stringify(doc));
+      };
+      const r = await publicPost(regBody(id));
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(gh.log.conflicts, 1);
+      const doc = gh.doc();
+      eq(doc.events.find(e => e.id === other).attendees.length, 1, 'unrelated attendee preserved');
+      eq(doc.events.find(e => e.id === id).title, 'Edited by another admin', 'unrelated edit preserved');
+      eq(doc.settings.payment.payeeName, 'Changed concurrently', 'settings preserved');
+      eq(doc.events.find(e => e.id === id).attendees.length, 1);
+      eq(sent.length, 1);
+    })],
+    ['conflicts that never clear → 503 "not saved"; nothing stored, nothing emailed, no success claimed', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      sent.length = 0;
+      const before = gh.files.get('events.json').text;
+      gh.hooks.beforePut = async (file, { files, write }) => { write(file, files.get(file).text); };
+      const r = await publicPost(regBody(id));
+      eq(r.statusCode, 503); eq(r.body.ok, false); eq(r.body.retryable, true); assert.match(r.body.error, /not saved/i);
+      eq(sent.length, 0);
+      eq(JSON.parse(gh.files.get('events.json').text).events[0].attendees.length, JSON.parse(before).events[0].attendees.length);
+    })],
+    ['GitHub unavailable → registration 503 and nothing emailed; admin saves fail cleanly', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      sent.length = 0;
+      gh.hooks.failPutsWith = 500;
+      const r = await publicPost(regBody(id));
+      eq(r.statusCode, 503); assert.match(r.body.error, /Nothing was saved/);
+      eq(sent.length, 0);
+      const admin = await adminPost({ action: 'status', id, to: 'draft' });
+      eq(admin.statusCode, 503); assert.match(admin.body.error, /could not be saved/);
+      gh.hooks.failPutsWith = 0; gh.hooks.failGets = true;
+      const g = await adminGet();
+      eq(g.statusCode, 502);
+    })],
+    ['email failure: registration stays saved, honest "failed", retry reuses the seat and resends', () => withEvents(async (gh) => {
+      const id = await createEvent({ capacity: 2 });
+      const body = regBody(id);
+      const down = await withMail(async () => { throw Object.assign(new Error('relay denied for asha@example.com'), { code: 'EENVELOPE' }); }, () => publicPost(body));
+      eq(down.statusCode, 200); eq(down.body.delivery.state, 'failed'); eq(down.body.status, 'confirmed');
+      eq(gh.doc().events[0].attendees[0].mail.state, 'failed');
+      assert(!quiet.slice(-5).some(l => /asha\d*@example\.com/.test(l)), 'recipient addresses are not logged');
+      sent.length = 0;
+      const retry = await publicPost(body);
+      eq(retry.statusCode, 200); eq(retry.body.repeated, true); eq(retry.body.delivery.state, 'sent');
+      eq(gh.doc().events[0].attendees.length, 1); eq(sent.length, 1);
+      eq((await publicGet()).body.events[0].seatsLeft, 1, 'one seat, however many retries');
+    })],
+    ['automatic resends on retry stop after three failed attempts', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      const body = regBody(id);
+      let tries = 0;
+      await withMail(async () => { tries++; throw new Error('down'); }, async () => { for (let i = 0; i < 6; i++) await publicPost(body); });
+      eq(tries, 3);
+      eq(gh.doc().events[0].attendees.length, 1);
+    })],
+    ['slow SMTP is cut off at the deadline: the response still arrives, marked failed', async () => {
+      process.env.EVENT_EMAIL_TIMEOUT_MS = '80';
+      try {
+        await withEvents(async (gh) => {
+          const id = await createEvent({});
+          const started = Date.now();
+          const r = await withMail(() => sleepMs(600).then(() => ({ id: 'late' })), () => publicPost(regBody(id)));
+          assert(Date.now() - started < 450, 'bounded by the email deadline');
+          eq(r.statusCode, 200); eq(r.body.delivery.state, 'failed');
+          eq(gh.doc().events[0].attendees[0].mail.error, 'timeout');
+          await sleepMs(650); // let the abandoned send settle inside this test
+        });
+      } finally { delete process.env.EVENT_EMAIL_TIMEOUT_MS; }
+    }],
+    ['no SMTP settings: registration still saved, delivery reported as not set up', () => withEvents(async (gh) => {
+      const id = await createEvent({});
+      const saved = process.env.SMTP_HOST;
+      delete process.env.SMTP_HOST;
+      try {
+        const r = await publicPost(regBody(id));
+        eq(r.statusCode, 200); eq(r.body.delivery.state, 'not_configured'); eq(sent.length, 0);
+        eq(gh.doc().events[0].attendees.length, 1);
+        const g = await adminGet(); eq(g.body.mailConfigured, false);
+      } finally { process.env.SMTP_HOST = saved; }
+    })],
+    ['no personal data in commit messages or logs', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500' });
+      const r = await publicPost(regBody(id, { name: 'Zed Quasimodo', email: 'zed.quasimodo@example.com', paymentReference: 'UTRSECRET99' }));
+      eq(r.statusCode, 200);
+      await adminPost({ action: 'confirm', id, ticketId: r.body.ticket.ticketId });
+      const messages = gh.log.puts.map(p => p.message).join('\n');
+      assert(!/zed|quasimodo|@|UTRSECRET|98765/i.test(messages), messages);
+      assert(/^events: /m.test(messages));
+      assert(!quiet.some(l => /zed|quasimodo|UTRSECRET/i.test(l)));
+    })],
+  ]);
+
+  await area('14d. Payment confirmation, tickets, release and CSV', [
+    ['confirming saves status, time and audit marker, then emails the ticket with access details', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500' });
+      const reg = await publicPost(regBody(id, { paymentReference: 'UTR000111222' }));
+      const ticketId = reg.body.ticket.ticketId;
+      sent.length = 0;
+      const r = await adminPost({ action: 'confirm', id, ticketId });
+      eq(r.statusCode, 200, JSON.stringify(r.body));
+      eq(r.body.alreadyConfirmed, false); eq(r.body.delivery.state, 'sent'); eq(r.body.delivery.kind, 'ticket');
+      const a = gh.doc().events[0].attendees[0];
+      eq(a.status, 'confirmed'); assert(Date.parse(a.confirmedAt) > 0); assert.match(a.confirmedBy, /^console:[A-Za-z0-9_-]{8}$/);
+      eq(sent.length, 1); assert(sent[0].html.includes('Gate 3') && sent[0].html.includes(ticketId)); assert.match(sent[0].html, /payment has been verified/);
+      eq(a.mail.kind, 'ticket'); eq(a.mail.state, 'sent');
+    })],
+    ['confirming again (even twice at once) changes nothing and sends nothing more', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500' });
+      const t1 = (await publicPost(regBody(id, { paymentReference: 'UTR000111222' }))).body.ticket.ticketId;
+      const t2 = (await publicPost(regBody(id, { paymentReference: 'UTR000333444' }))).body.ticket.ticketId;
+      sent.length = 0;
+      const [x, y] = await Promise.all([adminPost({ action: 'confirm', id, ticketId: t1 }), adminPost({ action: 'confirm', id, ticketId: t1 })]);
+      eq(x.statusCode, 200); eq(y.statusCode, 200);
+      eq([x, y].filter(r => r.body.alreadyConfirmed).length, 1, 'exactly one request made the change');
+      eq(sent.length, 1);
+      const stamp = gh.doc().events[0].attendees.find(a => a.ticketId === t1).confirmedAt;
+      const third = await adminPost({ action: 'confirm', id, ticketId: t1 });
+      eq(third.body.alreadyConfirmed, true); eq(sent.length, 1);
+      eq(gh.doc().events[0].attendees.find(a => a.ticketId === t1).confirmedAt, stamp);
+      eq(gh.doc().events[0].attendees.find(a => a.ticketId === t2).status, 'pending_verification');
+    })],
+    ['ticket email failure: payment stays confirmed; Resend works; resend needs a confirmed attendee', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500' });
+      const ticketId = (await publicPost(regBody(id, { paymentReference: 'UTR000111222' }))).body.ticket.ticketId;
+      const early = await adminPost({ action: 'resend', id, ticketId });
+      eq(early.statusCode, 409); assert.match(early.body.error, /Confirm the payment first/);
+      const r = await withMail(async () => { throw new Error('smtp down'); }, () => adminPost({ action: 'confirm', id, ticketId }));
+      eq(r.statusCode, 200); eq(r.body.delivery.state, 'failed');
+      eq(findOne(r.body, id).attendees[0].status, 'confirmed'); eq(findOne(r.body, id).attendees[0].mail.state, 'failed');
+      sent.length = 0;
+      const again = await adminPost({ action: 'confirm', id, ticketId });
+      eq(again.body.alreadyConfirmed, true); eq(again.body.delivery.state, 'failed', 'tells the admin the ticket still needs sending'); eq(sent.length, 0);
+      const resend = await adminPost({ action: 'resend', id, ticketId });
+      eq(resend.statusCode, 200); eq(resend.body.delivery.state, 'sent'); eq(sent.length, 1);
+      eq(findOne(resend.body, id).attendees[0].mail.state, 'sent');
+      const twice = await adminPost({ action: 'resend', id, ticketId });
+      eq(twice.body.delivery.state, 'sent'); eq(sent.length, 2, 'an explicit resend always sends');
+    })],
+    ['releasing frees the seat, keeps the record, and blocks a later confirm', () => withEvents(async (gh) => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500', capacity: 1 });
+      const ticketId = (await publicPost(regBody(id, { paymentReference: 'UTR000111222', email: 'first@example.com' }))).body.ticket.ticketId;
+      eq((await publicPost(regBody(id, { paymentReference: 'UTR999888777' }))).body.code, 'sold_out');
+      const r = await adminPost({ action: 'release', id, ticketId });
+      eq(r.statusCode, 200); eq(findOne(r.body, id).attendees[0].status, 'cancelled'); assert(findOne(r.body, id).attendees[0].cancelledAt);
+      const next = await publicPost(regBody(id, { paymentReference: 'UTR999888777', email: 'second@example.com' }));
+      eq(next.statusCode, 200, JSON.stringify(next.body));
+      const redo = await publicPost(regBody(id, { paymentReference: 'UTR555444333', email: 'first@example.com' }));
+      eq(redo.statusCode, 409, 'full again');
+      const late = await adminPost({ action: 'confirm', id, ticketId });
+      eq(late.statusCode, 409); assert.match(late.body.error, /released/);
+      eq(gh.doc().events[0].attendees.length, 2);
+    })],
+    ['admin view carries attendee detail; CSV is formula-safe, authenticated and BOM-prefixed', () => withEvents(async () => {
+      await setPayment({});
+      const id = await createEvent({ admission: 'paid', feeInr: '500', capacity: 10 });
+      const ok = await publicPost(regBody(id, { name: '=HYPERLINK("http://evil.test","x")', organization: '+cmd|calc', paymentReference: 'UTR000111222' }));
+      eq(ok.statusCode, 200, JSON.stringify(ok.body));
+      await publicPost(regBody(id, { name: '@SUM(1+1)', organization: '-2+3', paymentReference: 'UTR000111333' }));
+      await publicPost(regBody(id, { name: 'Comma, "Quote" Person', organization: 'Tab\tOrg', paymentReference: 'UTR000111444' }));
+      const view = findOne((await adminGet()).body, id);
+      const a = view.attendees.find(x => x.ticketId === ok.body.ticket.ticketId);
+      eq(a.paymentReference, 'UTR000111222'); assert(a.email && a.phone && a.registeredAt);
+      eq((await call(eventsAdmin, req('GET', null, { query: { export: id } }))).statusCode, 404, 'CSV needs a session');
+      const csv = await adminGet({ export: id });
+      eq(csv.statusCode, 200); assert.match(csv.headers['content-type'], /text\/csv/); assert.match(csv.headers['content-disposition'], /^attachment; filename="attendees-evt-[a-f0-9]+-\d{4}-\d\d-\d\d\.csv"$/);
+      assert(csv.body.startsWith('﻿"Ticket ID","Name","Email","Phone","Organization","Status","Payment reference"'));
+      assert(csv.body.includes(`"'=HYPERLINK(""http://evil.test"",""x"")"`), 'formula neutralised');
+      for (const cell of [`"'+cmd|calc"`, `"'@SUM(1+1)"`, `"'-2+3"`, `"'+919876543210"`]) assert(csv.body.includes(cell), cell);
+      assert(csv.body.includes(`"Comma, ""Quote"" Person"`), 'quotes escaped');
+      assert(!/(^|,)"[=+\-@]/m.test(csv.body.replace(/^﻿/, '')), 'no cell starts with a formula character');
+      eq((await adminGet({ export: 'evt-ffffffffff' })).statusCode, 404);
+    })],
+    ['local disk storage (no GitHub) serialises parallel registrations: never overbooked', async () => {
+      fs.rmSync('.portal-data/events.json', { force: true });
+      sent.length = 0;
+      const id = await createEvent({ capacity: 3 });
+      const rs = await Promise.all([1, 2, 3, 4, 5, 6].map(() => publicPost(regBody(id))));
+      eq(rs.filter(r => r.statusCode === 200).length, 3, JSON.stringify(rs.map(r => r.statusCode)));
+      const doc = JSON.parse(fs.readFileSync('.portal-data/events.json', 'utf8'));
+      eq(doc.events[0].attendees.length, 3); eq(sent.length, 3);
+      assert(!fs.readdirSync('.portal-data').some(f => f.endsWith('.tmp')), 'no temp files left behind');
+      fs.rmSync('.portal-data/events.json', { force: true });
+    }],
+  ]);
+
+  await area('14e. Events site wiring (pages, CSP, service worker, build)', [
+    ['vercel.json: functions configured, source files hidden, endpoints reachable', () => {
+      const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
+      for (const f of ['api/events.js', 'api/admin/events.js']) eq(cfg.functions[f].maxDuration, 30, f);
+      const hide = new RegExp(`^${cfg.redirects.find(r => r.source.startsWith('/api/')).source}$`);
+      assert(hide.test('/api/_events.js') && !hide.test('/api/events') && !hide.test('/api/admin/events'));
+    }],
+    ['sw.js keeps /api/ out of the offline cache; offline page is not a success page', () => {
+      const sw = fs.readFileSync(path.join(REPO, 'sw.js'), 'utf8');
+      assert(sw.includes("url.pathname.indexOf('/api/') === 0"));
+      assert(!sw.includes('/events'), 'the service worker never pre-caches registration');
+      const page = fs.readFileSync(path.join(REPO, 'events.html'), 'utf8');
+      const script = fs.readFileSync(path.join(REPO, 'assets/events.js'), 'utf8');
+      assert(/catch \(err\)[\s\S]*may not have been saved/.test(script), 'network failure never shows a ticket');
+      assert(script.includes("navigator.onLine === false"));
+      assert(!page.includes('onclick='));
+    }],
+    ['Events is linked from every page\'s header, mobile menu and footer; /events is in the sitemap', () => {
+      const pages = fs.readdirSync(REPO).filter(f => f.endsWith('.html') && !['portal.html', 'presentation.html'].includes(f));
+      for (const f of pages) {
+        const html = fs.readFileSync(path.join(REPO, f), 'utf8');
+        eq((html.match(/<a href="events"[^>]*>Events<\/a>/g) || []).length, 3, `${f}: header, mobile menu and footer`);
+      }
+      assert(fs.readFileSync(path.join(REPO, 'sitemap.xml'), 'utf8').includes('<loc>https://www.dtechindia.com/events</loc>'));
+      const events = fs.readFileSync(path.join(REPO, 'events.html'), 'utf8');
+      assert(events.includes('<link rel="canonical" href="https://www.dtechindia.com/events">') && events.includes('aria-current="page">Events</a>'));
+    }],
+    ['events styles are built and not purged: dynamic .ev- classes are in events.min.css', () => {
+      const css = fs.readFileSync(path.join(REPO, 'assets/events.min.css'), 'utf8');
+      for (const c of ['.ev-card', '.ev-dialog', '.ev-state--open', '.ev-ticket', '.ev-qr']) assert(css.includes(c), c);
+      const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
+      assert(pkg.scripts['build:css'].includes('assets/events.css') && pkg.scripts['build:js'].includes('assets/events.js'));
+      assert(fs.readFileSync(path.join(REPO, 'purgecss.config.js'), 'utf8').includes('assets/events.js'));
+    }],
+    ['unit: zone conversion, ambiguous and skipped local times, fee parsing, link policy', () => {
+      const { localToUtcMs, utcToLocalInput, parseFeePaise, assertWebLinksOnly, csvCell, validTimeZone } = eventsLib;
+      eq(new Date(localToUtcMs('2026-11-14T10:00', 'Asia/Kolkata')).toISOString(), '2026-11-14T04:30:00.000Z');
+      eq(new Date(localToUtcMs('2026-07-01T09:00', 'America/New_York')).toISOString(), '2026-07-01T13:00:00.000Z');
+      eq(new Date(localToUtcMs('2026-12-01T09:00', 'America/New_York')).toISOString(), '2026-12-01T14:00:00.000Z');
+      assert(Number.isNaN(localToUtcMs('2027-03-14T02:30', 'America/New_York')), 'skipped by daylight saving');
+      assert(Number.isNaN(localToUtcMs('2026-02-29T10:00', 'UTC')) && Number.isNaN(localToUtcMs('2026-13-01T10:00', 'UTC')) && Number.isNaN(localToUtcMs('1999-01-01T10:00', 'UTC')));
+      eq(utcToLocalInput('2026-11-14T04:30:00.000Z', 'Asia/Kolkata'), '2026-11-14T10:00');
+      eq(parseFeePaise('1,499.5'), 149950); eq(parseFeePaise('₹ 500'), 50000); assert(Number.isNaN(parseFeePaise('1e3')) && Number.isNaN(parseFeePaise('1.234')));
+      assert(validTimeZone('Asia/Kolkata') && validTimeZone('UTC') && !validTimeZone('Nope/Zone') && !validTimeZone('../x'));
+      assertWebLinksOnly('Join at https://meet.example.com/x or http://a.example', 'f', 'f');
+      for (const evil of ['javascript:alert(1)', 'see (data:text/html,x)', 'ftp://x.example', 'file:///etc/passwd', 'vbscript:x']) assert.throws(() => assertWebLinksOnly(evil, 'f', 'f'), evil);
+      eq(csvCell('=1+1'), `"'=1+1"`); eq(csvCell('a"b'), '"a""b"'); eq(csvCell(null), '""');
+    }],
+  ]);
+
   // ---- report --------------------------------------------------------------
   fs.rmSync(sandbox, { recursive: true, force: true });
   console.log('\n  RESULT      AREA                                              CHECKS');

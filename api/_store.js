@@ -164,7 +164,10 @@ async function writeRaw(cfg, file, buffer, sha, message) {
   if (cfg.mode === 'local') {
     const full = path.join(process.cwd(), cfg.localDir, safePath(file));
     fs.mkdirSync(path.dirname(full), { recursive: true });
-    fs.writeFileSync(full, buffer);
+    // Write beside the file, then rename: a reader never sees half a document.
+    const tmp = `${full}.${process.pid}.${Date.now()}.tmp`;
+    fs.writeFileSync(tmp, buffer);
+    fs.renameSync(tmp, full);
     return true;
   }
   if (cfg.name === 'private') await assertPrivateRepo(cfg);
@@ -219,22 +222,44 @@ async function readJson(storeName, file, fallback) {
   }
 }
 
+// Returned by a mutate callback when nothing needs saving: updateJson then skips
+// the write (and the commit) and resolves with the document it read.
+const UNCHANGED = Symbol('unchanged');
+
+// Local disk has no SHA check, so concurrent updates inside this process are
+// queued one after another per file. This protects one dev server only: two
+// processes sharing .portal-data/ can still overwrite each other (GitHub mode
+// has no such gap; the SHA makes the losing write fail and retry).
+const localQueues = new Map();
+function serializeLocally(key, task) {
+  const run = (localQueues.get(key) || Promise.resolve()).then(task);
+  const tail = run.catch(() => {});
+  localQueues.set(key, tail);
+  tail.then(() => { if (localQueues.get(key) === tail) localQueues.delete(key); });
+  return run;
+}
+
 // Read-modify-write with optimistic locking: mutate(current) returns the new
 // value; a concurrent write makes GitHub reject ours, so re-read and retry.
+// mutate may therefore run several times: keep it free of side effects.
 // message is the commit message, or a function of the new value returning one.
 async function updateJson(storeName, file, fallback, mutate, message) {
   const cfg = requireStore(storeName);
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const hit = await readRaw(cfg, file);
-    const current = hit ? JSON.parse(hit.buffer.toString('utf8')) : fallback;
-    const next = await mutate(current);
-    const buffer = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8');
-    const text = typeof message === 'function' ? message(next) : message;
-    if (await writeRaw(cfg, file, buffer, hit && hit.sha, text)) return next;
-    // Jittered back-off so simultaneous writers do not collide again in lockstep.
-    if (attempt < MAX_ATTEMPTS) await sleep(RETRY_BASE_MS * attempt * (1 + Math.random()));
-  }
-  throw new Error(`${file} changed too often while saving; please try again`);
+  const attempts = async () => {
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const hit = await readRaw(cfg, file);
+      const current = hit ? JSON.parse(hit.buffer.toString('utf8')) : fallback;
+      const next = await mutate(current);
+      if (next === UNCHANGED) return current;
+      const buffer = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8');
+      const text = typeof message === 'function' ? message(next) : message;
+      if (await writeRaw(cfg, file, buffer, hit && hit.sha, text)) return next;
+      // Jittered back-off so simultaneous writers do not collide again in lockstep.
+      if (attempt < MAX_ATTEMPTS) await sleep(RETRY_BASE_MS * attempt * (1 + Math.random()));
+    }
+    throw new Error(`${file} changed too often while saving; please try again`);
+  };
+  return cfg.mode === 'local' ? serializeLocally(`${cfg.name}:${file}`, attempts) : attempts();
 }
 
 async function appendJson(storeName, file, record, message) {
@@ -303,4 +328,4 @@ function newId() {
   return `${Date.now().toString(36)}-${require('crypto').randomBytes(4).toString('hex')}`;
 }
 
-module.exports = { UPLOADS_DIR, LOGOS_DIR, isConfigured, mode, readJson, updateJson, appendJson, putFile, deleteFile, readFile, squashHistory, newId };
+module.exports = { UPLOADS_DIR, LOGOS_DIR, UNCHANGED, isConfigured, mode, readJson, updateJson, appendJson, putFile, deleteFile, readFile, squashHistory, newId };

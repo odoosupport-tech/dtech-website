@@ -154,6 +154,49 @@ Every form is checked in the browser and again on the server. While a change sav
 
 Built-in case studies can be published or unpublished but not edited or deleted from the console, because their cards, logos and PDFs are part of `case-studies.html`. Case studies added from the console appear as extra cards. If one has a PDF, visitors who open its summary can request it: `api/send-whitepaper.js` attaches an uploaded PDF, or emails the link, and files the lead as usual. A linked PDF's address is never sent to the page (the public list only says a PDF exists), so visitors still need the form; prefer uploading, because only PDFs held on this site are also guarded by `middleware.js`. Replacing or removing a PDF leaves the old uploaded file in the repository, so delete it by hand if it must go.
 
+## Events
+
+`/events` lists events that staff create in the management console (**Manage Events**). Visitors register without an account. Free events give an instant ticket; paid events take a UPI payment reference and wait for staff to verify it.
+
+**Storage and architecture.** Everything lives in one document, `events.json`, in the *private* data repository (`GITHUB_DATA_REPO`, see above). The public API reads it live, so publishing, editing or cancelling shows on the website on the next fetch (the CDN caches the listing for 10 seconds): no commit to this repository, no Vercel redeploy, and the console does not show the "deploying" indicator for events. Locally it is `.portal-data/events.json`.
+
+```
+{ version: 1,
+  settings: { payment: { payeeName, upiId, instructions, qr?: { type, dataBase64, version } } },
+  events: [{ id, title, description, status: draft|published|cancelled,
+             startsAt, endsAt?, registrationDeadline (UTC ISO), timezone (IANA),
+             mode: online|offline, publicLocation, accessDetails (CONFIDENTIAL),
+             admission: free|paid, feePaise, capacity, createdAt, updatedAt, publishedAt?, cancelledAt?,
+             attendees: [{ ticketId, requestId, name, email, phone, organization,
+                           status: confirmed|pending_verification|cancelled, paymentReference,
+                           registeredAt, confirmedAt?, confirmedBy?, cancelledAt?, cancelledBy?,
+                           mail?: { kind, state: sent|failed|not_configured, at, attempts, error? } }] }] }
+```
+
+Why one document: publication state, capacity, duplicate checks and the registration itself share a single SHA-protected commit (`store.updateJson`). Every mutation callback re-reads the latest document, rechecks publication, cancellation, deadline, capacity and duplicates, changes only what it needs and keeps everything else, so a lost race simply re-runs against the winner's data. Callbacks may run several times, so they contain no email and no other side effect; ticket IDs, request IDs and timestamps are created before the callback. Emails are sent only after the commit, awaited, within a deadline (`EVENT_EMAIL_TIMEOUT_MS`, default 6000 ms), and their outcome is recorded on the attendee. Commit messages and logs name ticket or event IDs, never people.
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/events` | Public listing (explicit allowlist of fields; no attendees, contacts, payment references, access details or drafts) plus the payment instructions when a paid event is live. `?id=` one event, `?qr=1` the UPI QR image. |
+| `POST /api/events` | Register: `{ eventId, requestId, name, email, phone, organization?, paymentReference?, website, formStart }`. Answers 200 only after the registration is saved. 409 for full, closed, cancelled or duplicate; 503 when nothing was saved. |
+| `GET/POST /api/admin/events` | Console only (session cookie, same-origin JSON): list with attendees, `?export=<id>` CSV, and `save`, `status`, `delete`, `payment`, `confirm`, `resend`, `release`. |
+
+**Registration rules.** A repeated `requestId` returns the existing registration (never a second seat); the same email on another request gets "already registered". A pending paid registration holds a seat; "Release seat" frees it and keeps the record. Registration closes at the deadline or the start, whichever is first. Capacity cannot be set below active registrations, admission and fee lock once anyone has registered, and an event with registrations can be cancelled but not deleted. Meeting links and access details reach only confirmed attendees, in their ticket email and ticket response. If an email fails the registration stays saved, the visitor and the console are told, retrying the same request re-sends (up to 3 automatic attempts) without taking another seat, and staff can use **Resend ticket** at any time.
+
+**Payment (manual).** No gateway. In the console open **Events → Payment settings** and enter D-TECH's payee name and UPI ID and/or upload a UPI QR image (PNG/JPG/WebP, up to 150 KB, kept in `events.json`, served by `/api/events?qr=1`). Nothing is pre-filled; a paid event cannot be published until the payee name and a UPI ID or QR exist, and the console says what is missing. Attendees enter the UTR from their UPI app; the console shows it with **Confirm payment**, to be checked against the bank statement. Confirming records the time and a console-session marker (`console:<session id prefix>`), then emails the ticket; confirming twice does nothing.
+
+**Manual verification workflow.** (1) Check email (header button) and Payment settings. (2) New Event, fill the form, save as draft, Publish. (3) Open `/events`, register as a visitor. (4) Free: ticket on screen and in the mailbox. Paid: Events → Attendees → compare the UTR with the bank, Confirm payment, check the ticket email. (5) Copy emails / Export CSV (cells beginning `=`, `+`, `-`, `@` are prefixed with `'` so spreadsheets show them as text).
+
+**Limits (read before relying on it).**
+- GitHub JSON storage suits modest traffic: a few hundred registrations per event, a handful per minute. It is not a database and gives no transactions across files; the one-document design is what makes the capacity check safe.
+- The whole document is read and rewritten on each change and every change is a commit. The Contents API handles files up to 100 MB but the document grows with attendees, so archive old events (delete them from the file) when it passes a few MB. Each event page load costs one GitHub read; the 10-second CDN cache and the lack of polling keep this far below the API quota (5,000 requests/hour per token).
+- Simultaneous writers retry 4 times with back-off. Under heavy contention a visitor can get "your registration was not saved, press Register again" (safe: nothing was saved, and the request ID prevents double booking).
+- Rate limiting in the public endpoint (30 attempts per IP per 10 minutes (many attendees share an office or venue network), 5 per email per hour, 120 reads per IP per minute) is per function instance, like the other forms; the Vercel Firewall rule described above is the shared limit.
+- Local development serialises writes inside one Node process; two processes sharing `.portal-data/` can overwrite each other (GitHub mode has no such gap).
+- Cancelling an event does not email attendees; use **Copy emails**.
+
+**Tests.** `npm test` area 14 runs the real handlers against a fake GitHub contents API with SHA conflicts, injected failures and the suite's mock SMTP; nothing touches a live repository or sends mail. Run `npm run verify` for build, link, UI, CSP and syntax checks.
+
 ## Security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a referrer policy and a permissions policy for every page. If you add a new external script, font, image host or embed, allow its host in the CSP or the browser will block it.

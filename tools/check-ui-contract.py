@@ -116,13 +116,40 @@ def check_marquee_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v43';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v43")
+    if "var VERSION = 'dtech-v44';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v44")
     if "caches.match('/')" in worker:
         problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
         if asset not in worker:
             problems.append(f"service worker core cache missing {asset}")
+
+
+def check_events_contract(problems):
+    """events.js builds its cards, dialog and ticket from .ev- classes at run time;
+    they live in events.css (never purged), and the page must load the built files."""
+    page = (ROOT / "events.html").read_text(encoding="utf-8")
+    for needle in ("assets/events.min.css", "assets/events.min.js"):
+        if not re.search(r'(?:href|src)="' + re.escape(needle) + r'(?:\?v=[0-9a-f]+)?"', page):
+            problems.append(f"events.html does not load {needle}")
+    css = (ROOT / "assets/events.min.css").read_text(encoding="utf-8")
+    script = (ROOT / "assets/events.js").read_text(encoding="utf-8")
+    runtime_classes = (
+        "ev-list", "ev-card", "ev-tags", "ev-state", "ev-state--open", "ev-state--cancelled", "ev-chip", "ev-chip--paid", "ev-facts",
+        "ev-more", "ev-rich", "ev-action", "ev-closed", "ev-dialog", "ev-pay", "ev-pay-rows", "ev-qr", "ev-copy", "ev-ticket",
+        "ev-ticket-id", "ev-access-box", "ev-warn", "ev-note", "ev-err", "ev-form-msg",
+    )
+    for name in runtime_classes:
+        if "." + name not in css:
+            problems.append(f"events.min.css lost .{name} (events.js builds it at run time)")
+        # State modifiers are assembled at run time ('ev-state--' + state), so look for their prefix.
+        used = name in script or name in page or ("--" in name and name.split("--")[0] + "--" in script)
+        if not used:
+            problems.append(f".{name} is no longer used by events.js or events.html")
+    if ".innerHTML" in script or "insertAdjacentHTML" in script:
+        problems.append("events.js must render server data as text, not HTML")
+    if "/api/" in page and "/api/admin" in page:
+        problems.append("events.html must not call the admin API")
 
 
 def check_contact_dock_contract(problems):
@@ -180,6 +207,7 @@ def main():
     check_cache_contract(problems)
     check_deep_link_contract(problems)
     check_public_admin_probe(problems)
+    check_events_contract(problems)
     check_contact_dock_contract(problems)
     check_detail_pages_contract(problems)
     check_icon_contract(problems)
