@@ -2613,5 +2613,257 @@
       ]
     ],
     "pdf_file": "assets/case-studies/pdf/custom/ineos-dell-endpoint.pdf"
+  },
+  {
+    "id": "erda-cctv-amc-lan-arc",
+    "client": "Electrical Research and Development Association",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/erda.png",
+    "category": "services",
+    "industry": "Electrical Research & Testing",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Makarpura (Vadodara) & Savli, Gujarat",
+    "period": "CCTV AMC Jul 2025 – Jun 2026 · LAN ARC Oct 2025 – Sep 2026",
+    "arch_tag": "CCTV AMC + LAN Rate Contract",
+    "summary": "Two coordinated contracts for ERDA's Makarpura and Savli locations: a non-comprehensive CCTV AMC covering 241 cameras and 19 DVR / NVR units, and an on-call LAN annual rate contract for cabling, VLAN configuration and network changes, each job closed with test records and customer acceptance.",
+    "outcomes": [
+      "241 cameras and 19 DVR / NVR units under AMC across two locations",
+      "Contracted 2-hour response to a non-working camera, resolution the same or next business day",
+      "Quarterly preventive maintenance of every AMC camera",
+      "Backup camera, recorder or HDD while a faulty unit is out for repair",
+      "LAN call-off jobs completed within 30 days of intimation, with wire diagrams and test records"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "241"
+      ],
+      [
+        "Recorders",
+        "19"
+      ],
+      [
+        "Locations",
+        "2"
+      ],
+      [
+        "Camera response",
+        "2 hrs"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/erda-cctv-amc-lan-arc.pdf"
+  },
+  {
+    "id": "gnal-fms-amc",
+    "client": "GACL-NALCO Alkalies & Chemicals Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/gnal.png",
+    "category": "services",
+    "industry": "Chemicals · Chlor-Alkali",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej plant & Vadodara complex, Gujarat",
+    "period": "WO 07 Jul 2025 · Jul 2025 – Jun 2026",
+    "arch_tag": "Two-Site Onsite FMS & Comprehensive AMC",
+    "summary": "One FMS and comprehensive AMC scope for GNAL's Dahej plant and Vadodara complex: three onsite engineers covering user devices, network and RF operations, Microsoft 365 and QNAP backup administration, with D-TECH escalation, standby equipment and quarterly preventive maintenance.",
+    "outcomes": [
+      "2 engineers at Dahej (desktop + network) and 1 desktop engineer at Vadodara",
+      "Dahej covered 8 hours a day, 7 days a week, with an engineer on weekends and holidays",
+      "Contracted 48-hour complaint resolution; faulty parts replaced within 24 hours or standby provided",
+      "Standby printers, L2 switches and desktops held across both sites",
+      "Quarterly PC preventive maintenance with port-wise diagrams and configuration backups kept current"
+    ],
+    "metrics": [
+      [
+        "Sites",
+        "2"
+      ],
+      [
+        "Onsite engineers",
+        "3"
+      ],
+      [
+        "Resolution",
+        "48 hrs"
+      ],
+      [
+        "PC PM",
+        "Quarterly"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/gnal-fms-amc.pdf"
+  },
+  {
+    "id": "gnfc-dahej-server-support",
+    "client": "GNFC Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/gnfc.webp",
+    "category": "services",
+    "industry": "Chemicals & Fertilizers",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "TDI Dahej Project, GIDC Dahej-II, Bharuch, Gujarat",
+    "period": "PO dated 30 Aug 2013 · 5-year support",
+    "arch_tag": "Dell File Server Supply & 5-Year Support",
+    "summary": "Supply and installation of a Dell PowerEdge T420 file server for GNFC's TDI Dahej project, with five years of comprehensive parts-and-labour warranty and support, and the server AMC method D-TECH applies: structured diagnosis, preventive health and recovery checks, and documented restoration.",
+    "outcomes": [
+      "1 Dell PowerEdge T420, ordered as a 1 TB file server",
+      "Supply and installation, with GNFC inspection and testing",
+      "Five-year comprehensive parts-and-labour warranty and support",
+      "Six-step service flow from fault registration to customer-confirmed closure",
+      "Preventive checks on server health, controlled changes and backup restore readiness"
+    ],
+    "metrics": [
+      [
+        "Server",
+        "Dell T420"
+      ],
+      [
+        "Role",
+        "1 TB file server"
+      ],
+      [
+        "Support",
+        "5 years"
+      ],
+      [
+        "Order",
+        "Aug 2013"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/gnfc-dahej-server-support.pdf"
+  },
+  {
+    "id": "lewens-labs-amc-fms",
+    "client": "Lewens Labs Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/lewens-labs.png",
+    "category": "services",
+    "industry": "Laboratories",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Plot D2/CH/376-377, GIDC II, Dahej, Bharuch",
+    "period": "Support model, Oct 2026",
+    "arch_tag": "AMC & Onsite FMS Support Model",
+    "summary": "An AMC and FMS support model for Lewens Labs' Dahej site: one onsite FMS engineer handles first-line support across network, servers, backup, EPABX, time attendance, Microsoft 365 and user devices, with D-TECH specialists, OEMs and ISPs engaged through a ticketed escalation route. AMC term and service targets follow the signed agreement.",
+    "outcomes": [
+      "1 onsite FMS engineer backed by the D-TECH specialist team",
+      "Covers network, internet, servers, backup, EPABX, attendance, Wi-Fi, antivirus, Microsoft 365 and user devices",
+      "P1–P4 priority framework, from critical outage to planned request",
+      "Daily checks, scheduled preventive maintenance and a monthly service review",
+      "Six-step ticket flow from logging to customer-validated closure"
+    ],
+    "metrics": [
+      [
+        "Onsite engineer",
+        "1"
+      ],
+      [
+        "Priority levels",
+        "P1–P4"
+      ],
+      [
+        "Service review",
+        "Monthly"
+      ],
+      [
+        "Status",
+        "Support model"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/lewens-labs-amc-fms.pdf"
+  },
+  {
+    "id": "lewens-labs-it-infra",
+    "client": "Lewens Labs Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/lewens-labs.png",
+    "category": "network",
+    "industry": "Laboratories",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Plot D2/CH/376-377, GIDC II, Dahej, Bharuch",
+    "period": "Orders Jan 2019 & Jun 2021",
+    "arch_tag": "Integrated IT Infrastructure",
+    "summary": "One IT scope for Lewens Labs at Dahej spanning networking, Wi-Fi, internet, Dell servers, QNAP backup storage, endpoints, EPABX, time attendance, antivirus and Microsoft 365, built on orders for a Dell PowerEdge T440 with Windows Server and SQL Server 2019, and supported day to day by one FMS engineer.",
+    "outcomes": [
+      "Dell T30 server and Microsoft Windows Server licence (2019 order)",
+      "Dell PowerEdge T440 with Windows Server 2019 Standard and SQL Server 2019 Standard (2021 order)",
+      "QNAP TS-832PX 8-bay NAS with 2 × 2 TB NAS disks",
+      "Dell OptiPlex 5080 desktop: Core i5-10500, 16 GB RAM, 512 GB SSD",
+      "Six-stage rollout from site survey to signed handover, with 1 FMS engineer for operations"
+    ],
+    "metrics": [
+      [
+        "Servers",
+        "Dell T30 + T440"
+      ],
+      [
+        "Backup NAS",
+        "QNAP 8-bay"
+      ],
+      [
+        "Orders",
+        "2019 + 2021"
+      ],
+      [
+        "FMS",
+        "1 engineer"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/lewens-labs-it-infra.pdf"
+  },
+  {
+    "id": "sun-pharma-dahej-cctv-camc",
+    "client": "Sun Pharmaceutical Industries Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/sun-pharma.png",
+    "category": "services",
+    "industry": "Pharmaceuticals · API",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej API SEZ Plant, Bharuch, Gujarat",
+    "period": "CAMC orders Dec 2023 – May 2027",
+    "arch_tag": "CCTV Comprehensive AMC",
+    "summary": "Comprehensive CCTV maintenance for Sun Pharma's Dahej API SEZ plant across successive orders since December 2023: quarterly preventive visits, breakdown visits, telephonic support and free-of-charge spares, with protocol-based reports, covering standard and explosion-proof cameras, the PoE and fibre network and NVR storage.",
+    "outcomes": [
+      "2025 equipment list: 31 standard and 10 explosion-proof cameras",
+      "32-channel NVR with 4 × 6 TB surveillance HDDs",
+      "4 quarterly PM visits a year, plus breakdown visits and telephonic support (2025 order)",
+      "Replacement spares and servicing consumables on a free-of-charge basis",
+      "Reports on Sun Pharma's protocols, including an annual performance test report"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "41"
+      ],
+      [
+        "Explosion-proof",
+        "10"
+      ],
+      [
+        "PM visits",
+        "4 / year"
+      ],
+      [
+        "Latest CAMC",
+        "Jun 2026 – May 2027"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/sun-pharma-dahej-cctv-camc.pdf"
   }
 ]
