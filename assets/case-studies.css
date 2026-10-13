@@ -117,6 +117,17 @@ html[data-theme="dark"] .cs-eyebrow { color:var(--signal); }
   transition:transform .6s var(--ease);
 }
 .cs-card:hover .cs-logo { transform:scale(1.04); }
+/* Optical sizing: once a logo loads, the page sets --r (its width / height).
+   Every logo then gets about the same visual area, so a square emblem and a
+   long wordmark read equally strong instead of squares shrinking to the
+   stage height. Older browsers without sqrt() keep the rule above. */
+.cs-stage { --logo-area:14500; --logo-max-h:140; }
+@supports (height: calc(sqrt(4) * 1px)) {
+  .cs-logo[style*="--r"] {
+    width:auto; max-width:92%; max-height:none;
+    height:calc(min(var(--logo-max-h), sqrt(var(--logo-area) / var(--r))) * 1px);
+  }
+}
 /* Case studies added from the management console have no logo file yet. */
 .cs-wordmark {
   font:800 clamp(20px,2.2vw,28px)/1.2 inherit; letter-spacing:-.01em; text-align:center; color:#0b2f52;
@@ -195,6 +206,7 @@ html[data-theme="dark"] .cs-btn-solid:hover { background:#fff; border-color:#fff
   .cs-actions { flex-direction:column; padding:18px 20px 22px; }
   .cs-stage { padding:26px 28px; }
   .cs-logo { width:76%; max-height:104px; }
+  .cs-stage { --logo-area:10000; --logo-max-h:104; }
 }
 
 /* Search, pager and empty state */
