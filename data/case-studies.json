@@ -1,5 +1,44 @@
 [
   {
+    "id": "epigral-limited-qnap-nas-installation-and-a-detailed-legacy-",
+    "client": "EPIGRAL Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/epigral-limited-fe967d.png",
+    "category": "network",
+    "industry": "Chemicals",
+    "location": "Dahej",
+    "period": "2026",
+    "arch_tag": "QNAP NAS installation and a detailed legacy-data migration design",
+    "summary": "QNAP NAS installation and a detailed legacy-data migration design: storage pools, network interfaces, share permissions, staged transfer, cutover and recovery checks.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "TS-832PXU-RP | FOUR POPULATED BAYS",
+      "TS-216G | TWO POPULATED BAYS"
+    ],
+    "metrics": [
+      [
+        "BACKUP CAPACITY",
+        "99%"
+      ],
+      [
+        "RAID / VOLUME TYPE",
+        "45%"
+      ],
+      [
+        "DATA GROWTH",
+        "2%"
+      ],
+      [
+        "Support",
+        "24*7"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-7730fe.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "epigral-limited-cctv-maintenance",
     "client": "EPIGRAL Limited",
     "wordmark": null,
