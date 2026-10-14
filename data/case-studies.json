@@ -1,5 +1,46 @@
 [
   {
+    "id": "epigral-limited-cctv-maintenance",
+    "client": "EPIGRAL Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/epigral-limited-113b65.png",
+    "category": "services",
+    "industry": "Chemicals",
+    "location": "Dahej",
+    "period": "2026-2027",
+    "arch_tag": "CCTV MAINTENANCE",
+    "summary": "EPIGRAL’s Dahej CCTV system covers operational and support areas including gates, dispatch, warehouses, offices, laboratories, canteens and control rooms. The AMC coordinates inspection, fault diagnosis, cleaning, recording checks and software support across the camera-to-viewing path, with a defined customer role for\nreplacement hardware and site facilities.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [
+      "Camera / network health,",
+      "Recording & software,",
+      "Scheduled maintenance,",
+      "Non-comprehensive boundary"
+    ],
+    "metrics": [
+      [
+        "Camera / network health",
+        "99%"
+      ],
+      [
+        "Recording & software",
+        "45%"
+      ],
+      [
+        "Scheduled maintenance",
+        "2%"
+      ],
+      [
+        "Support",
+        "24*7"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-04bcec.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "zcl-chemicals-limited-cctv-maintenance",
     "client": "ZCL Chemicals Limited",
     "wordmark": null,
