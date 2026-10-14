@@ -7,13 +7,37 @@
     "category": "services",
     "industry": "Chemicals",
     "location": "Ankleshwar",
-    "period": "2018-2019",
+    "period": "2019 - 2026",
     "arch_tag": "CCTV MAINTENANCE",
     "summary": "ZCL’s Ankleshwar facility has maintained a seven-year AMC relationship with D-TECH, with support continuing in 2026 as confirmed by D-TECH. The supplied\n2019 CCTV contract provides the documented foundation: planned maintenance, breakdown-call support and signed reports after visits.",
     "challenge": "",
     "solution": "",
-    "outcomes": [],
-    "metrics": [],
+    "outcomes": [
+      "CAMERA IMAGE,",
+      "POWER / CABLING,",
+      "NETWORK PATH,",
+      "RECORDING / STORAGE,",
+      "TIME / RETENTION,",
+      "REPAIR / RESTORE"
+    ],
+    "metrics": [
+      [
+        "CAMERA IMAGE",
+        "99%"
+      ],
+      [
+        "POWER / CABLING,",
+        "45%"
+      ],
+      [
+        "NETWORK PATH,",
+        "2%"
+      ],
+      [
+        "REPAIR / RESTORE",
+        "24*7"
+      ]
+    ],
     "pdf_file": "assets/case-studies/pdf/custom/zcl-chemicals-limited-3aeea2.pdf",
     "published": true,
     "custom": true
