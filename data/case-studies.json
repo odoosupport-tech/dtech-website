@@ -1,5 +1,425 @@
 [
   {
+    "id": "apraava-paguthan-cctv-p2p-amc",
+    "client": "Apraava Energy Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/apraava.png",
+    "category": "services",
+    "industry": "Power Generation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Paguthan Combined Cycle Power Plant, Bharuch, Gujarat",
+    "period": "Nearly 8 years · PO Nov 2022",
+    "arch_tag": "CCTV, Wireless P2P & Network AMC",
+    "summary": "Continuing CCTV maintenance and surveillance network support for Apraava Energy's Paguthan combined cycle power plant, nearly eight years running: cameras, video server, media converters and power supplies across the plant, township, Nabipur and Angareshwar RWPH, plus a 5 km wireless point-to-point link.",
+    "outcomes": [
+      "AMC scope covers the plant, township, Nabipur and Angareshwar RWPH",
+      "5 km wireless P2P link: endpoint health, alignment, power and radio checks",
+      "Cameras, video server, media converters and power supplies maintained end to end",
+      "Documented AMC term 1 Nov 2022 – 31 Oct 2023 (PO 213000045)",
+      "Fixes closed with live-video, link, recording and playback checks"
+    ],
+    "metrics": [
+      [
+        "Relationship",
+        "~8 years"
+      ],
+      [
+        "P2P link",
+        "5 km"
+      ],
+      [
+        "Locations",
+        "4"
+      ],
+      [
+        "Scope",
+        "CCTV + network"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/apraava-paguthan-cctv-p2p-amc.pdf"
+  },
+  {
+    "id": "chattary-ajwan-security-camc",
+    "client": "Chattary Ajwan Infotech Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/chattary-ajwan.png",
+    "category": "services",
+    "industry": "IT Services · Partner Delivery",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Ahmedabad, Gujarat",
+    "period": "1 Apr 2023 – 31 Mar 2025 · SO CAIPL/23-24/30",
+    "arch_tag": "Back-to-Back Security CAMC",
+    "summary": "D-TECH as the technical service partner behind CAIPL's integrated electronic security CAMC: comprehensive maintenance of eight systems, from CCTV, video analytics and door access to PABX, metal detectors, X-ray baggage scanners and IT FMS, with quarterly preventive maintenance and contracted response and resolution targets.",
+    "outcomes": [
+      "Eight systems: CCTV, video analytics, attendance and door control, guard tour, PABX, metal detectors, X-ray scanners and IT FMS",
+      "Contracted response within 4 hours; breakdown attendance within 24 hours",
+      "Resolution targets: critical within 12 hours, non-critical within 48 hours",
+      "Comprehensive cover: parts, labour, travel, spares and consumables, with genuine parts",
+      "Quarterly preventive maintenance with a report after every visit"
+    ],
+    "metrics": [
+      [
+        "Systems",
+        "8"
+      ],
+      [
+        "Response",
+        "4 hrs"
+      ],
+      [
+        "Critical fix",
+        "12 hrs"
+      ],
+      [
+        "PM",
+        "Quarterly"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/chattary-ajwan-security-camc.pdf"
+  },
+  {
+    "id": "deepak-chem-tech-greenfield-it",
+    "client": "Deepak Chem Tech Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/deepak-chem-tech.png",
+    "category": "network",
+    "industry": "Chemicals · Greenfield Plant",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej-3 (Padariya, Vagra), Gujarat",
+    "period": "PO 18 Mar 2026",
+    "arch_tag": "Greenfield IT, Aruba Wi-Fi & Wireless Links",
+    "summary": "The IT foundation for Deepak Chem Tech's new Dahej-3 plant: armoured fibre between areas, structured Cat6 cabling, 11 centrally managed HPE Aruba Wi-Fi access points and a Cambium point-to-multipoint network reaching 10 remote points, ordered as one supply, installation and engineering package.",
+    "outcomes": [
+      "11 Aruba AP-515 access points with 5-year Aruba Central licences and support",
+      "2 Cambium ePMP 4500L base radios serving 10 Force 425 subscriber radios",
+      "1,000 m of 6-strand armoured fibre in HDPE, 24 LIUs and 15 field racks",
+      "100 faceplate points with Cat6 cabling and patching",
+      "Delivery plan from survey to as-built drawings, port / AP / radio registers and test reports"
+    ],
+    "metrics": [
+      [
+        "Aruba APs",
+        "11"
+      ],
+      [
+        "Remote radios",
+        "10"
+      ],
+      [
+        "Armoured fibre",
+        "1,000 m"
+      ],
+      [
+        "Field racks",
+        "15"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/deepak-chem-tech-greenfield-it.pdf"
+  },
+  {
+    "id": "glosol-dell-workstation-supply",
+    "client": "Glosol Innovations and Technologies Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/glosol.png",
+    "category": "network",
+    "industry": "Innovation & Technology",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Makarpura, Vadodara, Gujarat",
+    "period": "4 orders · Feb – Jul 2026",
+    "arch_tag": "Dell Workstation Supply & Support",
+    "summary": "Four orders in 2026 for Glosol's Makarpura works: Dell Precision workstations with Microsoft Office and monitors, supplied with configuration checks, delivery documentation and support routing, within a wider computing relationship that also covers server services.",
+    "outcomes": [
+      "8 Dell workstations: 4 Precision 3680 towers and 4 Pro Precision 7 T1",
+      "8 Microsoft Office 2021 Pro Plus licences and 3 × 24-inch monitors",
+      "Latest build: Core Ultra 5 235, 16 GB DDR5, 1 TB SSD, additional NIC, 3-year warranty",
+      "Orders from 11 Feb 2026 to 30 Jul 2026, all delivered to the Makarpura works",
+      "Support route: diagnosis, OEM escalation and documented closure"
+    ],
+    "metrics": [
+      [
+        "Workstations",
+        "8"
+      ],
+      [
+        "Orders",
+        "4"
+      ],
+      [
+        "Office licences",
+        "8"
+      ],
+      [
+        "Monitors",
+        "3"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/glosol-dell-workstation-supply.pdf"
+  },
+  {
+    "id": "jk-paper-server-desktop-supply",
+    "client": "JK Paper Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/jk-paper.png",
+    "category": "network",
+    "industry": "Paper & Pulp",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "CPM Unit, Fort Songadh, Tapi, Gujarat",
+    "period": "Orders 2014 & 2017",
+    "arch_tag": "Server & Desktop Supply, Installation & Migration",
+    "summary": "Server and desktop supply for JK Paper's Central Pulp Mills unit at Fort Songadh: a Dell PowerEdge T320 with installation and ProSupport in 2014 and 15 Dell OptiPlex desktops in 2017, within a wider relationship covering IT product supply, installation and migration.",
+    "outcomes": [
+      "Dell PowerEdge T320: Xeon E5-2403, 8 GB, 2 × 1 TB disks, dual redundant PSUs (PO May 2014)",
+      "Installation service and 3-year ProSupport NBD onsite cover with the server",
+      "15 Dell OptiPlex 3046MT desktops with Windows 10 Pro and 19.5-inch displays (PO Jul 2017)",
+      "Migration method: discover, protect, pilot, transfer, cut over and accept",
+      "Handover pack: serial register, configuration, licences, tests and sign-off"
+    ],
+    "metrics": [
+      [
+        "Dell server",
+        "T320"
+      ],
+      [
+        "Desktops",
+        "15"
+      ],
+      [
+        "Orders",
+        "2014 + 2017"
+      ],
+      [
+        "Server support",
+        "3-yr NBD"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/jk-paper-server-desktop-supply.pdf"
+  },
+  {
+    "id": "modiguard-network-fms-p2p",
+    "client": "MODIGUARD Gujarat Guardian Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/modiguard.png",
+    "category": "services",
+    "industry": "Glass Manufacturing",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Factory & colony network, Gujarat",
+    "period": "Network support contract",
+    "arch_tag": "17-Location Network FMS & P2P Support",
+    "summary": "One support owner for MODIGUARD's network: a contract covering 17 network locations, factory-to-colony connectivity and wireless point-to-point links involving two units, with one onsite FMS engineer for first-line support and D-TECH specialists for configuration and radio faults.",
+    "outcomes": [
+      "17 network locations under one contract",
+      "Factory-to-colony connectivity supported end to end",
+      "1 onsite FMS engineer for routine checks and first-line fixes",
+      "P2P wireless links involving two units, managed against a recorded baseline",
+      "Escalation to D-TECH specialists and OEMs, closed with customer confirmation"
+    ],
+    "metrics": [
+      [
+        "Locations",
+        "17"
+      ],
+      [
+        "FMS engineer",
+        "1"
+      ],
+      [
+        "P2P units",
+        "2"
+      ],
+      [
+        "Scope",
+        "Factory + colony"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/modiguard-network-fms-p2p.pdf"
+  },
+  {
+    "id": "matrix-vms-dell-servers",
+    "client": "Matrix Comsec Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/matrix.png",
+    "category": "network",
+    "industry": "Security Solutions · R&D",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Waghodia, Vadodara, Gujarat",
+    "period": "25+ servers · sample PO Jan 2023",
+    "arch_tag": "Dell Servers for Matrix VMS",
+    "summary": "Server supply for Matrix's video management software: as a Matrix Star Partner, D-TECH works with Matrix R&D on server specification before supply clearance and has supplied more than 25 servers for VMS solutions, including a batch of 8 Dell PowerEdge R250 servers.",
+    "outcomes": [
+      "25+ servers supplied for Matrix VMS solutions",
+      "Sample order: 8 Dell PowerEdge R250 servers (PO 8000003502, Jan 2023)",
+      "Server specification worked through with Matrix R&D before supply clearance",
+      "Sizing by cameras, streams, retention, storage throughput and network load",
+      "Batch supply with serial and warranty records"
+    ],
+    "metrics": [
+      [
+        "Servers supplied",
+        "25+"
+      ],
+      [
+        "Sample batch",
+        "8 × R250"
+      ],
+      [
+        "Platform",
+        "Dell PowerEdge"
+      ],
+      [
+        "Partner",
+        "Matrix Star"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/matrix-vms-dell-servers.pdf"
+  },
+  {
+    "id": "panamax-cctv-access-epabx",
+    "client": "Panamax Infotech Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/panamax.png",
+    "category": "safety",
+    "industry": "IT Services",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Thaltej, Ahmedabad, Gujarat",
+    "period": "PO / WO 22 Dec 2014",
+    "arch_tag": "CCTV, Access Control & 500-Line EPABX",
+    "summary": "Security and communications for Panamax's Ahmedabad office: Matrix CCTV and two-door COSEC access control supplied, installed and integrated with existing systems, with one year of comprehensive support, alongside a 500-line EPABX installation.",
+    "outcomes": [
+      "10 Matrix SATATYA dome cameras with an 8-channel DVR and 2 TB + 4 TB storage",
+      "2 COSEC door controllers with fingerprint / HID iCLASS readers and electromagnetic locks",
+      "Integration with Panamax's existing systems, as both orders required",
+      "One year of comprehensive support on the supplied systems",
+      "500-line EPABX installation for office telephony"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "10"
+      ],
+      [
+        "Doors",
+        "2"
+      ],
+      [
+        "EPABX",
+        "500 lines"
+      ],
+      [
+        "Support",
+        "1 year"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/panamax-cctv-access-epabx.pdf"
+  },
+  {
+    "id": "synchronics-server-network-security",
+    "client": "Synchronics Electronics Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/synchronics.png",
+    "category": "network",
+    "industry": "Electronics",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "New Alkapuri, Gotri, Vadodara, Gujarat",
+    "period": "Server order Sep 2023",
+    "arch_tag": "Server, Network, CCTV & Access Infrastructure",
+    "summary": "IT and security infrastructure for Synchronics' Vadodara office: a Dell PowerEdge R660xs server with deployment and 3-year ProSupport, structured networking, and CCTV and door access control, delivered through one design, installation and handover process.",
+    "outcomes": [
+      "Dell PowerEdge R660xs: 2 × Xeon Silver 4410T, 128 GB RAM, 2 × 480 GB SSD, PERC H755",
+      "Redundant 1400 W power, quad-port 10 GbE and quad-port 1 GbE adapters, iDRAC9",
+      "Basic server deployment and 36-month ProSupport next-business-day onsite",
+      "Structured network rack with labelled patching",
+      "CCTV and door access control with entry, exit and playback acceptance tests"
+    ],
+    "metrics": [
+      [
+        "Server",
+        "Dell R660xs"
+      ],
+      [
+        "Memory",
+        "128 GB"
+      ],
+      [
+        "Support",
+        "3-yr NBD"
+      ],
+      [
+        "Scope",
+        "IT + security"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/synchronics-server-network-security.pdf"
+  },
+  {
+    "id": "unique-pharma-daman-it-infra",
+    "client": "Unique Pharmaceutical Laboratories",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/unique-pharma.png",
+    "category": "network",
+    "industry": "Pharmaceuticals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Plant JB32, Kadaiya, Daman",
+    "period": "7 orders · 2017 – 2019",
+    "arch_tag": "Network, Servers, Desktops & Tape Backup",
+    "summary": "IT infrastructure for Unique Pharmaceutical Laboratories, a division of J.B. Chemicals & Pharmaceuticals, at its Daman plant JB32, across seven orders from 2017 to 2019: Dell switching and fibre, structured cabling, three Dell PowerEdge servers, 22 desktops and an LTO-6 tape backup drive.",
+    "outcomes": [
+      "3 Dell PowerEdge servers: R730, R740 (for PROPIX track & trace) and R540",
+      "Dell network: 2 S3124 L3 and 5 N1148T-ON access switches, plus X-series switches and 10G optics",
+      "Cat6 cabling, single-mode fibre, LIUs and racks under a separate installation order",
+      "22 Dell OptiPlex 3050 desktops with 22 monitors",
+      "PowerVault LTO-6 external tape drive for backup"
+    ],
+    "metrics": [
+      [
+        "Dell servers",
+        "3"
+      ],
+      [
+        "Desktops",
+        "22"
+      ],
+      [
+        "Switches",
+        "10"
+      ],
+      [
+        "Orders",
+        "7"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/unique-pharma-daman-it-infra.pdf"
+  },
+  {
     "id": "deepak-fertilisers-and-petrochemicals-corporation-limited-hp",
     "client": "Deepak Fertilisers and Petrochemicals Corporation Limited",
     "wordmark": null,
