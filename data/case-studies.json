@@ -1,5 +1,47 @@
 [
   {
+    "id": "dcm-shriram-jhagadia-network-surveillance",
+    "client": "DCM Shriram Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/dcm-shriram.png",
+    "category": "network",
+    "industry": "Chemicals · Chlor-Alkali",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Shriram Alkali & Chemicals, GIDC Jhagadia, Bharuch, Gujarat",
+    "period": "13 orders · Aug – Dec 2025",
+    "arch_tag": "Turnkey Network, Surveillance & Server",
+    "summary": "Turnkey infrastructure for DCM Shriram's Shriram Alkali & Chemicals unit at Jhagadia across 13 orders: a fibre backbone and Cisco PoE access network, HikCentral surveillance licences and recording disks, Moxa industrial links, a FortiGate firewall and a Dell-specified server, with coal-yard fibre, switch and camera installation by D-TECH.",
+    "outcomes": [
+      "18 Cisco switches: 6 × 48-port, 4 × 24-port and 8 × 8-port PoE",
+      "4,050 m of armoured single-mode fibre with LIUs, patching and Cat6 cabling",
+      "65 HikCentral VSS + 65 pStor channel licences and 13 × 10 TB surveillance disks",
+      "2 Moxa industrial fibre switches, a FortiGate 40F and a Xeon E-2468 server with mirrored SSDs",
+      "Coal-yard job: 600 m fibre, 84 splices with OTDR tests, 4 switch and 13 camera setups"
+    ],
+    "metrics": [
+      [
+        "Cisco switches",
+        "18"
+      ],
+      [
+        "VMS channels",
+        "65"
+      ],
+      [
+        "Surveillance disks",
+        "130 TB raw"
+      ],
+      [
+        "Orders",
+        "13"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/dcm-shriram-jhagadia-network-surveillance.pdf"
+  },
+  {
     "id": "apraava-paguthan-cctv-p2p-amc",
     "client": "Apraava Energy Private Limited",
     "wordmark": null,
