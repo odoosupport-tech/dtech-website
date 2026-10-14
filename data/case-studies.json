@@ -1,5 +1,24 @@
 [
   {
+    "id": "zcl-chemicals-limited-cctv-maintenance",
+    "client": "ZCL Chemicals Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/zcl-chemicals-limited-e9f242.png",
+    "category": "services",
+    "industry": "Chemicals",
+    "location": "Ankleshwar",
+    "period": "2018-2019",
+    "arch_tag": "CCTV MAINTENANCE",
+    "summary": "ZCL’s Ankleshwar facility has maintained a seven-year AMC relationship with D-TECH, with support continuing in 2026 as confirmed by D-TECH. The supplied\n2019 CCTV contract provides the documented foundation: planned maintenance, breakdown-call support and signed reports after visits.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [],
+    "metrics": [],
+    "pdf_file": "assets/case-studies/pdf/custom/zcl-chemicals-limited-3aeea2.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "honda-cctv-network",
     "client": "Honda Motorcycle & Scooter India Pvt. Ltd.",
     "wordmark": null,
