@@ -1,5 +1,41 @@
 [
   {
+    "id": "deepak-fertilisers-and-petrochemicals-corporation-limited-hp",
+    "client": "Deepak Fertilisers and Petrochemicals Corporation Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/deepak-fertilisers-and-petrochemicals-co-1d4ad8.png",
+    "category": "network",
+    "industry": "Petrochemical",
+    "location": "Dahej",
+    "period": "2022",
+    "arch_tag": "HPE DL380 Gen10 4114 Hardware fault diagnosis, repair coordination and customer-validated restoration.",
+    "summary": "The supplied order establishes a one-year, breakdown-call AMC for an HPE DL380 Gen10 4114 server at the Dahej plant. The requirement is to identify hardware failures quickly, coordinate eligible repair and verify that the repaired platform is ready for the customer’s service owners.",
+    "challenge": "",
+    "solution": "",
+    "outcomes": [],
+    "metrics": [
+      [
+        "NBD / UPTIME",
+        "99%"
+      ],
+      [
+        "EXCLUDED SERVICES",
+        "45%"
+      ],
+      [
+        "CALLBACK TARGETS",
+        "2%"
+      ],
+      [
+        "REMOTE RESPONSE",
+        "24×7"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/deepak-fertilisers-and-petrochemicals-co-fde817.pdf",
+    "published": true,
+    "custom": true
+  },
+  {
     "id": "epigral-limited-qnap-nas-installation-and-a-detailed-legacy-",
     "client": "EPIGRAL Limited",
     "wordmark": null,
