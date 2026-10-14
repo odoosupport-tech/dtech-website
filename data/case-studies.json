@@ -3,160 +3,295 @@
     "id": "deepak-fertilisers-and-petrochemicals-corporation-limited-hp",
     "client": "Deepak Fertilisers and Petrochemicals Corporation Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/deepak-fertilisers-and-petrochemicals-co-1d4ad8.png",
-    "category": "network",
-    "industry": "Petrochemical",
-    "location": "Dahej",
-    "period": "2022",
-    "arch_tag": "HPE DL380 Gen10 4114 Hardware fault diagnosis, repair coordination and customer-validated restoration.",
-    "summary": "The supplied order establishes a one-year, breakdown-call AMC for an HPE DL380 Gen10 4114 server at the Dahej plant. The requirement is to identify hardware failures quickly, coordinate eligible repair and verify that the repaired platform is ready for the customer’s service owners.",
+    "logo": "assets/case-studies/logos/custom/dfpcl.png",
+    "category": "services",
+    "industry": "Fertilisers & Petrochemicals",
     "challenge": "",
     "solution": "",
-    "outcomes": [],
+    "published": true,
+    "custom": true,
+    "location": "Dahej plant (Dahej-II Industrial Estate), Bharuch, Gujarat",
+    "period": "PO 23 Apr 2022 · AMC 2022–23",
+    "arch_tag": "HPE Server Hardware AMC",
+    "summary": "A one-year, breakdown-call hardware AMC for an HPE DL380 Gen10 server at DFPCL's Dahej plant, with 24×7 remote response and next-business-day support, and a support method built on component-level diagnosis from iLO logs, coordinated repair and customer-validated restoration.",
+    "outcomes": [
+      "HPE DL380 Gen10 4114 server AMC for 2022–23 (PO 1101003777, 23 April 2022)",
+      "24×7 remote response, including HPE holidays",
+      "Callback within 15 minutes for severity 1, within 1 hour for severity 2 and 3",
+      "Next-business-day support on hardware breakdown calls",
+      "Diagnosis across power, CPU, memory, RAID, cooling and NIC using iLO, IML and AHS logs"
+    ],
     "metrics": [
       [
-        "NBD / UPTIME",
-        "99%"
+        "Server",
+        "HPE DL380 Gen10"
       ],
       [
-        "EXCLUDED SERVICES",
-        "45%"
-      ],
-      [
-        "CALLBACK TARGETS",
-        "2%"
-      ],
-      [
-        "REMOTE RESPONSE",
+        "Remote response",
         "24×7"
+      ],
+      [
+        "Sev 1 callback",
+        "15 min"
+      ],
+      [
+        "Support",
+        "NBD"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/deepak-fertilisers-and-petrochemicals-co-fde817.pdf",
-    "published": true,
-    "custom": true
+    "pdf_file": "assets/case-studies/pdf/custom/deepak-fertilisers-and-petrochemicals-co-fde817.pdf"
   },
   {
     "id": "epigral-limited-qnap-nas-installation-and-a-detailed-legacy-",
     "client": "EPIGRAL Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/epigral-limited-fe967d.png",
+    "logo": "assets/case-studies/logos/custom/epigral.png",
     "category": "network",
     "industry": "Chemicals",
-    "location": "Dahej",
-    "period": "2026",
-    "arch_tag": "QNAP NAS installation and a detailed legacy-data migration design",
-    "summary": "QNAP NAS installation and a detailed legacy-data migration design: storage pools, network interfaces, share permissions, staged transfer, cutover and recovery checks.",
     "challenge": "",
     "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej IT server room & QC department, Gujarat",
+    "period": "Orders 15 Sep 2026 · service window to 31 Oct 2026",
+    "arch_tag": "QNAP NAS & Legacy Data Migration",
+    "summary": "QNAP storage for EPIGRAL's Dahej server room and QC department: a TS-832PXU-RP rackmount NAS proposed as primary storage and a TS-216G as a RAID 1 backup target, with Aruba Wi-Fi and cabling for QC, plus a staged legacy-data migration design covering inventory, pilot copy, permissions, validation, cutover and rollback.",
     "outcomes": [
-      "TS-832PXU-RP | FOUR POPULATED BAYS",
-      "TS-216G | TWO POPULATED BAYS"
+      "TS-832PXU-RP: 8-bay 2U, redundant PSU, 2 × 10GbE SFP+ and 2 × 2.5GbE, 4 × 4 TB drives",
+      "TS-216G two-bay NAS with 2 × 4 TB drives, proposed RAID 1 for selected-data backup",
+      "QC network: 2 Aruba AP-505 access points, 20 USB Wi-Fi adapters, a 6U rack and 200 m of Cat6",
+      "Proposed RAID 6 on the primary: 16 TB raw, 8 TB nominal, two-disk fault tolerance",
+      "Migration design: inventory, pilot, seed copy, ACL checks, final delta, go / no-go and rollback"
     ],
     "metrics": [
       [
-        "BACKUP CAPACITY",
-        "99%"
+        "QNAP NAS",
+        "2"
       ],
       [
-        "RAID / VOLUME TYPE",
-        "45%"
+        "Drives",
+        "6 × 4 TB"
       ],
       [
-        "DATA GROWTH",
-        "2%"
+        "Aruba APs",
+        "2"
       ],
       [
-        "Support",
-        "24*7"
+        "Orders",
+        "Sep 2026"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-7730fe.pdf",
-    "published": true,
-    "custom": true
+    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-7730fe.pdf"
   },
   {
     "id": "epigral-limited-cctv-maintenance",
     "client": "EPIGRAL Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/epigral-limited-113b65.png",
+    "logo": "assets/case-studies/logos/custom/epigral.png",
     "category": "services",
     "industry": "Chemicals",
-    "location": "Dahej",
-    "period": "2026-2027",
-    "arch_tag": "CCTV MAINTENANCE",
-    "summary": "EPIGRAL’s Dahej CCTV system covers operational and support areas including gates, dispatch, warehouses, offices, laboratories, canteens and control rooms. The AMC coordinates inspection, fault diagnosis, cleaning, recording checks and software support across the camera-to-viewing path, with a defined customer role for\nreplacement hardware and site facilities.",
     "challenge": "",
     "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej plant (CH/1 & CH/2, GIDC), Bharuch, Gujarat",
+    "period": "1 Apr 2026 – 31 Mar 2027 · PO 4506125434",
+    "arch_tag": "CCTV Non-Comprehensive AMC",
+    "summary": "A non-comprehensive CCTV AMC for EPIGRAL's Dahej plant covering 94 cameras and 4 NVRs across gates, dispatch, warehouses, offices, laboratories, canteens and control rooms: monthly health reports, quarterly cleaning and preventive maintenance, software and firmware support, and verified restoration, with EPIGRAL providing spare hardware.",
     "outcomes": [
-      "Camera / network health,",
-      "Recording & software,",
-      "Scheduled maintenance,",
-      "Non-comprehensive boundary"
+      "94 cameras and 4 NVRs under AMC, with switches, cabling and outdoor junction boxes",
+      "Emergency calls attended the same day, normal calls the next business day",
+      "Onsite presence within 24 hours of a complaint being logged",
+      "Four quarterly PM visits plus monthly CCTV, NVR and storage health reports",
+      "Every fix closed with live-view, recording and playback tests"
     ],
     "metrics": [
       [
-        "Camera / network health",
-        "99%"
+        "Cameras",
+        "94"
       ],
       [
-        "Recording & software",
-        "45%"
+        "NVRs",
+        "4"
       ],
       [
-        "Scheduled maintenance",
-        "2%"
+        "PM visits",
+        "4 / year"
       ],
       [
-        "Support",
-        "24*7"
+        "Onsite",
+        "≤ 24 hrs"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-04bcec.pdf",
-    "published": true,
-    "custom": true
+    "pdf_file": "assets/case-studies/pdf/custom/epigral-limited-04bcec.pdf"
   },
   {
     "id": "zcl-chemicals-limited-cctv-maintenance",
     "client": "ZCL Chemicals Limited",
     "wordmark": null,
-    "logo": "assets/case-studies/logos/custom/zcl-chemicals-limited-e9f242.png",
+    "logo": "assets/case-studies/logos/custom/zcl.png",
     "category": "services",
-    "industry": "Chemicals",
-    "location": "Ankleshwar",
-    "period": "2019 - 2026",
-    "arch_tag": "CCTV MAINTENANCE",
-    "summary": "ZCL’s Ankleshwar facility has maintained a seven-year AMC relationship with D-TECH, with support continuing in 2026 as confirmed by D-TECH. The supplied\n2019 CCTV contract provides the documented foundation: planned maintenance, breakdown-call support and signed reports after visits.",
+    "industry": "Chemicals · Manufacturing",
     "challenge": "",
     "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Ankleshwar manufacturing facility, Gujarat",
+    "period": "2019 – 2026 · AMC continuing",
+    "arch_tag": "Seven-Year CCTV AMC Relationship",
+    "summary": "A seven-year CCTV AMC relationship with ZCL's Ankleshwar manufacturing facility, with support continuing in 2026. The documented 2019–20 contract set the foundation: four preventive visits, unlimited breakdown calls and a service report after every visit, signed by the customer's engineer and shared with the purchase department.",
     "outcomes": [
-      "CAMERA IMAGE,",
-      "POWER / CABLING,",
-      "NETWORK PATH,",
-      "RECORDING / STORAGE,",
-      "TIME / RETENTION,",
-      "REPAIR / RESTORE"
+      "Contract letter dated 1 April 2019 for April 2019 – March 2020",
+      "Preventive visits scheduled for April, July and October 2019 and January 2020",
+      "Unlimited breakdown calls under the 2019–20 term",
+      "Service report and recommendations after every visit, signed by the customer engineer",
+      "Six-step complaint-to-closure flow, from register to customer-confirmed close"
     ],
     "metrics": [
       [
-        "CAMERA IMAGE",
-        "99%"
+        "Relationship",
+        "7 years"
       ],
       [
-        "POWER / CABLING,",
-        "45%"
+        "PM visits (2019–20)",
+        "4"
       ],
       [
-        "NETWORK PATH,",
-        "2%"
+        "Breakdown calls",
+        "Unlimited"
       ],
       [
-        "REPAIR / RESTORE",
-        "24*7"
+        "AMC",
+        "Continuing 2026"
       ]
     ],
-    "pdf_file": "assets/case-studies/pdf/custom/zcl-chemicals-limited-3aeea2.pdf",
+    "pdf_file": "assets/case-studies/pdf/custom/zcl-chemicals-limited-3aeea2.pdf"
+  },
+  {
+    "id": "srf-dahej-automation-server-amc",
+    "client": "SRF Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/srf.png",
+    "category": "services",
+    "industry": "Chemicals · Plant Automation",
+    "challenge": "",
+    "solution": "",
     "published": true,
-    "custom": true
+    "custom": true,
+    "location": "Dahej (GIDC Phase II, PCPIR), Bharuch, Gujarat",
+    "period": "1 Nov 2023 – 31 Oct 2026 · three annual periods",
+    "arch_tag": "Plant Automation Server & Station AMC",
+    "summary": "Comprehensive AMC for the servers, engineering stations and operator stations behind SRF Dahej's plant automation, across three annual periods from November 2023: Dell PowerEdge servers, Dell Precision and OptiPlex stations and HP workstations in the P1 Pharma, CMS and P1 HOG groups, with hardware diagnosis, covered repair coordination and customer-led validation.",
+    "outcomes": [
+      "Renewal POs 202703 (Oct 2024) and 218994 (Oct 2025), after a first year from Nov 2023",
+      "Dell PowerEdge T630 and T330 servers, including CMS Server A and Server B",
+      "Dell Precision T5810 batch server and Dell OptiPlex 3020 / XE2 operator and engineering stations",
+      "HP Pro 3330 stations in the P1 HOG group",
+      "Work under plant change control, closed after the automation owner validates displays and alarms"
+    ],
+    "metrics": [
+      [
+        "Service periods",
+        "3"
+      ],
+      [
+        "Asset groups",
+        "7"
+      ],
+      [
+        "Platforms",
+        "Dell + HP"
+      ],
+      [
+        "Term",
+        "Nov 2023 – Oct 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/srf-dahej-automation-server-amc.pdf"
+  },
+  {
+    "id": "cohance-ankleshwar-cctv-amc",
+    "client": "Cohance Lifesciences Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/cohance.png",
+    "category": "services",
+    "industry": "Pharmaceuticals · API",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "API Unit-III, GIDC Ankleshwar, Gujarat",
+    "period": "1 Apr 2025 – 31 Mar 2027 · two annual orders",
+    "arch_tag": "IP CCTV AMC",
+    "summary": "IP CCTV maintenance for Cohance's Ankleshwar API Unit-III under two annual work orders, renewed for 2026–27: preventive visits, unlimited breakdown calls and service reports, with every fault taken from register to customer-validated closure under the site's safety controls.",
+    "outcomes": [
+      "WO 5400001029 (Apr 2025) for 2025–26; renewal WO 5200032023 (Mar 2026) for 2026–27",
+      "Four preventive maintenance visits in 2025–26",
+      "Unlimited breakdown maintenance calls in 2025–26",
+      "Service reports submitted with supporting documents",
+      "Camera, power, network and recorder checks, closed with playback evidence and sign-off"
+    ],
+    "metrics": [
+      [
+        "Work orders",
+        "2"
+      ],
+      [
+        "PM visits (2025–26)",
+        "4"
+      ],
+      [
+        "Breakdown calls",
+        "Unlimited"
+      ],
+      [
+        "Term",
+        "Apr 2025 – Mar 2027"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/cohance-ankleshwar-cctv-amc.pdf"
+  },
+  {
+    "id": "deepak-nitrite-vmware-scada",
+    "client": "Deepak Nitrite Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/deepak-nitrite.png",
+    "category": "network",
+    "industry": "Chemicals · Instrumentation",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Nandesari Division, Vadodara, Gujarat",
+    "period": "PO 25 Aug 2023 · delivery 8 Sep 2023",
+    "arch_tag": "VMware Virtualization for SCADA",
+    "summary": "VMware Workstation 17 Pro and Windows 11 Pro licensing with onsite installation for the instrument department's SCADA system at Deepak Nitrite's Nandesari Division, backed by an implementation blueprint: host readiness, VM build, host-only commissioning, vendor-validated SCADA integration and customer acceptance.",
+    "outcomes": [
+      "5 Windows 11 Pro perpetual licences",
+      "1 VMware Workstation 17 Pro licence with 1-year production support",
+      "Onsite installation support included in the order",
+      "Blueprint commissions VMs on host-only networking before any approved OT connection",
+      "Acceptance gates for licences, SCADA function, interfaces, performance and backup restore"
+    ],
+    "metrics": [
+      [
+        "Windows 11 Pro",
+        "5 licences"
+      ],
+      [
+        "VMware WS 17 Pro",
+        "1 licence"
+      ],
+      [
+        "Support",
+        "1 year"
+      ],
+      [
+        "Installation",
+        "Onsite"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/deepak-nitrite-vmware-scada.pdf"
   },
   {
     "id": "honda-cctv-network",
