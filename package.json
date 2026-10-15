@@ -24,7 +24,6 @@
     "terser": "^5.31.0"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
     "nodemailer": "^10.0.12"
   }
 }
