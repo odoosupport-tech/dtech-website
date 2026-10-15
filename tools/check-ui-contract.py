@@ -106,9 +106,12 @@ def check_marquee_contract(problems):
             problems.append(f"brand marquee stops under reduced motion (skin.css lacks {anim})")
     if "marquee-paused" in script:
         problems.append("brand-marquee.js still pauses the marquee for reduced motion")
-    home_css = (ROOT / "assets/home.css").read_text(encoding="utf-8").replace(" ", "")
-    if "hxBrandsLeft32slinearinfinite!important" not in home_css:
-        problems.append("home hero client logos stop under reduced motion")
+    # The hero client wall swaps logos for everyone, reduced motion included.
+    start = home.find("// Home brand wall: swaps one client logo")
+    if start < 0:
+        problems.append("home hero client wall lost its logo-swap script")
+    elif "prefers-reduced-motion" in home[start:home.find("</script>", start)]:
+        problems.append("home hero client wall stops swapping under reduced motion")
     if "makeSvg" in script:
         problems.append("brand marquee still draws synthetic partner marks")
     for logo in (
