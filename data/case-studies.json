@@ -1,5 +1,47 @@
 [
   {
+    "id": "srict-campus-computing-dell",
+    "client": "Shroff S. R. Rotary Institute of Chemical Technology",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/srict.png",
+    "category": "network",
+    "industry": "Education · Technical Institute",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Vataria, Ankleshwar – Valia Road, Gujarat",
+    "period": "Orders 2015, 2016 & 2022",
+    "arch_tag": "Dell Desktops, Laptop & Printers with Warranty",
+    "summary": "Campus computing for SRICT, run by the Ankleshwar Rotary Education Society, across orders in 2015, 2016 and 2022: 55 Dell OptiPlex desktops, a Dell Latitude laptop with a docking station and two HP LaserJet multifunction printers, supplied with onsite warranties of up to five years.",
+    "outcomes": [
+      "2015: 25 Dell OptiPlex 3020 desktops (Core i3, 4 GB, 500 GB) and 2 HP LaserJet M1005 printers, with OS and application installation",
+      "2016: a Dell Latitude E5470 laptop (Core i5) with an E-Port Plus docking station and a 3-year onsite warranty",
+      "2022: 30 Dell OptiPlex 3090 desktops (Core i5, 8 GB, 512 GB SSD, 22-inch display)",
+      "Onsite warranties: 3 years on the 2015 desktops, 5 years comprehensive on the 2022 desktops",
+      "Newer desktops moved from 4 GB RAM and hard disks to 8 GB RAM and SSDs"
+    ],
+    "metrics": [
+      [
+        "Dell desktops",
+        "55"
+      ],
+      [
+        "Laptops",
+        "1"
+      ],
+      [
+        "Printers",
+        "2"
+      ],
+      [
+        "Warranty",
+        "Up to 5 yrs"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/srict-campus-computing-dell.pdf"
+  },
+  {
     "id": "element-chemilink-network-epabx-cctv",
     "client": "Element Chemilink Pvt. Ltd.",
     "wordmark": null,
