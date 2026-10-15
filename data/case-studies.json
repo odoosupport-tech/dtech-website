@@ -1,5 +1,47 @@
 [
   {
+    "id": "element-chemilink-network-epabx-cctv",
+    "client": "Element Chemilink Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/element-chemilink.png",
+    "category": "network",
+    "industry": "Plant Infrastructure · GIDC Ankleshwar",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "GIDC Industrial Estate, Ankleshwar, Gujarat",
+    "period": "4 POs + cabling quote · Mar – May 2019",
+    "arch_tag": "Network, Matrix EPABX & Hikvision CCTV",
+    "summary": "Plant communications and security for Element Chemilink's Ankleshwar office and Unit-II under 2019 orders: a Matrix EPABX with Krone copper distribution and training, a 10-camera Hikvision CCTV system on a 16-channel DVR, network and voice cabling, and computer supply, with D-TECH's reference designs for a managed LAN and a time-attendance process.",
+    "outcomes": [
+      "Matrix ETERNITY PE6SP EPABX with CO and SLT cards (2 CO lines, 42 extension ports), a 30-pair Krone box and one-time training",
+      "10 Hikvision 2 MP cameras on a 16-channel DVR with a 4 TB surveillance disk and separate camera power",
+      "Network and voice cabling: 10-pair cable, Krone boxes, 10 RJ45 outlets with faceplates, casing and conduit",
+      "Computer sets, a CPU unit and an HP M1005 multifunction printer",
+      "Reference designs for a segmented LAN and a time-attendance workflow, with acceptance tests for each system"
+    ],
+    "metrics": [
+      [
+        "Cameras",
+        "10"
+      ],
+      [
+        "DVR channels",
+        "16"
+      ],
+      [
+        "Extension ports",
+        "42"
+      ],
+      [
+        "Purchase orders",
+        "4"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/element-chemilink-network-epabx-cctv.pdf"
+  },
+  {
     "id": "dcm-shriram-jhagadia-network-surveillance",
     "client": "DCM Shriram Limited",
     "wordmark": null,
