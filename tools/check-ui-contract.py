@@ -2,11 +2,24 @@
 """Regression checks for UI contracts that must survive CSS compilation."""
 
 from pathlib import Path
+import importlib.util
+import json
 import re
 import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_tool(name, filename):
+    spec = importlib.util.spec_from_file_location(name, ROOT / "tools" / filename)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+# tools/logo-thumbs.py owns the logo thumb naming rule.
+logo_thumbs_rule = _load_tool("logo_thumbs", "logo-thumbs.py").thumb_path
 
 
 def check_compiled_responsive_contract(problems):
@@ -127,10 +140,27 @@ def check_marquee_contract(problems):
         problems.append("skin.css lacks reduced-motion coverage")
 
 
+def check_logo_thumbs_contract(problems):
+    """The swapping logo walls load thumbs; every brand they can show needs one."""
+    cases = {c["id"]: c for c in json.loads((ROOT / "data/case-studies.json").read_text(encoding="utf-8"))}
+    for page in ("index.html", "case-studies.html"):
+        html = (ROOT / page).read_text(encoding="utf-8")
+        if "function logoThumb(" not in html or "logos/thumbs/$2.webp" not in html:
+            problems.append(f"{page} lost the logo thumb helper")
+        pool = re.search(r"var BEST_BRAND_IDS = \[(.*?)\];", html, re.S)
+        if not pool:
+            problems.append(f"{page} lost its BEST_BRAND_IDS wall pool")
+            continue
+        for case_id in re.findall(r"'([a-z0-9-]+)'", pool.group(1)):
+            logo = (cases.get(case_id) or {}).get("logo") or ""
+            if logo.endswith((".webp", ".png", ".jpg", ".jpeg")) and not (ROOT / logo_thumbs_rule(logo)).is_file():
+                problems.append(f"{page}: {case_id} has no logo thumb (run python3 tools/logo-thumbs.py)")
+
+
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v44';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v44")
+    if "var VERSION = 'dtech-v45';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v45")
     if "caches.match('/')" in worker:
         problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
@@ -214,6 +244,7 @@ def check_deep_link_contract(problems):
 def main():
     problems = []
     check_compiled_responsive_contract(problems)
+    check_logo_thumbs_contract(problems)
     check_leadership_contract(problems)
     check_authored_style_policy(problems)
     check_marquee_contract(problems)

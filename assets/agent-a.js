@@ -124,9 +124,12 @@
     } catch (e) {}
   }
 
-  /* Flag active scrolling so CSS can suspend hover effects until it ends. */
+  /* Flag active scrolling so CSS can suspend hover effects until it ends.
+     Mouse pointers only: touch screens have no hover, and on phones each
+     toggle restyled the whole page (50-90 ms), twice per swipe. */
   function initScrollState() {
     try {
+      if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       var root = document.documentElement, timer = 0;
       window.addEventListener('scroll', function () {
         if (!timer) root.classList.add('is-scrolling');

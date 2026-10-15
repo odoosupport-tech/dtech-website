@@ -358,10 +358,10 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 .brand-marquee-item img[src$="dell-technologies.svg"] { height:15px; max-width:105px; }
 .brand-marquee-item img[src$="motorola-solutions.svg"] { height:16px; max-width:115px; }
 .brand-marquee-item img[src$="lenovo.svg"] { height:16px; }
-.brand-marquee-item img[src$="polycab.png"] { height:16px; }
-.brand-marquee-item img[src$="grandstream.png"] { height:18px; }
-.brand-marquee-item img[src$="cp-plus.png"] { height:16px; }
-.brand-marquee-item img[src$="matrix-comsec.png"] { height:18px; }
+.brand-marquee-item img[src$="polycab.webp"] { height:16px; }
+.brand-marquee-item img[src$="grandstream.webp"] { height:18px; }
+.brand-marquee-item img[src$="cp-plus.webp"] { height:16px; }
+.brand-marquee-item img[src$="matrix-comsec.webp"] { height:18px; }
 .brand-marquee-item img[src$="apple.svg"] { height:24px; }
 .brand-marquee-item img[src$="google.svg"] { height:22px; }
 .brand-marquee-item img[src$="microsoft.svg"] { height:18px; }

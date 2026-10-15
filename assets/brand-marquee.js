@@ -33,7 +33,7 @@
     { name: 'Legrand',             logo: 'assets/partners/legrand.svg',             width: 403, height: 100 },
     { name: 'Motorola Solutions',  logo: 'assets/partners/motorola-solutions.svg',  width: 634, height: 73,  link: 'about#partner-motorola' },
     { name: 'Epson',               logo: 'assets/partners/epson.svg',               width: 407, height: 100 },
-    { name: 'CommScope',           logo: 'assets/partners/commscope-logo.png',      width: 800, height: 106 },
+    { name: 'CommScope',           logo: 'assets/partners/commscope-logo.webp',     width: 800, height: 106 },
     { name: 'Exide',               logo: 'assets/partners/exide.svg',               width: 310, height: 100 }
   ];
 
@@ -42,20 +42,20 @@
     { name: 'Asus',                logo: 'assets/partners/asus.svg',                width: 371, height: 100 },
     { name: 'Acer',                logo: 'assets/partners/acer.svg',                width: 373, height: 100 },
     { name: 'Logitech',            logo: 'assets/partners/logitech.svg',            width: 605, height: 100 },
-    { name: 'Polycab',             logo: 'assets/partners/polycab.png',             width: 150, height: 34  },
+    { name: 'Polycab',             logo: 'assets/partners/polycab.webp',            width: 150, height: 34  },
     { name: 'JBL',                 logo: 'assets/partners/jbl.svg',                 width: 96,  height: 100 },
     { name: 'ViewSonic',           logo: 'assets/partners/viewsonic.svg',           width: 616, height: 100 },
     { name: 'D-Link',              logo: 'assets/partners/d-link.svg',              width: 333, height: 100 },
     { name: 'Poly',                logo: 'assets/partners/poly.svg',                width: 229, height: 100 },
-    { name: 'ZKTeco',              logo: 'assets/partners/zkteco.png',              width: 500, height: 115 },
-    { name: 'Grandstream',         logo: 'assets/partners/grandstream.png',         width: 300, height: 43  },
+    { name: 'ZKTeco',              logo: 'assets/partners/zkteco.webp',             width: 500, height: 115 },
+    { name: 'Grandstream',         logo: 'assets/partners/grandstream.webp',        width: 300, height: 43  },
     { name: 'Axis Communications', logo: 'assets/partners/axis-communications.svg', width: 278, height: 100 },
-    { name: 'CP Plus',             logo: 'assets/partners/cp-plus.png',             width: 168, height: 28  },
-    { name: 'Beetel',              logo: 'assets/partners/beetel.png',              width: 100, height: 100 },
-    { name: 'Matrix',              logo: 'assets/partners/matrix-comsec.png',       width: 90,  height: 34  },
-    { name: 'Prama',               logo: 'assets/partners/prama.png',               width: 793, height: 213 },
-    { name: 'Digisol',             logo: 'assets/partners/digisol.png',             width: 657, height: 120 },
-    { name: 'Fingers',             logo: 'assets/partners/fingers.png',             width: 484, height: 264 }
+    { name: 'CP Plus',             logo: 'assets/partners/cp-plus.webp',            width: 168, height: 28  },
+    { name: 'Beetel',              logo: 'assets/partners/beetel.webp',             width: 100, height: 100 },
+    { name: 'Matrix',              logo: 'assets/partners/matrix-comsec.webp',      width: 90,  height: 34  },
+    { name: 'Prama',               logo: 'assets/partners/prama.webp',              width: 793, height: 213 },
+    { name: 'Digisol',             logo: 'assets/partners/digisol.webp',            width: 657, height: 120 },
+    { name: 'Fingers',             logo: 'assets/partners/fingers.webp',            width: 484, height: 264 }
   ];
 
   /* ---- Build a single logo element ------------------------------------- */
