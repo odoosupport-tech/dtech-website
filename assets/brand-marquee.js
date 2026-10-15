@@ -155,13 +155,6 @@
       }, { rootMargin: '200px 0px' }).observe(section);
     }
 
-    /* Respect reduced motion */
-    try {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        section.classList.add('marquee-paused');
-      }
-    } catch (e) { /* matchMedia not supported */ }
-
     /* Inject position: after the metric ribbon on home, else before footer */
     var footer = document.querySelector('footer');
     var homeMetric = document.body && document.body.getAttribute('data-page') === 'home'

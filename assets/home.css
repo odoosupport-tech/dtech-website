@@ -40,17 +40,40 @@
 .hx-brands .dt-cut { display:block; margin-bottom:18px; }
 .hx-hero .hx-brands-title { margin:0; font:800 clamp(26px,2.4vw,34px)/1.12 var(--display); letter-spacing:-.03em; color:#fff; }
 .hx-hero .hx-brands-sub { margin:10px 0 0; max-width:52ch; font-size:15px; line-height:1.55; color:rgba(255,255,255,.7); }
+/* Three rows of client logos on one white sheet, each row looping sideways
+   (alternating directions). Each row is one set of tiles plus an aria-hidden
+   twin, so moving the track by -50% lands back on the start. The rows keep
+   moving even when the OS asks for reduced motion (the owner wants the logos
+   always moving); hovering or focusing a row pauses it so a logo can be clicked. */
 .hx-brand-wall {
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:24px 0 0; padding:0; list-style:none;
-  background:#fff; border-radius:var(--r-panel); overflow:hidden;
+  margin:24px 0 0; background:#fff; border-radius:var(--r-panel); overflow:hidden;
   box-shadow:0 24px 60px -28px rgba(0,0,0,.55);
 }
-/* Rules are outer shadows, clipped at the sheet's edge, so a logo that drops
-   out (Draft case study) leaves white space rather than a grey hole. */
-.hx-brand-wall li { box-shadow:1px 0 0 #e3e8ef,0 1px 0 #e3e8ef; }
+.hx-brand-row { position:relative; overflow:hidden; }
+.hx-brand-row+.hx-brand-row { box-shadow:inset 0 1px 0 #e3e8ef; }
+.hx-brand-row::before,.hx-brand-row::after {
+  content:""; position:absolute; top:0; bottom:0; z-index:1; width:36px; pointer-events:none;
+}
+.hx-brand-row::before { left:0; background:linear-gradient(90deg,#fff,rgba(255,255,255,0)); }
+.hx-brand-row::after { right:0; background:linear-gradient(270deg,#fff,rgba(255,255,255,0)); }
+.hx-brand-track { display:flex; width:max-content; will-change:transform; animation:hxBrandsLeft 32s linear infinite; }
+.hx-brand-row:nth-child(2) .hx-brand-track { animation-name:hxBrandsRight; animation-duration:36s; }
+.hx-brand-row:nth-child(3) .hx-brand-track { animation-duration:28s; }
+.hx-brand-row:hover .hx-brand-track,.hx-brand-row:focus-within .hx-brand-track { animation-play-state:paused; }
+@keyframes hxBrandsLeft { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+@keyframes hxBrandsRight { from { transform:translateX(-50%); } to { transform:translateX(0); } }
+/* skin.css switches every animation off for reduced motion with !important; this outranks it. */
+@media (prefers-reduced-motion:reduce) {
+  .hx-brand-track { animation:hxBrandsLeft 32s linear infinite!important; }
+  .hx-brand-row:nth-child(2) .hx-brand-track { animation:hxBrandsRight 36s linear infinite!important; }
+  .hx-brand-row:nth-child(3) .hx-brand-track { animation:hxBrandsLeft 28s linear infinite!important; }
+  .hx-brand-row:hover .hx-brand-track,.hx-brand-row:focus-within .hx-brand-track { animation-play-state:paused!important; }
+}
+.hx-brand-set { display:flex; margin:0; padding:0; list-style:none; }
+.hx-brand-set li { flex:none; width:152px; box-shadow:1px 0 0 #e3e8ef; }
 .hx-brand-wall a {
-  position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto; justify-items:center; align-items:center; gap:10px;
-  height:136px; padding:18px 12px 16px; transition:background-color .15s ease;
+  position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto; justify-items:center; align-items:center; gap:8px;
+  height:112px; padding:14px 10px 12px; transition:background-color .15s ease;
 }
 .hx-brand-wall a::after {
   content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
@@ -63,8 +86,7 @@
   width:auto; height:auto; max-width:78%; max-height:var(--logo-h,36px); object-fit:contain;
 }
 .hx-brand-wall img { flex:none; }
-.hx-brand-sector { font-size:11.5px; font-weight:600; line-height:1.2; color:#64748b; text-align:center; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; transition:opacity .4s ease, color .15s ease; }
-.hx-brand-wall img { transition:opacity .4s ease, transform .4s ease; }
+.hx-brand-sector { font-size:11.5px; font-weight:600; line-height:1.2; color:#64748b; text-align:center; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; transition:color .15s ease; }
 .hx-brand-wall a:hover .hx-brand-sector { color:#0075ae; }
 .hx-brands-foot {
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 20px;
@@ -120,9 +142,8 @@
 }
 @media (max-width:640px) {
   .home-hero.hx-hero { padding:48px 0 52px; }
-  .hx-brand-wall { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .hx-brand-wall a { height:116px; }
-  .hx-brand-wall img { max-height:min(var(--logo-h,36px),52px); }
+  .hx-brand-set li { width:132px; }
+  .hx-brand-wall a { height:100px; }
 }
 
 /* ---- Delivery sequence ("One team") and industry index ------------------

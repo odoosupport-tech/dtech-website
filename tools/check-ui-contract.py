@@ -97,8 +97,18 @@ def check_marquee_contract(problems):
             problems.append(f"{page.name} loads the brand marquee; it belongs on the home page only")
     if '<section class="brand-marquee"' in home:
         problems.append("index.html still duplicates marquee markup")
-    if "overflow-x:auto" not in skin.replace(" ", ""):
-        problems.append("brand marquee is not a native horizontally-scrollable strip")
+    # The owner wants the logo rows moving even when the OS asks for reduced
+    # motion, so the reduced-motion block must re-enable both directions
+    # (outranking the global !important switch-off).
+    skin_flat = skin.replace(" ", "")
+    for anim in ("marqueeLeft80slinearinfinite!important", "marqueeRight80slinearinfinite!important"):
+        if anim not in skin_flat:
+            problems.append(f"brand marquee stops under reduced motion (skin.css lacks {anim})")
+    if "marquee-paused" in script:
+        problems.append("brand-marquee.js still pauses the marquee for reduced motion")
+    home_css = (ROOT / "assets/home.css").read_text(encoding="utf-8").replace(" ", "")
+    if "hxBrandsLeft32slinearinfinite!important" not in home_css:
+        problems.append("home hero client logos stop under reduced motion")
     if "makeSvg" in script:
         problems.append("brand marquee still draws synthetic partner marks")
     for logo in (

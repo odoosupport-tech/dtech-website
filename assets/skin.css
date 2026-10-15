@@ -368,11 +368,15 @@ a.brand-marquee-item:hover { transform:translateY(-1px); }
 .brand-marquee-item img[src$="jbl.svg"] { height:22px; }
 .brand-marquee-item img[src$="cisco.svg"] { height:22px; }
 
+/* The logo rows keep moving when the OS asks for reduced motion (the owner
+   wants them always moving). The !important outranks the global
+   reduced-motion switch-off in section 22. */
 @media (prefers-reduced-motion:reduce) {
   .partner-card,.partner-cta { transition:none; }
-  .marquee-scroll-left,.marquee-scroll-right { animation:none; }
-  .brand-marquee-track { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  .brand-marquee { overflow-x:auto; }
+  .marquee-scroll-left { animation:marqueeLeft 80s linear infinite!important; }
+  .marquee-scroll-right { animation:marqueeRight 80s linear infinite!important; }
+  .marquee-offscreen .brand-marquee-track,
+  .brand-marquee-row:focus-within .brand-marquee-track { animation-play-state:paused!important; }
 }
 
 @media (max-width:700px) {
