@@ -1,5 +1,47 @@
 [
   {
+    "id": "adama-visitor-management",
+    "client": "ADAMA India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/adama.webp",
+    "category": "safety",
+    "industry": "Agrochemicals",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej Plant, Gujarat & Hyderabad HQ",
+    "period": "Service order, March 2026",
+    "arch_tag": "Visitor Management System · Two Locations",
+    "summary": "Supply and installation of a visitor management system for ADAMA India's Dahej plant and its Hyderabad headquarters, under a service order issued in March 2026. One licence bundle covers up to 35 host users across both sites, with the rollout planned around plant gate security, head-office reception and employee hosts.",
+    "outcomes": [
+      "Service order for supply and installation of a visitor management system at Dahej Plant and Hyderabad HQ (issued 27 March 2026)",
+      "Licence bundle for up to 35 host users and up to 30 visitors, shared across both sites",
+      "Planned visit flow: host invitation and approval, gate verification, pass issue, check-in, check-out and visitor reports",
+      "Planned role-based access for security, reception, hosts and administrators, with site-level views and cross-site reporting",
+      "Planned handover: configuration record, licence allocation, scenario tests and operator training"
+    ],
+    "metrics": [
+      [
+        "Locations",
+        "2"
+      ],
+      [
+        "Host users",
+        "Up to 35"
+      ],
+      [
+        "Scope",
+        "Supply + install"
+      ],
+      [
+        "Order",
+        "Mar 2026"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/adama-visitor-management.pdf"
+  },
+  {
     "id": "srict-campus-computing-dell",
     "client": "Shroff S. R. Rotary Institute of Chemical Technology",
     "wordmark": null,
