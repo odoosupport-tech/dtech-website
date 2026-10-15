@@ -513,7 +513,7 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .header-login:hover { background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.30); color:#fff; }
 .header-login:focus-visible { outline:2px solid var(--signal); outline-offset:2px; }
 .header-login svg { width:16px; height:16px; flex:none; }
-@media (max-width:1280px) {
+@media (max-width:1440px) {
   .header-login { width:36px; padding:0; }
   .header-login span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 }
@@ -964,13 +964,19 @@ html.is-scrolling body { pointer-events:none; }
 
 @media (max-width:1500px) {
   .desktop-nav,.restored-nav { gap:20px; }
-  .header-cta { display:none; }
   .header-inner { gap:20px; }
 }
 
-@media (max-width:1280px) {
+/* Compact nav (and the icon-only login above) from 1440px keeps the Contact Us
+   button in the header at common laptop widths (1366, 1440). */
+@media (max-width:1440px) {
   .desktop-nav,.restored-nav { gap:15px; }
   .desktop-nav a,.restored-nav>a,.restored-nav summary { font-size:10px; letter-spacing:.06em; }
+}
+
+/* Below ~1110px the full nav leaves no room and the button wraps; 1200px keeps a margin. */
+@media (max-width:1200px) {
+  .header-cta { display:none; }
 }
 
 @media (max-width:1050px) {
