@@ -159,8 +159,8 @@ def check_logo_thumbs_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v47';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v47")
+    if "var VERSION = 'dtech-v48';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v48")
     if "caches.match('/')" in worker:
         problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
