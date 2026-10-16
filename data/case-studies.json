@@ -1,5 +1,46 @@
 [
   {
+    "id": "toyo-ink-dahej-network",
+    "client": "Toyo Ink India Pvt. Ltd.",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/toyo-ink.webp",
+    "category": "network",
+    "industry": "Plant Infrastructure",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Dahej Phase-II, Jolva, Bharuch, Gujarat",
+    "period": "3 orders, Nov 2025 – Feb 2026",
+    "arch_tag": "Plant Network, CCTV & Wi-Fi · Smart-Meter Fibre Link",
+    "summary": "Two work packages at Toyo Ink India's Dahej plant under three purchase orders placed between November 2025 and February 2026: installation services for the PSA-II area's network, CCTV and Wi-Fi, and the supply, fibre splicing and configuration for the IT part of a smart-meter installation.",
+    "outcomes": [
+      "PSA-II installation order (28 Nov 2025): bullet cameras, 32-channel NVR, Wi-Fi access point, 24-port switch, 12-port LIU, structured Cat6 cabling and a 12U rack",
+      "Smart-meter IT supply order (10 Feb 2026): Grandstream GWN7801P 8-port PoE switch, 200 m armoured 6-core single-mode fibre, 305 m Cat6, D-Link DEM-310GT SFPs, LIUs and racks",
+      "Smart-meter IT services order: 12 fibre-splicing jobs plus installation and configuration",
+      "Planned handover: fibre-loss and copper test results, port and cable register, configuration backups and operator walkthrough"
+    ],
+    "metrics": [
+      [
+        "Orders",
+        "3"
+      ],
+      [
+        "Work packages",
+        "2"
+      ],
+      [
+        "NVR",
+        "32-channel"
+      ],
+      [
+        "Fibre",
+        "200 m SM"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/toyo-ink-dahej-network.pdf"
+  },
+  {
     "id": "adama-visitor-management",
     "client": "ADAMA India Pvt. Ltd.",
     "wordmark": null,
