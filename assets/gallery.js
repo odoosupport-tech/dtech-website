@@ -1,19 +1,21 @@
-/* D-TECH gallery (gallery.html): category filters and a full-screen viewer.
- * Every tile is a plain link to its full-size file, so without JavaScript a
- * tap still opens the photo or video; this script upgrades that to the viewer. */
+/* D-TECH gallery (gallery.html, and the photos on careers.html): category
+ * filters and a full-screen viewer. Every tile is a plain link to its full-size
+ * file, so without JavaScript a tap still opens the photo or video; this script
+ * upgrades that to the viewer. */
 (function () {
   'use strict';
 
   var gridEl = document.getElementById('gl-grid');
   var dialog = document.getElementById('gl-lightbox');
-  if (!gridEl || !dialog || typeof dialog.showModal !== 'function') return;
+  if (!dialog || typeof dialog.showModal !== 'function') return;
 
   var stage = dialog.querySelector('.gl-lb-stage');
   var holder = dialog.querySelector('.gl-lb-media');
   var caption = dialog.querySelector('.gl-lb-caption');
   var counter = dialog.querySelector('.gl-lb-count');
   var status = document.getElementById('gl-status');
-  var gridTiles = Array.prototype.slice.call(gridEl.querySelectorAll('.gl-tile'));
+  // Pages without the filterable grid (careers.html) have no gridEl.
+  var gridTiles = gridEl ? Array.prototype.slice.call(gridEl.querySelectorAll('.gl-tile')) : [];
 
   var set = [];      // tiles the viewer steps through
   var index = 0;
@@ -93,13 +95,24 @@
     render();
   }
 
-  function open(tile) {
-    var visible = visibleGridTiles();
+  // The tiles the viewer steps through when `tile` is opened.
+  function viewerSet(tile) {
+    if (!gridEl) {
+      // No filterable grid (careers.html): step through the tile's own list.
+      var list = tile.closest('ul');
+      return list ? Array.prototype.slice.call(list.querySelectorAll('.gl-tile')) : [tile];
+    }
     var href = tile.getAttribute('href');
-    var pos = visible.map(function (t) { return t.getAttribute('href'); }).indexOf(href);
+    var visible = visibleGridTiles();
+    var inVisible = visible.some(function (t) { return t.getAttribute('href') === href; });
     // A highlight hidden by the current filter steps through every moment.
-    set = pos === -1 ? gridTiles : visible;
-    index = pos === -1 ? gridTiles.map(function (t) { return t.getAttribute('href'); }).indexOf(href) : pos;
+    return inVisible ? visible : gridTiles;
+  }
+
+  function open(tile) {
+    var href = tile.getAttribute('href');
+    set = viewerSet(tile);
+    index = set.map(function (t) { return t.getAttribute('href'); }).indexOf(href);
     if (index < 0) { set = [tile]; index = 0; }
     opener = tile;
     render();

@@ -159,8 +159,8 @@ def check_logo_thumbs_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v46';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v46")
+    if "var VERSION = 'dtech-v47';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v47")
     if "caches.match('/')" in worker:
         problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
@@ -198,12 +198,19 @@ def check_events_contract(problems):
 def check_gallery_contract(problems):
     """gallery.js toggles .gl- classes and builds the viewer at run time; they live in
     gallery.css (never purged). Every page with the main nav links to the gallery."""
-    page = (ROOT / "gallery.html").read_text(encoding="utf-8")
-    for needle in ("assets/gallery.min.css", "assets/gallery.min.js"):
-        if not re.search(r'(?:href|src)="' + re.escape(needle) + r'(?:\?v=[0-9a-f]+)?"', page):
-            problems.append(f"gallery.html does not load {needle}")
+    for name in ("gallery.html", "careers.html"):
+        page = (ROOT / name).read_text(encoding="utf-8")
+        for needle in ("assets/gallery.min.css", "assets/gallery.min.js"):
+            if not re.search(r'(?:href|src)="' + re.escape(needle) + r'(?:\?v=[0-9a-f]+)?"', page):
+                problems.append(f"{name} does not load {needle}")
+        if 'id="gl-lightbox"' not in page:
+            problems.append(f"{name} is missing the photo viewer dialog")
+    careers = (ROOT / "careers.html").read_text(encoding="utf-8")
+    for src in re.findall(r'<a class="gl-tile" href="([^"]+)"', careers):
+        if not (ROOT / src).is_file():
+            problems.append(f"careers.html links a missing gallery photo: {src}")
     css = (ROOT / "assets/gallery.min.css").read_text(encoding="utf-8")
-    for name in ("gl-mosaic", "gl-grid", "gl-item", "gl-tile", "gl-chip", "gl-lightbox", "gl-lb-media", "gl-lb-stage"):
+    for name in ("gl-bento", "gl-mosaic", "gl-grid", "gl-item", "gl-tile", "gl-chip", "gl-lightbox", "gl-lb-media", "gl-lb-stage"):
         if "." + name not in css:
             problems.append(f"gallery.min.css lost .{name}")
     script = (ROOT / "assets/gallery.js").read_text(encoding="utf-8")

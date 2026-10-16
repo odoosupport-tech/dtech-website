@@ -203,6 +203,8 @@ Why one document: publication state, capacity, duplicate checks and the registra
 
 To add a photo, put two WebP files in `assets/gallery/`: `<name>-640.webp` (640px wide, for the grid) and `<name>-1600.webp` (the full image, at most 1600px on its long side), then copy one `<li class="gl-item">` in `gallery.html` and change its paths, `width`/`height` (of the 640 file), caption and `data-occasion` (`workplace`, `awards`, `holi`, `womens-day` or `celebrations`). A video is an H.264 `<name>.mp4` (720px wide is plenty) with a `<name>-poster.webp`. Update the count in that occasion's filter button, and bump the service worker version.
 
+`careers.html` shows seven of these photos in its "Life at D-TECH" block (`.gl-bento`, same viewer). To change one, edit its `<li>` there; `is-big`, `is-tall` and `is-wide` set how many grid cells a photo spans.
+
 ## Security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a referrer policy and a permissions policy for every page. If you add a new external script, font, image host or embed, allow its host in the CSP or the browser will block it.
