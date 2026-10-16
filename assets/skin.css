@@ -629,9 +629,10 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .button span:last-child { display:inline-block; transition:transform .16s var(--ease); }
 .button:hover span:last-child { transform:translate(2px,-2px); }
 
-/* Header CTA sits on the navy band. */
+/* Header CTA sits on the navy band. It never shrinks or wraps to two lines;
+   the nav beside it gives up its spare space instead. */
 .header-cta {
-  padding:11px 17px; min-height:38px; gap:12px; font-size:10px;
+  padding:11px 17px; min-height:38px; gap:12px; font-size:10px; white-space:nowrap; flex:none;
   background:var(--signal); border-color:var(--signal); color:#071d34!important;
   box-shadow:none;
 }

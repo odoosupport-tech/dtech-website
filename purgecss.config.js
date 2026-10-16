@@ -1,7 +1,7 @@
 // PurgeCSS config: Tailwind-aware extractor keeps responsive/state
 // variants (lg:, md:, hover:, ...) that the default extractor drops.
 module.exports = {
-  content: ['*.html', 'assets/agent-a.js', 'assets/refined.js', 'assets/events.js', 'assets/brand-marquee.js', 'assets/lucide.js'],
+  content: ['*.html', 'assets/agent-a.js', 'assets/refined.js', 'assets/events.js', 'assets/gallery.js', 'assets/brand-marquee.js', 'assets/lucide.js'],
   css: ['assets/bundle.min.css'],
   output: '/tmp/purged/',
   // brand-marquee-* is JS-generated markup (assets/brand-marquee.js builds

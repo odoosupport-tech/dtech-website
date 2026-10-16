@@ -159,8 +159,8 @@ def check_logo_thumbs_contract(problems):
 
 def check_cache_contract(problems):
     worker = (ROOT / "sw.js").read_text(encoding="utf-8")
-    if "var VERSION = 'dtech-v45';" not in worker:
-        problems.append("service worker cache was not advanced to dtech-v45")
+    if "var VERSION = 'dtech-v46';" not in worker:
+        problems.append("service worker cache was not advanced to dtech-v46")
     if "caches.match('/')" in worker:
         problems.append("service worker serves the home page for an uncached offline page; use offlinePage()")
     for asset in ("/assets/bundle.min.css", "/assets/dtech-logo-blue.webp"):
@@ -193,6 +193,26 @@ def check_events_contract(problems):
         problems.append("events.js must render server data as text, not HTML")
     if "/api/" in page and "/api/admin" in page:
         problems.append("events.html must not call the admin API")
+
+
+def check_gallery_contract(problems):
+    """gallery.js toggles .gl- classes and builds the viewer at run time; they live in
+    gallery.css (never purged). Every page with the main nav links to the gallery."""
+    page = (ROOT / "gallery.html").read_text(encoding="utf-8")
+    for needle in ("assets/gallery.min.css", "assets/gallery.min.js"):
+        if not re.search(r'(?:href|src)="' + re.escape(needle) + r'(?:\?v=[0-9a-f]+)?"', page):
+            problems.append(f"gallery.html does not load {needle}")
+    css = (ROOT / "assets/gallery.min.css").read_text(encoding="utf-8")
+    for name in ("gl-mosaic", "gl-grid", "gl-item", "gl-tile", "gl-chip", "gl-lightbox", "gl-lb-media", "gl-lb-stage"):
+        if "." + name not in css:
+            problems.append(f"gallery.min.css lost .{name}")
+    script = (ROOT / "assets/gallery.js").read_text(encoding="utf-8")
+    if ".innerHTML" in script or "insertAdjacentHTML" in script:
+        problems.append("gallery.js must build the viewer with DOM nodes, not HTML strings")
+    for path in sorted(ROOT.glob("*.html")):
+        html = path.read_text(encoding="utf-8")
+        if 'class="desktop-nav' in html and html.count('href="gallery"') < 3:
+            problems.append(f"{path.name} is missing the Gallery link in its nav, mobile nav or footer")
 
 
 def check_contact_dock_contract(problems):
@@ -252,6 +272,7 @@ def main():
     check_deep_link_contract(problems)
     check_public_admin_probe(problems)
     check_events_contract(problems)
+    check_gallery_contract(problems)
     check_contact_dock_contract(problems)
     check_detail_pages_contract(problems)
     check_icon_contract(problems)

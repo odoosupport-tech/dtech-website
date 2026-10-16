@@ -197,6 +197,12 @@ Why one document: publication state, capacity, duplicate checks and the registra
 
 **Tests.** `npm test` area 14 runs the real handlers against a fake GitHub contents API with SHA conflicts, injected failures and the suite's mock SMTP; nothing touches a live repository or sends mail. Run `npm run verify` for build, link, UI, CSP and syntax checks.
 
+## Gallery
+
+`gallery.html` ("Life at D-TECH", linked as **Gallery** in every page's nav and footer) is a static page: a four-photo highlights block, then every photo and video in a grid the visitor can filter by occasion. `assets/gallery.js` adds the filters and the full-screen viewer (arrow keys, swipe, Esc); without JavaScript each tile still opens its file.
+
+To add a photo, put two WebP files in `assets/gallery/`: `<name>-640.webp` (640px wide, for the grid) and `<name>-1600.webp` (the full image, at most 1600px on its long side), then copy one `<li class="gl-item">` in `gallery.html` and change its paths, `width`/`height` (of the 640 file), caption and `data-occasion` (`workplace`, `awards`, `holi`, `womens-day` or `celebrations`). A video is an H.264 `<name>.mp4` (720px wide is plenty) with a `<name>-poster.webp`. Update the count in that occasion's filter button, and bump the service worker version.
+
 ## Security headers
 
 `vercel.json` sets a Content-Security-Policy, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, a referrer policy and a permissions policy for every page. If you add a new external script, font, image host or embed, allow its host in the CSP or the browser will block it.

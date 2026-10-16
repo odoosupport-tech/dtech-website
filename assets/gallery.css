@@ -1,0 +1,127 @@
+/* ==========================================================================
+   D-TECH · Gallery page (gallery.html, assets/gallery.js)
+   Class-prefixed .gl-: gallery.js toggles some of these at run time, so the
+   file is kept out of the purged bundle, like events.css. Colours come from
+   the skin tokens, so light and dark themes both follow.
+   ========================================================================== */
+
+/* ---- Highlights mosaic -------------------------------------------------- */
+.gl-mosaic {
+  list-style:none; margin:28px 0 0; padding:0;
+  display:grid; gap:14px;
+  grid-template-columns:1.6fr 1fr .8fr;
+  grid-template-rows:repeat(2,minmax(180px,250px));
+}
+.gl-mosaic li { min-width:0; }
+.gl-mosaic li:nth-child(1) { grid-row:1 / span 2; }
+.gl-mosaic li:nth-child(4) { grid-column:3; grid-row:1 / span 2; }
+.gl-mosaic .gl-tile { height:100%; }
+.gl-mosaic .gl-tile img { width:100%; height:100%; object-fit:cover; }
+
+/* ---- Filters ------------------------------------------------------------ */
+.gl-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:18px 32px; }
+.gl-filters { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 0; padding:0; list-style:none; }
+.gl-chip {
+  display:inline-flex; align-items:center; gap:8px; min-height:38px; padding:6px 14px;
+  border:1px solid var(--line-strong); border-radius:999px; background:var(--surface); color:var(--ink-soft);
+  font:600 14px/1.2 var(--text-face); cursor:pointer;
+  transition:background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+.gl-chip:hover { border-color:var(--signal-deep); color:var(--ink); }
+.gl-chip:focus-visible { outline:2px solid var(--signal-deep); outline-offset:2px; }
+.gl-chip[aria-pressed="true"] { background:var(--invert); border-color:var(--invert); color:var(--on-invert); }
+html[data-theme="dark"] .gl-chip[aria-pressed="true"] { background:var(--signal); border-color:var(--signal); color:#071d34; }
+.gl-chip-count { font:500 12px/1 var(--mono); opacity:.75; }
+.gl-status { margin:14px 0 0; font-size:14px; color:var(--muted); }
+
+/* ---- Masonry grid ------------------------------------------------------- */
+.gl-grid { list-style:none; margin:22px 0 0; padding:0; columns:4 250px; column-gap:16px; }
+.gl-grid .gl-item { break-inside:avoid; margin:0 0 16px; }
+.gl-grid .gl-item[hidden] { display:none; }
+/* Phone portraits are 9:20; cap them so one photo never fills a column. */
+.gl-grid .gl-tile img { max-height:440px; object-fit:cover; object-position:50% 30%; }
+
+/* ---- Tile --------------------------------------------------------------- */
+.gl-tile {
+  position:relative; display:block; overflow:hidden; border-radius:var(--r-plate,12px);
+  background:var(--well); color:#fff; text-decoration:none;
+  box-shadow:0 1px 2px rgba(7,29,52,.08);
+}
+.gl-tile img { display:block; width:100%; height:auto; transition:transform .5s var(--ease,ease); }
+.gl-tile:focus-visible { outline:3px solid var(--signal-deep); outline-offset:3px; }
+.gl-tag {
+  position:absolute; top:10px; left:10px; z-index:1; padding:4px 9px; border-radius:999px;
+  background:rgba(7,29,52,.72); color:#fff; font:600 11px/1.2 var(--label); letter-spacing:.04em; text-transform:uppercase;
+  backdrop-filter:blur(4px);
+}
+.gl-cap {
+  position:absolute; inset:auto 0 0 0; z-index:1; padding:34px 14px 12px;
+  background:linear-gradient(to top,rgba(7,20,36,.86),rgba(7,20,36,0));
+  font:500 14px/1.4 var(--text-face); color:#fff;
+}
+.gl-play {
+  position:absolute; top:50%; left:50%; z-index:1; width:58px; height:58px; margin:-29px 0 0 -29px;
+  display:grid; place-items:center; border-radius:50%;
+  background:rgba(255,255,255,.92); color:var(--invert); box-shadow:0 8px 24px rgba(7,15,30,.35);
+  transition:transform .25s var(--ease,ease);
+}
+.gl-play svg { width:22px; height:22px; margin-left:3px; }
+@media (hover:hover) {
+  .gl-cap { opacity:0; transform:translateY(6px); transition:opacity .25s ease, transform .25s var(--ease,ease); }
+  .gl-tile:hover .gl-cap,.gl-tile:focus-visible .gl-cap { opacity:1; transform:none; }
+  .gl-tile:hover img { transform:scale(1.035); }
+  .gl-tile:hover .gl-play { transform:scale(1.08); }
+}
+
+/* ---- Lightbox ----------------------------------------------------------- */
+.gl-lightbox {
+  width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0;
+  background:rgba(5,12,22,.94); color:#fff;
+}
+.gl-lightbox[open] { display:grid; grid-template-rows:auto minmax(0,1fr) auto; }
+.gl-lightbox::backdrop { background:rgba(5,12,22,.94); }
+:root:has(.gl-lightbox[open]) { overflow:hidden; }
+.gl-lb-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px clamp(14px,3vw,28px); }
+.gl-lb-count { font:500 13px/1 var(--mono); color:rgba(255,255,255,.75); }
+.gl-lb-stage { position:relative; display:flex; min-height:0; padding:0 clamp(8px,6vw,88px); touch-action:pan-y; }
+.gl-lb-media { display:flex; align-items:center; justify-content:center; width:100%; height:100%; min-height:0; overflow:hidden; }
+.gl-lb-media img,.gl-lb-media video {
+  max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain;
+  border-radius:8px; box-shadow:0 30px 60px -20px rgba(0,0,0,.7); background:#000;
+}
+.gl-lb-caption { margin:0; padding:14px clamp(14px,3vw,28px) 20px; text-align:center; font:500 15px/1.5 var(--text-face); color:rgba(255,255,255,.9); }
+.gl-lb-btn {
+  display:grid; place-items:center; width:46px; height:46px; border:1px solid rgba(255,255,255,.22); border-radius:50%;
+  background:rgba(255,255,255,.08); color:#fff; cursor:pointer;
+  transition:background-color .18s ease, border-color .18s ease;
+}
+.gl-lb-btn:hover { background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.4); }
+.gl-lb-btn:focus-visible { outline:2px solid var(--signal); outline-offset:2px; }
+.gl-lb-btn svg { width:20px; height:20px; }
+.gl-lb-prev,.gl-lb-next { position:absolute; top:50%; z-index:1; margin-top:-23px; }
+.gl-lb-prev { left:clamp(8px,2vw,24px); }
+.gl-lb-next { right:clamp(8px,2vw,24px); }
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width:900px) {
+  .gl-mosaic { grid-template-columns:1fr 1fr; grid-template-rows:none; grid-auto-rows:170px; }
+  /* Big photo across the top; two tiles stacked beside the portrait below it. */
+  .gl-mosaic li:nth-child(1) { grid-column:1 / span 2; grid-row:1 / span 2; }
+  .gl-mosaic li:nth-child(2) { grid-column:1; grid-row:3; }
+  .gl-mosaic li:nth-child(3) { grid-column:1; grid-row:4; }
+  .gl-mosaic li:nth-child(4) { grid-column:2; grid-row:3 / span 2; }
+}
+@media (max-width:640px) {
+  .gl-grid { columns:2 140px; column-gap:10px; }
+  .gl-grid .gl-item { margin-bottom:10px; }
+  .gl-grid .gl-tile img { max-height:300px; }
+  .gl-tag { display:none; }
+  .gl-cap { padding:26px 10px 8px; font-size:12.5px; }
+  .gl-play { width:44px; height:44px; margin:-22px 0 0 -22px; }
+  .gl-lb-prev,.gl-lb-next { top:auto; bottom:-58px; margin:0; }
+  .gl-lb-stage { padding:0 8px; margin-bottom:58px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .gl-tile img,.gl-cap,.gl-play { transition:none; }
+  .gl-tile:hover img,.gl-tile:hover .gl-play { transform:none; }
+}
