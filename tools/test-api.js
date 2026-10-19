@@ -1207,6 +1207,16 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         assert(!r.body.includes(String(hidden).replace(/'/g, '&#39;').slice(0, 60)), `leaked: ${String(hidden).slice(0, 40)}`);
       }
     }],
+    ['every published case study has its own <title>, including each of a repeat client\'s', async () => {
+      const seen = new Map();
+      for (const c of JSON.parse(fs.readFileSync(casesFile, 'utf8')).filter(x => x.published !== false && x.client)) {
+        const title = ((await page('case', c.id)).body.match(/<title>([^<]*)<\/title>/) || [])[1];
+        assert(title, `${c.id}: no title`);
+        assert(!seen.has(title), `${c.id} and ${seen.get(title)} share the title "${title}"`);
+        seen.set(title, c.id);
+      }
+      assert(seen.has('Netafim Irrigation India: Multi-Location CCTV &amp; Central Monitoring'), 'a repeat client keeps the tag past the length limit');
+    }],
     ['every runnable inline script is allowed by the CSP (same scripts as the template page)', async () => {
       const allowed = cspAllows();
       for (const [type, id] of [['case', 'petronet-fms'], ['job', 'l2-engineer-fms-dahej'], ['case', 'no-such-case'], ['job', 'no-such-role']]) {

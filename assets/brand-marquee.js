@@ -70,11 +70,12 @@
     return '<' + tag + href + hidden + ' class="brand-marquee-item">' + logo + '</' + tag + '>';
   }
 
-  /* The brand list repeated `copies` times, as one set's markup */
-  function logosHtmlFor(brands, copies) {
+  /* The brand list repeated `copies` times, as one set's markup. In the hidden twin
+     set every item is a repeat, so none of its links can take keyboard focus. */
+  function logosHtmlFor(brands, copies, twin) {
     var html = '';
     for (var c = 0; c < copies; c++) {
-      for (var i = 0; i < brands.length; i++) { html += buildItem(brands[i], c > 0); }
+      for (var i = 0; i < brands.length; i++) { html += buildItem(brands[i], twin || c > 0); }
     }
     return html;
   }
@@ -89,9 +90,8 @@
     if (!(oneCopy > 0)) return;
     var needed = Math.min(8, Math.max(1, Math.ceil(row.clientWidth * 1.1 / oneCopy)));
     if (needed <= copies) return;
-    var html = logosHtmlFor(row._brands, needed);
-    sets[0].innerHTML = html;
-    sets[1].innerHTML = html;
+    sets[0].innerHTML = logosHtmlFor(row._brands, needed);
+    sets[1].innerHTML = logosHtmlFor(row._brands, needed, true);
     row.setAttribute('data-copies', needed);
   }
 
@@ -117,11 +117,10 @@
     track.classList.add(dirClass);
 
     /* Build the logo set twice for the infinite-loop illusion */
-    var logosHtml = logosHtmlFor(brands, 1);
     row._brands = brands;
     row.setAttribute('data-copies', 1);
-    track.innerHTML = '<div class="marquee-set">' + logosHtml + '</div>'
-                    + '<div class="marquee-set" aria-hidden="true">' + logosHtml + '</div>';
+    track.innerHTML = '<div class="marquee-set">' + logosHtmlFor(brands, 1) + '</div>'
+                    + '<div class="marquee-set" aria-hidden="true">' + logosHtmlFor(brands, 1, true) + '</div>';
 
     row.appendChild(track);
     return row;

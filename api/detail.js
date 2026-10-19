@@ -164,14 +164,17 @@ function shortClient(name) {
 function fitTitle(options) {
   return options.find(t => t.length <= TITLE_MAX) || options[options.length - 1];
 }
-function caseTitle(c) {
+function caseTitle(c, all) {
   const tag = c.arch_tag || 'Case study';
   const client = shortClient(c.client) || c.client;
+  // "Client: Case Study" would give every case study of a repeat client the same
+  // title, so theirs keep the tag, even past the length limit.
+  const repeatClient = all.filter(o => o.client === c.client).length > 1;
   return fitTitle([
     `${c.client}: ${tag} | D-TECH SIPL`,
     `${client}: ${tag} | D-TECH SIPL`,
     `${client}: ${tag} | D-TECH`,
-    `${client}: Case Study | D-TECH`,
+    repeatClient ? `${client}: ${tag}` : `${client}: Case Study | D-TECH`,
   ]);
 }
 function jobTitle(j) {
@@ -302,7 +305,7 @@ function casePage(c, all) {
     </section>
   </main>`;
   return render({
-    title: caseTitle(c),
+    title: caseTitle(c, all),
     description: snippet(c.summary),
     url,
     page: 'case-study',

@@ -457,10 +457,12 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .utility-bar a span.utility-lead { margin-left:0; color:inherit; }
 .utility-phones { flex-wrap:wrap; justify-content:flex-end; }
 .utility-bar a span.utility-tag { margin-left:0; margin-right:6px; color:inherit; }
+/* 24px tall at least, so each link is big enough to tap where the bar wraps on phones. */
+.utility-phones a { display:inline-flex; align-items:center; min-height:24px; }
 @media (max-width:1280px) {
   .utility-bar .executive-container>span { display:none; }
   .utility-bar .executive-container { justify-content:center; }
-  .utility-phones { justify-content:center; row-gap:6px; padding:6px 0; }
+  .utility-phones { justify-content:center; row-gap:0; padding:3px 0; }
 }
 
 /* ==================== 5 · CHROME · HEADER ====================
@@ -989,7 +991,7 @@ html.is-scrolling body { pointer-events:none; }
 @media (max-width:800px) {
   .utility-bar .executive-container>span { display:none; }
   .utility-bar .executive-container { justify-content:center; }
-  .utility-phones { gap:12px; }
+  .utility-phones { gap:0 12px; } /* rows touch: each link is already 24px tall */
   .utility-phones a span { margin-left:0; }
   .utility-bar a span.utility-lead { display:none; }
   .header-inner { min-height:62px; }

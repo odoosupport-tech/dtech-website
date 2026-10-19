@@ -145,6 +145,30 @@
     initHeader();
     initReveal();
     initCounters();
+    initEmbedTitles();
+  }
+
+  /* HP's showcase script injects its iframe without a title, so screen readers
+     announce an unnamed frame. Name it from the container's data-frame-title. */
+  function initEmbedTitles() {
+    if (!('MutationObserver' in window)) return;
+    var boxes = document.querySelectorAll('[data-frame-title]');
+    for (var i = 0; i < boxes.length; i++) nameEmbedFrames(boxes[i]);
+  }
+
+  function nameEmbedFrames(box) {
+    var title = box.getAttribute('data-frame-title');
+    function apply() {
+      var frames = box.querySelectorAll('iframe:not([title])');
+      for (var i = 0; i < frames.length; i++) frames[i].setAttribute('title', title);
+      return frames.length > 0;
+    }
+    if (apply()) return;
+    // The script adds its frame once, so stop watching after naming it.
+    var observer = new MutationObserver(function () {
+      if (apply()) observer.disconnect();
+    });
+    observer.observe(box, { childList: true, subtree: true });
   }
 
   /* Theme: the visitor's saved choice wins, otherwise light (the system setting is ignored). Sheet toggle only. */
@@ -163,8 +187,9 @@
       var b = document.getElementById('theme-toggle');
       if (!b) return;
       var dark = t !== 'light';
-      b.setAttribute('aria-pressed', dark ? 'false' : 'true');
-      b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+      // A toggle button keeps one name and reports its state: "Dark theme", pressed or not.
+      b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      b.setAttribute('aria-label', 'Dark theme');
       b.innerHTML = '<i data-lucide="' + (dark ? 'sun' : 'moon') + '"></i>';
       if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
     } catch (e) {}

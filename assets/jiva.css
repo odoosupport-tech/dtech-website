@@ -318,11 +318,12 @@ body[data-page="news"] main h2,body[data-page="careers"] main h2 { letter-spacin
 .intro-stat:nth-child(3) { border-left-color:var(--c-orange); }
 .intro-stat { border-radius:var(--r-control); }
 .intro-stat strong { display:block; font:600 22px/1.15 var(--display); letter-spacing:-.02em; color:var(--ink); }
-.intro-stat span { display:block; margin-top:6px; font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.intro-stat span { display:block; margin-top:6px; font:600 10px/1.4 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); }
 .intro-progress { margin-top:26px; height:3px; background:var(--line); }
 .intro-progress span { display:block; height:100%; background:var(--signal); border-radius:999px; transition:width .3s var(--ease); }
-.intro-dots { display:flex; gap:8px; margin-top:16px; }
-.intro-dots button { width:28px; height:6px; border:0; border-radius:99px; background:var(--line-strong); cursor:pointer; padding:0; }
-.intro-dots button[aria-selected="true"] { background:var(--signal-deep); }
+.intro-dots { display:flex; gap:8px; margin-top:7px; }
+/* The 6px bar sits inside a 24px-tall button, so the dots are big enough to tap. */
+.intro-dots button { width:28px; height:24px; border:0; border-radius:99px; background:var(--line-strong); background-clip:content-box; cursor:pointer; padding:9px 0; }
+.intro-dots button[aria-selected="true"] { background-color:var(--signal-deep); }
 .intro-foot { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
 @media (prefers-reduced-motion:reduce) { .intro-slide { animation:none; } }
