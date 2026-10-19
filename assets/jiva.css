@@ -214,7 +214,8 @@ body[data-page="kiosk"] main h2 { letter-spacing:-.03em; }
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px;
   padding:22px 24px; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--c-green);
 }
-.kiosk-proof img { height:34px; width:auto; }
+/* Client logos sit on a white plate in both themes, as elsewhere on the site. */
+.kiosk-proof img { height:46px; width:auto; padding:6px 10px; background:#fff; border-radius:var(--r-plate,12px); }
 .kiosk-proof p { margin:0; color:var(--ink-soft); flex:1 1 320px; }
 .jiva-gallery.is-portrait { grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
 /* Cafeteria infographics: two per row at their native 3:2 so no text is cropped */
