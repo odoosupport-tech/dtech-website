@@ -12,6 +12,11 @@ module.exports = {
     standard: ['hidden', 'a-in', 'a-pre', 'is-scrolling'],
     greedy: [/^brand-marquee/, /^ev-/],
   },
+  // Attribute selectors survive only when the bare attribute name is found in
+  // the content, and the extractor below reads data-filter="network" as
+  // "data-filter=". Keep the case-study tab icon colours
+  // (.case-tab[data-filter=network] svg, ...) explicitly.
+  dynamicAttributes: ['data-filter'],
   // Standard Tailwind extractor: keeps arbitrary values (text-[10px],
   // w-[calc(...)], ...) that naive word matchers split apart.
   defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],

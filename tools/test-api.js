@@ -154,6 +154,14 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert.deepStrictEqual(Object.keys(r.body.jobs[0]).sort(), ['department', 'id', 'location', 'positions', 'summary', 'title']);
     }],
     ['POST → 405', async () => eq((await call(jobs, req('POST'))).statusCode, 405)],
+    ['careers.html: every way to apply opens the Odoo jobs page in a new tab; no form of its own', () => {
+      const html = fs.readFileSync(path.join(REPO, 'careers.html'), 'utf8');
+      const links = [...html.matchAll(/<a [^>]*href="https:\/\/d-tech-live-database\.odoo\.com\/jobs"[^>]*>/g)].map(m => m[0]);
+      eq(links.length, 3, 'hero, roles section and closing call to action');
+      for (const a of links) assert(a.includes('target="_blank"') && a.includes('rel="noopener"') && /aria-label="[^"]*new tab\)"/.test(a), a);
+      for (const gone of ['apply-dialog', 'apply-open', '/api/apply', '/api/jobs', 'data-role-count', '__formStart']) assert(!html.includes(gone), gone);
+      assert(!/href="\/?careers\/[a-z0-9-]+"/.test(html), 'no links to the site\'s own role pages');
+    }],
   ]);
 
   // 1b. Public copies of the console-edited lists
@@ -1279,14 +1287,13 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         eq(undated.statusCode, 200); assert(!ldBlocks(undated.body).some(d => d['@type'] === 'JobPosting'));
       });
     }],
-    ['sitemap: every published case and open role, nothing else', async () => {
+    ['sitemap: every published case study, and no roles (they are on the Odoo jobs page)', async () => {
       const r = await page('sitemap');
       eq(r.statusCode, 200); assert.match(r.headers['content-type'], /^application\/xml/);
       assert(r.body.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'));
       const locs = [...r.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]).sort();
       const cases = JSON.parse(fs.readFileSync(casesFile, 'utf8')).filter(c => c.published !== false).map(c => `https://www.dtechindia.com/case-studies/${c.id}`);
-      const roles = JSON.parse(fs.readFileSync(jobsFile, 'utf8')).filter(j => j.isActive === true).map(j => `https://www.dtechindia.com/careers/${j.id}`);
-      assert.deepStrictEqual(locs, [...cases, ...roles].sort());
+      assert.deepStrictEqual(locs, cases.sort());
     }],
     ['HEAD → 200; POST → 405; unknown type → 404', async () => {
       eq((await page('case', 'petronet-fms', 'HEAD')).statusCode, 200);
@@ -1298,7 +1305,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const v = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
       const dest = src => (v.rewrites.find(r => r.source === src) || {}).destination;
       eq(dest('/case-studies/:id'), '/api/detail?type=case&id=:id');
-      eq(dest('/careers/:id'), '/api/detail?type=job&id=:id');
+      eq(dest('/careers/:id'), undefined, 'role pages are not served by the site');
+      const roles = v.redirects.find(r => r.source === '/careers/:id');
+      assert(roles && roles.destination === 'https://d-tech-live-database.odoo.com/jobs' && roles.permanent === false, 'role pages go to the Odoo jobs page');
       eq(dest('/sitemap-details.xml'), '/api/detail?type=sitemap');
       eq(v.functions['api/detail.js'].includeFiles, 'data/*.json');
       assert(fs.readFileSync(path.join(REPO, 'robots.txt'), 'utf8').includes('Sitemap: https://www.dtechindia.com/sitemap-details.xml'));

@@ -1,4 +1,4 @@
-// GET /case-studies/<id>, /careers/<id> and /sitemap-details.xml (rewrites in vercel.json)
+// GET /case-studies/<id> and /sitemap-details.xml (rewrites in vercel.json)
 //
 // One page per published case study and per open role, so search engines can
 // index each one and staff can share a direct link. Pages are rendered from
@@ -14,7 +14,13 @@
 //
 //   ?type=case&id=…   case-study page   (404 page for a draft or unknown id)
 //   ?type=job&id=…    job page          (404 page for a closed or unknown role)
-//   ?type=sitemap     XML sitemap of every page above
+//   ?type=sitemap     XML sitemap of the case-study pages
+//
+// Openings are published on the Odoo jobs page (d-tech-live-database.odoo.com/jobs),
+// so /careers/<id> redirects there (vercel.json) and the sitemap lists no roles.
+// The job page above is kept for the console's own list (data/jobs.json): to
+// bring it back, restore the /careers/:id rewrite to /api/detail?type=job&id=:id
+// and the roles in sitemap().
 
 const fs = require('fs');
 const path = require('path');
@@ -456,7 +462,6 @@ function sitemap() {
   const xml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
   const urls = [
     ...publishedCases().filter(c => ID_RE.test(c.id)).map(c => ({ loc: `${SITE}/case-studies/${c.id}` })),
-    ...openJobs().filter(j => ID_RE.test(j.id)).map(j => ({ loc: `${SITE}/careers/${j.id}`, lastmod: /^\d{4}-\d{2}-\d{2}$/.test(String(j.postedAt || '')) ? j.postedAt : '' })),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
     .map(u => `  <url><loc>${xml(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}</url>`).join('\n')}\n</urlset>\n`;

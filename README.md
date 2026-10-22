@@ -40,7 +40,7 @@ The Vercel functions send mail over SMTP with [nodemailer](https://nodemailer.co
 - `api/contact.js`: the Contact Us form (`contact.html`) posts here, and the enquiry is emailed to sales with Reply-To set to the visitor. If the function fails or is unavailable, the form falls back to opening the visitor's email app.
 - `api/send-whitepaper.js`: case-study PDFs live in `assets/case-studies/pdf/`. When a visitor asks for one on `case-studies.html`, the PDF is emailed to them as an attachment and sales gets a lead notification.
 - `middleware.js`: the PDFs are lead-gated. Vercel serves a file under `/assets/case-studies/pdf/` only on a signed, expiring link (`api/_pdf-link.js`): the one the site uses to attach it, the download link in the visitor's email (valid 14 days), or one issued to a signed-in console user. Any other request, including old PDF addresses search engines still list, is redirected to `/case-studies`, and the PDFs carry `X-Robots-Tag: noindex`. The signing key is `PDF_LINK_SECRET`, or `ADMIN_SECRET` when that is unset; with neither, no PDF is served and PDF requests answer 503.
-- `api/apply.js`: job applications from `careers.html`, emailed with the CV attached (see Careers).
+- `api/apply.js`: job applications, emailed with the CV attached. No longer used by the public pages: candidates apply on the Odoo jobs page (see Careers).
 
 Set these in Vercel → Project → Settings → Environment Variables, then redeploy:
 
@@ -82,16 +82,18 @@ Posts live in `content/news.json`. To publish an update, add an entry at the top
 
 ## Careers
 
-Open roles live in `data/jobs.json` (`id`, `title`, `department`, `location`, `positions`, `summary`, `isActive`) and are managed from the management console (below). `careers.html` ships a static copy of the list for visitors without JavaScript and replaces it with the live list from the API. In a summary, lines starting with `- ` become a bulleted list and an empty line starts a new paragraph.
+Openings are published and applied for on the company's Odoo jobs page, **https://d-tech-live-database.odoo.com/jobs**. HR manages jobs, applicants, interviews and hiring in Odoo Recruitment. A job switched to **Published** in Odoo shows on that page, and applications made there land in that job's applicants in Odoo with the CV attached. No API key and nothing on this server is involved.
+
+On this site:
+
+- **`careers.html`** keeps the employer content: hero, Life at D-TECH photos, why join, hiring steps and FAQ. Its "View openings and apply" buttons (hero, roles section, closing call to action) open the Odoo jobs page in a new tab. It has no job list or application form of its own.
+- **`/careers/<id>`**, the old role pages, redirect (307) to the Odoo jobs page (`vercel.json`), and `/sitemap-details.xml` lists no roles.
+- **The website's own careers system is switched off but kept in the code:** `data/jobs.json`, the console's **Manage Careers**, `GET /api/jobs`, `POST /api/apply` and the role page in `api/detail.js` (`?type=job`). Nothing public links to them; roles edited in the console no longer appear anywhere. To bring it back, restore the job list and apply dialog in `careers.html` from git history (before this change), the `/careers/:id` rewrite to `/api/detail?type=job&id=:id`, and the roles in `sitemap()` in `api/detail.js`.
 
 | Endpoint | What it does |
 |---|---|
-| `GET /api/jobs` | The roles in `data/jobs.json` with `isActive: true`, cached by browsers for 1 minute. |
 | `GET /api/content?list=case-studies` | `data/case-studies.json` for the public pages: published case studies in full, a draft only as `{ id, published: false }`. |
 | `GET /api/content?list=banners` | The active banners from `data/banners.json`. |
-| `POST /api/apply` | Emails the application to `HR_EMAIL` (default `SALES_EMAIL`) with the CV attached and Reply-To set to the candidate, and files it for the console. |
-
-Protections on `/api/apply`: same-origin JSON only, a hidden bot-trap field, 5 applications per hour per IP and 3 per day per email address, CVs limited to PDF or Word and 3 MB.
 
 ## Stored submissions and published content
 
@@ -130,7 +132,7 @@ Locally (no `VERCEL` variable and no tokens), `data/` is edited in place, upload
 A private dashboard for non-technical staff:
 
 - **Inbox:** client requirements (with CSV export for Excel), job applicants (with CV download) and case-study leads. Visitors fill in the case-study form every time they open a summary or ask for a PDF (pre-filled after the first time), and every request is its own lead: the list shows whether it was a summary view or a PDF, how many requests that visitor has made, and **Details & Notes** shows their whole history. Summary views are only recorded; PDF requests also email the visitor and sales.
-- **Careers:** add, edit, close or delete openings, with a live preview of the careers-page card.
+- **Careers:** add, edit, close or delete openings, with a live preview of the careers-page card. Openings are now published on the Odoo jobs page (see Careers), so changes made here no longer appear on the site.
 - **Case studies:** add, edit, publish (or keep as a draft) and delete case studies, each with an optional PDF whitepaper, either uploaded (up to 3 MB) or linked (`https://`). Built-in case studies can be published or unpublished.
 - **Site banners:** a notice across the top of every page (holiday closures, hiring drives, urgent updates) in one of three styles, with an optional link and optional start and end dates. One banner shows at a time: the first active one in the list whose dates include today. Visitors can close it.
 
