@@ -33,6 +33,8 @@ The site loads no analytics script. Vercel Web Analytics was never switched on, 
 2. Framework preset: **Other**. Leave the build command and output directory empty; the repository root is the site.
 3. Deploy. `404.html` is served automatically for unknown paths.
 
+Every function in `vercel.json` has `"excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}"`. In local mode, `api/_store.js` builds file paths from `process.cwd()`, which makes Vercel's file tracer copy the whole site (about 183 MB of pages, images and case-study PDFs) into each function that uses it. Nine functions × 183 MB ran the build out of memory (`vercel build` exited with SIGKILL). No function reads `assets/` from disk on Vercel, so the exclusion keeps each function at about 4 MB. Give any new function the same `excludeFiles` (`npm test` checks).
+
 ## Email (SMTP)
 
 The Vercel functions send mail over SMTP with [nodemailer](https://nodemailer.com), through `api/_mail.js`:

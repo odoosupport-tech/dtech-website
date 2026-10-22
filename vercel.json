@@ -5,40 +5,51 @@
   "buildCommand": "echo 'static prebuilt site: CSS/JS committed, nothing to build'",
   "functions": {
     "api/send-whitepaper.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
     "api/contact.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
     "api/apply.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/jobs.json",
       "maxDuration": 30
     },
     "api/jobs.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/jobs.json"
     },
     "api/admin/data.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/*.json",
       "maxDuration": 30
     },
     "api/admin/update.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
     "api/admin/console.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "api/admin/_console-app.js",
       "maxDuration": 30
     },
     "api/admin/auth.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
     "api/admin/mail-check.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
     "api/content.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/*.json",
       "maxDuration": 30
     },
     "api/detail.js": {
+      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/*.json"
     }
   },

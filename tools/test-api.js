@@ -1068,6 +1068,22 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
 
   await area('7. Build & contract integrity', [
     ['api source files are hidden, endpoints stay reachable (vercel.json)', hiddenSource],
+    ['every function keeps the site\'s assets out of its bundle (vercel.json excludeFiles)', () => {
+      // api/_store.js builds local paths from process.cwd(), so without this Vercel's
+      // file tracer copies the whole site (~183 MB) into each function and the build
+      // runs out of memory.
+      const fns = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).functions;
+      const entries = [];
+      (function walk(dir) {
+        for (const e of fs.readdirSync(path.join(REPO, dir), { withFileTypes: true })) {
+          if (e.name.startsWith('_') || e.name.startsWith('.')) continue;
+          const rel = `${dir}/${e.name}`;
+          if (e.isDirectory()) walk(rel); else if (rel.endsWith('.js')) entries.push(rel);
+        }
+      })('api');
+      assert(entries.length >= 11, 'functions found');
+      for (const entry of entries) eq((fns[entry] || {}).excludeFiles, '{assets/**,.vercel/**,.vercel/**/.*}', entry);
+    }],
     ['middleware source is hidden while the PDF middleware remains deployable', () => {
       const config = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8'));
       assert(config.redirects.some(r => r.source === '/middleware.js' && r.destination === '/404.html'));
