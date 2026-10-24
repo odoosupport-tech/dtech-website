@@ -132,9 +132,10 @@
       @media (min-width:1024px) { .bm-head .bm-visual { justify-self:end; } }
       @media (min-width:901px) {
         .dt-product .jiva-cards.sol-cards-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
-        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) { border-left:0!important; }
-        .dt-product .sol-cards-3 .jiva-card:nth-child(3n+1) .jiva-card-body { padding-left:0; }
-        .dt-product .sol-cards-3 .jiva-card:nth-child(n+4) { border-top:1px solid var(--line-strong)!important; }
+        /* Icon cards are flat columns (sections.css); image cards stay boxed, so these skip them. */
+        .dt-product .sol-cards-3 .jiva-card:not(:has(img)):nth-child(3n+1) { border-left:0!important; }
+        .dt-product .sol-cards-3 .jiva-card:not(:has(img)):nth-child(3n+1) .jiva-card-body { padding-left:0; }
+        .dt-product .sol-cards-3 .jiva-card:not(:has(img)):nth-child(n+4) { border-top:1px solid var(--line-strong)!important; }
       }
     </style>
 </head>
