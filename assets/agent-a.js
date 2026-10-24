@@ -55,7 +55,7 @@
             }
           }
         },
-        { threshold: 0, rootMargin: '0px 0px 8% 0px' }
+        { threshold: 0, rootMargin: '0px 0px 25% 0px' }
       );
       for (var j = 0; j < sections.length; j++) {
         if (sections[j].classList.contains('home-hero')) continue;
@@ -124,23 +124,7 @@
     } catch (e) {}
   }
 
-  /* Flag active scrolling so CSS can suspend hover effects until it ends.
-     Mouse pointers only: touch screens have no hover, and on phones each
-     toggle restyled the whole page (50-90 ms), twice per swipe. */
-  function initScrollState() {
-    try {
-      if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-      var root = document.documentElement, timer = 0;
-      window.addEventListener('scroll', function () {
-        if (!timer) root.classList.add('is-scrolling');
-        clearTimeout(timer);
-        timer = setTimeout(function () { root.classList.remove('is-scrolling'); timer = 0; }, 150);
-      }, { passive: true });
-    } catch (e) {}
-  }
-
   function init() {
-    initScrollState();
     initTheme();
     initHeader();
     initReveal();
