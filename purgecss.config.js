@@ -9,7 +9,7 @@ module.exports = {
   // content scanner to detect consistently across runs. Safelist it outright
   // rather than depend on that detection.
   safelist: {
-    standard: ['hidden', 'a-in', 'a-pre'],
+    standard: ['hidden', 'scroll-shield'],
     greedy: [/^brand-marquee/, /^ev-/],
   },
   // Attribute selectors survive only when the bare attribute name is found in

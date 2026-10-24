@@ -73,7 +73,7 @@ main .eyebrow {
 }
 .jiva-card,.jiva-feature { border-top-width:4px!important; }
 :is(.jiva-card,.jiva-feature,.partner-card) {
-  transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .2s ease!important;
+  transition:transform .3s var(--ease),border-color .2s ease!important;
 }
 :is(.jiva-card,.jiva-feature,.partner-card):hover {
   transform:translateY(-3px);

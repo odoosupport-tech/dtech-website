@@ -1,6 +1,6 @@
 /* ==========================================================================
    D-TECH · Agent-A Motion Layer (Task #4)
-   Presentational only: scroll reveal, header elevation, count-up figures.
+   Presentational only: scroll hover shield, header elevation, count-up figures.
    Touches nothing functional — no modal/form logic here.
    Loads with defer on all 7 pages, after assets/refined.js.
    ========================================================================== */
@@ -39,29 +39,29 @@
     } catch (e) {}
   }
 
-  function initReveal() {
+  /* The browser re-hovers whatever slides under a still mouse while the page
+     scrolls, so cards lifted and dropped mid-scroll. A transparent shield over
+     the page takes the pointer until scrolling stops. Only the shield's own
+     pointer-events change, so nothing else is restyled (a class on <html>
+     restyled the whole page twice per scroll). The wheel event comes before
+     the page moves, so the shield is up before the browser re-checks hover;
+     scroll covers the keyboard and scrollbar. Both listeners are passive and
+     never delay scrolling. Mouse pointers only: touch screens have no hover. */
+  function initScrollShield() {
     try {
-      if (reducedMotion()) return;
-      if (!('IntersectionObserver' in window)) return;
-      var sections = document.querySelectorAll('main > section');
-      if (!sections.length) return;
-      var io = new IntersectionObserver(
-        function (entries) {
-          for (var i = 0; i < entries.length; i++) {
-            var entry = entries[i];
-            if (entry.isIntersecting) {
-              entry.target.classList.add('a-in');
-              io.unobserve(entry.target);
-            }
-          }
-        },
-        { threshold: 0, rootMargin: '0px 0px 25% 0px' }
-      );
-      for (var j = 0; j < sections.length; j++) {
-        if (sections[j].classList.contains('home-hero')) continue;
-        sections[j].classList.add('a-pre');
-        io.observe(sections[j]);
-      }
+      if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      var shield = document.createElement('div');
+      shield.className = 'scroll-shield';
+      shield.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(shield);
+      var timer = 0;
+      var raise = function () {
+        if (!timer) shield.style.pointerEvents = 'auto';
+        clearTimeout(timer);
+        timer = setTimeout(function () { shield.style.pointerEvents = ''; timer = 0; }, 150);
+      };
+      window.addEventListener('wheel', raise, { passive: true });
+      window.addEventListener('scroll', raise, { passive: true });
     } catch (e) {}
   }
 
@@ -125,9 +125,9 @@
   }
 
   function init() {
+    initScrollShield();
     initTheme();
     initHeader();
-    initReveal();
     initCounters();
     initEmbedTitles();
   }

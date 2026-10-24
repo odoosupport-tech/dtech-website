@@ -100,7 +100,7 @@ body[data-page="contact"] main>section:nth-of-type(2) .lg\:col-span-7>div,
 body[data-page="contact"] main>section:nth-of-type(2) .lg\:col-span-5>div {
   background-image:var(--p-sheen)!important;
   box-shadow:var(--p-drop),var(--p-edge)!important;
-  transition:border-color .2s ease,box-shadow .3s var(--ease),transform .3s var(--ease)!important;
+  transition:border-color .2s ease,transform .3s var(--ease)!important;
 }
 body[data-page="about"] #intro+section+section .grid>div:hover,
 body[data-page="about"] #partners .grid>div:hover {
@@ -241,7 +241,7 @@ main select[multiple],main select[size]:not([size="1"]) { background-image:none!
   background-image:
     repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 28px),
     repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 28px);
-  transition:box-shadow .25s var(--ease),transform .25s var(--ease);
+  transition:transform .25s var(--ease);
 }
 .map-tile:hover { transform:translateY(-2px); box-shadow:0 0 0 1px var(--signal),var(--p-lift); }
 .map-tile:focus-visible { outline:2px solid var(--signal); outline-offset:3px; }

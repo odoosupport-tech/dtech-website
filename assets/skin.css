@@ -173,7 +173,7 @@ body[data-page="about"] #partners.partner-section { background:var(--invert)!imp
   border:1px solid var(--line);
   border-radius:var(--r-panel);
   background:var(--surface);
-  transition:transform .2s var(--ease),border-color .2s ease,box-shadow .2s ease;
+  transition:transform .2s var(--ease),border-color .2s ease;
 }
 .partner-card::before {
   content:'';
@@ -853,7 +853,7 @@ body[data-page="contact"] main>section:nth-of-type(2) .lg\:col-span-5>div {
   border:1px solid var(--line)!important;
   border-radius:var(--r-plate)!important;
   box-shadow:0 1px 2px rgba(7,29,52,.04)!important;
-  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+  transition:border-color .18s ease,transform .18s ease;
 }
 
 body[data-page="about"] #intro+section+section .grid>div:hover,
@@ -949,15 +949,15 @@ footer img { background:transparent!important; padding:0!important; }
 
 /* ==================== 22 · MOTION ==================== */
 
-.a-pre { opacity:0; }
-.a-in { opacity:1; transition:opacity 380ms var(--ease); }
+/* Takes the pointer while the page scrolls (agent-a.js), so cards passing
+   under a still cursor do not lift mid-scroll. */
+.scroll-shield { position:fixed; inset:0; z-index:2147483647; pointer-events:none; }
 
 @keyframes a-rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
 
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto!important; }
   *,*:before,*:after { animation:none!important; transition:none!important; }
-  .a-pre,.a-in { opacity:1; transform:none; }
 }
 
 /* ==================== 23 · RESPONSIVE ==================== */
@@ -1030,23 +1030,13 @@ footer img { background:transparent!important; padding:0!important; }
 /* ---- Trust ribbon: clean responsive interaction ----------------------- */
 
 .home-hero+section .grid>div {
-  transition:transform .2s var(--ease),box-shadow .2s var(--ease);
+  transition:transform .2s var(--ease);
 }
 .home-hero+section .grid>div:hover {
   transform:translateY(-2px);
   box-shadow:0 12px 24px -14px rgba(7,29,52,.2);
 }
 .home-hero+section .text-2xl { font-variant-numeric:tabular-nums; }
-
-/* ---- Section reveal: clean, subtle arrival ---------------------------- */
-
-@media (prefers-reduced-motion:no-preference) {
-  .a-pre .home-hero+section .grid>* { opacity:0; }
-  .a-in .grid>* {
-    opacity:1;
-    transition:opacity .4s var(--ease);
-  }
-}
 
 /* ---- Closing CTA: clean architectural boundary ------------------------ */
 
