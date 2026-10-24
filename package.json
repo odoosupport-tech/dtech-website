@@ -24,6 +24,6 @@
     "terser": "^5.31.0"
   },
   "dependencies": {
-    "nodemailer": "^10.0.12"
+    "nodemailer": "^10.2.1"
   }
 }
