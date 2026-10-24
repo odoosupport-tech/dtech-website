@@ -30,7 +30,7 @@ const TOPICS = {
   kiosk: 'AT-GTS Safety & Group Training Kiosk',
   cctv: 'CCTV Surveillance & AI Vision Analytics',
   gps: 'GPS Vehicle Tracking & Fleet Telematics',
-  messaging: 'WhatsApp, SMS, Instagram & Chatbot Marketing',
+  messaging: 'Business Messaging',
   amc: 'AMC / CAMC Maintenance Services',
   fms: 'FMS / Managed IT Services',
   sap: 'SAP Implementation, Support & Resource Augmentation',
