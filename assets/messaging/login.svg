@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" font-family="Inter, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Secure login: a mobile number verified silently by the network, with a one-time password as backup</title>
+  <defs><clipPath id="f"><rect width="480" height="360" rx="16"/></clipPath></defs>
+  <g clip-path="url(#f)">
+    <rect width="480" height="360" fill="#f3f7fb"/>
+    <rect x="24" y="24" width="208" height="312" rx="22" fill="#fff" stroke="#d6e3ee"/>
+    <rect x="98" y="34" width="60" height="6" rx="3" fill="#d6e3ee"/>
+    <text x="44" y="78" font-size="16" font-weight="700" fill="#0f253b">Sign in</text>
+    <text x="44" y="98" font-size="11.5" fill="#576e82">No password. No OTP to type.</text>
+    <text x="44" y="128" font-size="11" font-weight="600" fill="#576e82">Mobile number</text>
+    <rect x="44" y="136" width="168" height="38" rx="9" fill="#f3f7fb" stroke="#c3d6e4"/>
+    <text x="56" y="160" font-size="13" fill="#0f253b">+91 98765 43210</text>
+    <rect x="44" y="186" width="168" height="38" rx="9" fill="#0075ae"/>
+    <text x="128" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Continue</text>
+    <rect x="44" y="244" width="168" height="72" rx="12" fill="#e7f7f0"/>
+    <circle cx="72" cy="280" r="16" fill="#2cb67d"/>
+    <path d="M64 280l6 6 11-12" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="96" y="274" font-size="12.5" font-weight="700" fill="#1d7f56">Verified</text>
+    <text x="96" y="292" font-size="11" fill="#2f6b52">by the mobile network</text>
+    <path d="M244 180h28" stroke="#c3d6e4" stroke-width="2" stroke-dasharray="4 4"/>
+    <rect x="272" y="64" width="184" height="124" rx="16" fill="#fff" stroke="#d6e3ee"/>
+    <text x="288" y="90" font-size="11" font-weight="700" fill="#576e82" letter-spacing=".8">BACKUP: OTP</text>
+    <g font-size="17" font-weight="700" fill="#0f253b" text-anchor="middle">
+      <rect x="288" y="104" width="24" height="32" rx="6" fill="#f3f7fb" stroke="#c3d6e4"/><text x="300" y="126">4</text>
+      <rect x="316" y="104" width="24" height="32" rx="6" fill="#f3f7fb" stroke="#c3d6e4"/><text x="328" y="126">8</text>
+      <rect x="344" y="104" width="24" height="32" rx="6" fill="#f3f7fb" stroke="#c3d6e4"/><text x="356" y="126">2</text>
+      <rect x="372" y="104" width="24" height="32" rx="6" fill="#f3f7fb" stroke="#c3d6e4"/><text x="384" y="126">9</text>
+      <rect x="400" y="104" width="24" height="32" rx="6" fill="#f3f7fb" stroke="#27b6da" stroke-width="2"/><text x="412" y="126">1</text>
+      <rect x="428" y="104" width="20" height="32" rx="6" fill="#f3f7fb" stroke="#c3d6e4"/>
+    </g>
+    <text x="288" y="166" font-size="11" fill="#576e82">Late? We call and read it out.</text>
+    <rect x="272" y="204" width="184" height="112" rx="16" fill="#fff" stroke="#d6e3ee"/>
+    <text x="288" y="230" font-size="11" font-weight="700" fill="#576e82" letter-spacing=".8">FRAUD CHECKS</text>
+    <g font-size="12" fill="#0f253b">
+      <circle cx="296" cy="252" r="7" fill="#2cb67d"/><path d="M292.5 252l2.3 2.3 4-4.3" stroke="#fff" stroke-width="1.6" fill="none"/><text x="310" y="256">No recent SIM swap</text>
+      <circle cx="296" cy="274" r="7" fill="#2cb67d"/><path d="M292.5 274l2.3 2.3 4-4.3" stroke="#fff" stroke-width="1.6" fill="none"/><text x="310" y="278">Location matches</text>
+      <circle cx="296" cy="296" r="7" fill="#2cb67d"/><path d="M292.5 296l2.3 2.3 4-4.3" stroke="#fff" stroke-width="1.6" fill="none"/><text x="310" y="300">Real device, not a bot</text>
+    </g>
+  </g>
+</svg>

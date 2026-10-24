@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" font-family="Inter, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Cloud IVR call menu: callers press 1 for sales, 2 for support or 3 for order status, and are routed to the right agent</title>
+  <defs>
+    <clipPath id="f"><rect width="480" height="360" rx="16"/></clipPath>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0l10 5-10 5z" fill="#7d93a7"/></marker>
+  </defs>
+  <g clip-path="url(#f)">
+    <rect width="480" height="360" fill="#f3f7fb"/>
+    <rect x="140" y="24" width="200" height="60" rx="14" fill="#0f253b"/>
+    <circle cx="170" cy="54" r="14" fill="#27b6da"/>
+    <path d="M164 48c0 8 5 13 13 13l2-4-3-2-2 2c-3-1-5-3-6-6l2-2-2-3z" fill="#fff"/>
+    <text x="194" y="50" font-size="12.5" font-weight="700" fill="#fff">Incoming call</text>
+    <text x="194" y="67" font-size="11" fill="#a9c3d8">“Welcome to Your Brand”</text>
+    <path d="M240 84v22M240 106H82v24M240 106v24M240 106h158v24" stroke="#7d93a7" stroke-width="2" fill="none"/>
+    <path d="M82 120v10M240 120v10M398 120v10" stroke="#7d93a7" stroke-width="2" marker-end="url(#a)"/>
+    <g text-anchor="middle">
+      <rect x="22" y="132" width="120" height="72" rx="12" fill="#fff" stroke="#d6e3ee"/>
+      <circle cx="82" cy="154" r="13" fill="#27b6da"/><text x="82" y="159" font-size="13" font-weight="700" fill="#fff">1</text>
+      <text x="82" y="190" font-size="12.5" font-weight="700" fill="#0f253b">Sales</text>
+      <rect x="180" y="132" width="120" height="72" rx="12" fill="#fff" stroke="#d6e3ee"/>
+      <circle cx="240" cy="154" r="13" fill="#27b6da"/><text x="240" y="159" font-size="13" font-weight="700" fill="#fff">2</text>
+      <text x="240" y="190" font-size="12.5" font-weight="700" fill="#0f253b">Support</text>
+      <rect x="338" y="132" width="120" height="72" rx="12" fill="#fff" stroke="#d6e3ee"/>
+      <circle cx="398" cy="154" r="13" fill="#27b6da"/><text x="398" y="159" font-size="13" font-weight="700" fill="#fff">3</text>
+      <text x="398" y="190" font-size="12.5" font-weight="700" fill="#0f253b">Order status</text>
+    </g>
+    <path d="M82 204v24M240 204v24M398 204v24" stroke="#7d93a7" stroke-width="2" marker-end="url(#a)"/>
+    <g>
+      <rect x="22" y="230" width="120" height="70" rx="12" fill="#e8f6fb"/>
+      <circle cx="46" cy="252" r="10" fill="#f4c7a1"/><text x="62" y="256" font-size="11.5" font-weight="700" fill="#0f253b">Rohan</text>
+      <text x="34" y="280" font-size="10.5" fill="#0075ae">Best-matched agent</text>
+      <rect x="180" y="230" width="120" height="70" rx="12" fill="#e8f6fb"/>
+      <circle cx="204" cy="252" r="10" fill="#b9d8f0"/><text x="220" y="256" font-size="11.5" font-weight="700" fill="#0f253b">Meera</text>
+      <text x="192" y="280" font-size="10.5" fill="#0075ae">Call recorded</text>
+      <rect x="338" y="230" width="120" height="70" rx="12" fill="#e7f7f0"/>
+      <text x="350" y="256" font-size="11.5" font-weight="700" fill="#1d7f56">Automatic reply</text>
+      <text x="350" y="280" font-size="10.5" fill="#2f6b52">Status read out + SMS</text>
+    </g>
+    <rect x="22" y="314" width="436" height="30" rx="15" fill="#fff" stroke="#d6e3ee"/>
+    <circle cx="42" cy="329" r="5" fill="#e5484d"/>
+    <text x="56" y="333" font-size="11" fill="#576e82">After hours: voicemail and a missed-call alert to your team</text>
+  </g>
+</svg>

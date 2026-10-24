@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" font-family="Inter, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" role="img" aria-labelledby="t">
+  <title id="t">Instagram direct message: a follower asks about a product and the business replies with a product card and quick replies</title>
+  <defs>
+    <clipPath id="f"><rect width="480" height="360" rx="16"/></clipPath>
+    <linearGradient id="ring" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".3" stop-color="#fa7e1e"/><stop offset=".6" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient>
+    <linearGradient id="me" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a033ff"/><stop offset="1" stop-color="#3a7bff"/></linearGradient>
+    <linearGradient id="prod" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9dcff"/><stop offset="1" stop-color="#6f8cff"/></linearGradient>
+  </defs>
+  <g clip-path="url(#f)">
+    <rect width="480" height="360" fill="#fff"/>
+    <line x1="0" y1="60" x2="480" y2="60" stroke="#efefef"/>
+    <path d="M24 30l8-8M24 30l8 8" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="62" cy="30" r="19" fill="url(#ring)"/><circle cx="62" cy="30" r="16.5" fill="#fff"/><circle cx="62" cy="30" r="14.5" fill="#0f253b"/>
+    <text x="62" y="35" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">YB</text>
+    <text x="92" y="27" font-size="15" font-weight="700" fill="#111">yourbrand</text>
+    <text x="92" y="45" font-size="11.5" fill="#737373">Business inbox · Priya S.</text>
+    <g fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M398 22c0 8 6 14 14 14l3-4-4-3-2 2c-3-1-5-3-6-6l2-2-3-4z"/><rect x="430" y="22" width="16" height="13" rx="3"/><path d="M446 26l6-3v11l-6-3"/></g>
+    <circle cx="30" cy="96" r="12" fill="#f4c7a1"/>
+    <rect x="50" y="78" width="214" height="38" rx="19" fill="#efefef"/>
+    <text x="68" y="102" font-size="13" fill="#111">Is the blue bag in stock?</text>
+    <rect x="216" y="128" width="248" height="38" rx="19" fill="url(#me)"/>
+    <text x="234" y="152" font-size="13" fill="#fff">Yes! Here it is, ready to ship:</text>
+    <rect x="276" y="174" width="188" height="118" rx="16" fill="#fff" stroke="#e6e6e6"/>
+    <path d="M276 190a16 16 0 0 1 16-16h156a16 16 0 0 1 16 16v54H276z" fill="url(#prod)"/>
+    <rect x="352" y="186" width="36" height="42" rx="8" fill="#fff" opacity=".92"/><path d="M362 186c0-10 16-10 16 0" stroke="#fff" stroke-width="3" fill="none"/>
+    <text x="290" y="264" font-size="12.5" font-weight="700" fill="#111">Blue backpack</text>
+    <text x="290" y="282" font-size="11.5" font-weight="600" fill="#3a7bff">View product</text>
+    <rect x="208" y="304" width="104" height="32" rx="16" fill="#fff" stroke="#dbdbdb"/>
+    <text x="260" y="325" text-anchor="middle" font-size="12.5" font-weight="600" fill="#111">Order now</text>
+    <rect x="320" y="304" width="144" height="32" rx="16" fill="#fff" stroke="#dbdbdb"/>
+    <text x="392" y="325" text-anchor="middle" font-size="12.5" font-weight="600" fill="#111">Talk to the team</text>
+    <text x="16" y="330" font-size="10.5" fill="#a8a8a8">Auto-reply · 10:44</text>
+  </g>
+</svg>
