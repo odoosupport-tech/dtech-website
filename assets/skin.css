@@ -563,7 +563,7 @@ body main .hover\:shadow-md:hover,body main .hover\:shadow-lg:hover { box-shadow
 .nav-dropdown { position:relative; }
 .nav-dropdown-panel {
   position:absolute; top:calc(100% - 12px); left:-16px;
-  width:252px; padding:8px;
+  width:280px; padding:8px; /* fits "Business Messaging (CPaaS)" on one line in the uppercase menu */
   background:var(--surface);
   border:1px solid var(--line);
   border-top:3px solid var(--signal);
