@@ -235,10 +235,10 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert(c.html.includes('Hello Test Client,') && c.text.includes('Hello Test Client,'), 'personalised greeting');
       assert(c.html.includes('AI Forklift Pedestrian Safety') && c.text.includes('AI Forklift Pedestrian Safety'), 'topic acknowledged');
       assert(/within 1 business day/.test(c.text), 'response promise');
-      for (const line of ['Trading Sales: +91 95588 09163', 'AMC Sales: +91 91574 20663', 'Enterprise Sales: +91 99989 01246', 'Customer care: +91 77788 27794', 'Office: +91 2642 264596', 'sales@dtechindia.com', 'support@dtechindia.com', 'Bharuch']) {
+      for (const line of ['Trading Sales: +91 95588 09163', 'AMC Sales: +91 91574 20663', 'Enterprise Sales: +91 99989 01246', 'Customer care: +91 99989 03042', 'Office: +91 2642 264596', 'sales@dtechindia.com', 'support@dtechindia.com', 'Bharuch']) {
         assert(c.text.includes(line), `contact details: ${line}`);
       }
-      assert(c.html.includes('href="tel:+919157420663"') && c.html.includes('href="tel:+917778827794"') && c.html.includes('href="tel:+912642264596"'), 'tap-to-call links');
+      assert(c.html.includes('href="tel:+919157420663"') && c.html.includes('href="tel:+919998903042"') && c.html.includes('href="tel:+912642264596"'), 'tap-to-call links');
       assert(!/director@/i.test(c.html + c.text), 'director address belongs on case-study mails only');
       eq(sent.slice(before).filter(m => m.to === 'sales@test.invalid, rahul.sharma@dtechindia.com').length, 1, 'sales notified once');
     }],

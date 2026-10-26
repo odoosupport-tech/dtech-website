@@ -95,7 +95,7 @@ const FOOTER_PHONES = [
   ['Trading Sales', '+91 95588 09163'],
   ['AMC Sales', '+91 91574 20663'],
   ['Enterprise Sales', '+91 99989 01246'],
-  ['Customer care', '+91 77788 27794'],
+  ['Customer care', '+91 99989 03042'],
   ['Office', '+91 2642 264596'],
 ];
 
