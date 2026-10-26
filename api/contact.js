@@ -31,6 +31,7 @@ const TOPICS = {
   cctv: 'CCTV Surveillance & AI Vision Analytics',
   gps: 'GPS Vehicle Tracking & Fleet Telematics',
   messaging: 'Business Messaging',
+  jiorooms: 'JioRooms: JioPC & Jio Embibe for Schools',
   amc: 'AMC / CAMC Maintenance Services',
   fms: 'FMS / Managed IT Services',
   sap: 'SAP Implementation, Support & Resource Augmentation',

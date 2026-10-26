@@ -327,3 +327,14 @@ body[data-page="news"] main h2,body[data-page="careers"] main h2 { letter-spacin
 .intro-dots button[aria-selected="true"] { background-color:var(--signal-deep); }
 .intro-foot { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
 @media (prefers-reduced-motion:reduce) { .intro-slide { animation:none; } }
+
+/* JioRooms: posters are artwork, so they keep their own shape (no crop or zoom) and flow in columns. */
+body[data-page="jiorooms"] main h2 { letter-spacing:-.03em; }
+.jiva-gallery.is-brochures { display:block; columns:4 160px; column-gap:16px; }
+.jiva-gallery.is-brochures .jiva-figure { break-inside:avoid; margin-bottom:16px; }
+.jiva-gallery.is-brochures .jiva-figure img,.jiva-lead-photo.is-banner img { aspect-ratio:auto; height:auto; object-fit:contain; }
+.jiva-gallery.is-brochures .jiva-figure:hover img { transform:none; }
+.jio-downloads { display:grid; gap:16px; }
+.jio-video { margin:0; max-width:960px; }
+.jio-video video { display:block; width:100%; height:auto; aspect-ratio:16/9; border-radius:12px; background:#0b1724; }
+.jio-video figcaption { margin-top:10px; font-size:14px; color:var(--ink-soft); }
