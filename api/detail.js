@@ -1,7 +1,6 @@
 // GET /case-studies/<id> and /sitemap-details.xml (rewrites in vercel.json)
 //
-// One page per published case study and per open role, so search engines can
-// index each one and staff can share a direct link. Pages are rendered from
+// One page per published case study, so search engines can index each one and staff can share a direct link. Pages are rendered from
 // data/case-studies.json and data/jobs.json on request, so console edits show
 // up with the redeploy they trigger, inside the site's own header, footer,
 // styles and scripts (taken from privacy-policy.html, a page with no scripts of
@@ -13,14 +12,13 @@
 // page's email form. Job pages carry JobPosting data for Google's job search.
 //
 //   ?type=case&id=…   case-study page   (404 page for a draft or unknown id)
-//   ?type=job&id=…    job page          (404 page for a closed or unknown role)
 //   ?type=sitemap     XML sitemap of the case-study pages
 //
 // Openings are published on the Odoo jobs page (d-tech-live-database.odoo.com/jobs),
-// so /careers/<id> redirects there (vercel.json) and the sitemap lists no roles.
-// The job page above is kept for the console's own list (data/jobs.json): to
-// bring it back, restore the /careers/:id rewrite to /api/detail?type=job&id=:id
-// and the roles in sitemap().
+// so /careers/<id> redirects there (vercel.json), the sitemap lists no roles and
+// ?type=job answers 404. The role page is kept (jobPageFor, below) for the tests
+// and for bringing careers back: route ?type=job to it again, restore the
+// /careers/:id rewrite to /api/detail?type=job&id=:id and the roles in sitemap().
 
 const fs = require('fs');
 const path = require('path');
@@ -480,19 +478,26 @@ module.exports = async function handler(req, res) {
       res.setHeader('Cache-Control', CACHE_OK);
       return res.status(200).send(sitemap());
     }
-    if (type !== 'case' && type !== 'job') return res.status(404).json({ ok: false, error: 'Not found' });
+    if (type !== 'case') return res.status(404).json({ ok: false, error: 'Not found' });
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    const list = type === 'case' ? publishedCases() : openJobs();
+    const list = publishedCases();
     const item = ID_RE.test(id) ? list.find(x => x.id === id) : null;
     if (!item) {
       res.setHeader('Cache-Control', CACHE_MISS);
       return res.status(404).send(notFoundPage(type));
     }
     res.setHeader('Cache-Control', CACHE_OK);
-    return res.status(200).send(type === 'case' ? casePage(item, list) : jobPage(item, list));
+    return res.status(200).send(casePage(item, list));
   } catch (err) {
     console.error(`Rendering ${type} ${id} failed:`, err.message);
     res.setHeader('Cache-Control', 'no-store');
     return res.status(500).json({ ok: false, error: 'This page is unavailable right now.' });
   }
+};
+
+// The retired role page: the HTML for an open role, or null for a closed or unknown id.
+module.exports.jobPageFor = function jobPageFor(id) {
+  const list = openJobs();
+  const item = ID_RE.test(String(id)) ? list.find(x => x.id === id) : null;
+  return item ? jobPage(item, list) : null;
 };

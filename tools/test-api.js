@@ -1209,7 +1209,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     .filter(([, attrs = '']) => !/\ssrc\s*=/i.test(attrs) && !/application\/ld\+json/i.test(attrs)).map(m => m[2]);
   const ldBlocks = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
   const relativeUrls = html => html.match(/\s(?:href|src|srcset)="(?![a-z][a-z0-9+.-]*:|\/|#)[^"]+"/gi) || [];
-  await area('10. Case-study and job pages (api/detail.js)', [
+  await area('10. Case-study pages and the retired role page (api/detail.js)', [
     ['case page: 200 HTML, own title/canonical/h1, absolute URLs, current menu item, sections.css', async () => {
       const r = await page('case', 'petronet-fms');
       eq(r.statusCode, 200); assert.match(r.headers['content-type'], /^text\/html/);
@@ -1247,8 +1247,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     }],
     ['every runnable inline script is allowed by the CSP (same scripts as the template page)', async () => {
       const allowed = cspAllows();
-      for (const [type, id] of [['case', 'petronet-fms'], ['job', 'l2-engineer-fms-dahej'], ['case', 'no-such-case'], ['job', 'no-such-role']]) {
-        const scripts = runnableScripts((await page(type, id)).body);
+      const openRole = JSON.parse(fs.readFileSync(jobsFile, 'utf8')).find(j => j.isActive === true).id;
+      for (const [type, id] of [['case', 'petronet-fms'], ['job', openRole], ['case', 'no-such-case']]) {
+        const scripts = runnableScripts(type === 'job' ? detail.jobPageFor(id) : (await page(type, id)).body);
         assert(scripts.length >= 2, 'template scripts missing');
         for (const body of scripts) {
           const hash = 'sha256-' + crypto.createHash('sha256').update(body, 'utf8').digest('base64');
@@ -1279,9 +1280,9 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
         eq(crumbs.itemListElement[2].name, evil, 'JSON-LD keeps the text');
       });
     }],
-    ['job page: JobPosting with every field Google requires, apply link, 200', () => withList(jobsFile, list => list.map(j => ({ ...j, isActive: true })), async () => {
-      const r = await page('job', 'l2-engineer-fms-dahej');
-      eq(r.statusCode, 200);
+    ['retired role page: JobPosting with every field Google requires, apply link', () => withList(jobsFile, list => list.map(j => ({ ...j, isActive: true })), async () => {
+      const r = { body: detail.jobPageFor('l2-engineer-fms-dahej') };
+      assert(r.body, 'open role renders');
       assert(r.body.includes('<link rel="canonical" href="https://www.dtechindia.com/careers/l2-engineer-fms-dahej">'));
       eq((r.body.match(/<a href="\/careers" aria-current="page">/g) || []).length, 2);
       assert(r.body.includes('href="/careers?apply=l2-engineer-fms-dahej"'), 'apply link');
@@ -1293,18 +1294,18 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       eq(job.hiringOrganization.name, 'D-Tech Solution Integrators Private Limited');
       assert.deepStrictEqual(job.jobLocation.address, { '@type': 'PostalAddress', addressLocality: 'Dahej', addressCountry: 'IN', addressRegion: 'Gujarat' });
       eq(job.url, 'https://www.dtechindia.com/careers/l2-engineer-fms-dahej');
-      const adama = ldBlocks((await page('job', 'l1-fms-engineer-adama-agricultural-solutions-dahej')).body).find(d => d['@type'] === 'JobPosting');
+      const adama = ldBlocks(detail.jobPageFor('l1-fms-engineer-adama-agricultural-solutions-dahej')).find(d => d['@type'] === 'JobPosting');
       eq(adama.jobLocation.address.addressLocality, 'Dahej', 'town taken from "Client, Town"');
-      const gnal = ldBlocks((await page('job', 'fms-engineer-vadodara-gnal')).body).find(d => d['@type'] === 'JobPosting');
+      const gnal = ldBlocks(detail.jobPageFor('fms-engineer-vadodara-gnal')).find(d => d['@type'] === 'JobPosting');
       eq(gnal.jobLocation.address.addressLocality, 'Vadodara', 'site in brackets dropped');
     })],
-    ['closed role → 404; a role without a posting date gets a page but no JobPosting', async () => {
+    ['role pages are not served (?type=job → 404, open or closed); a closed role renders nothing; no date → no JobPosting', async () => {
       await withList(jobsFile, list => list.map((j, i) => (i === 0 ? { ...j, isActive: false } : i === 1 ? { ...j, isActive: true, postedAt: undefined } : j)), async () => {
         const all = JSON.parse(fs.readFileSync(jobsFile, 'utf8'));
-        const closed = await page('job', all[0].id);
-        eq(closed.statusCode, 404); assert(closed.body.includes('This role is no longer open'));
-        const undated = await page('job', all[1].id);
-        eq(undated.statusCode, 200); assert(!ldBlocks(undated.body).some(d => d['@type'] === 'JobPosting'));
+        for (const j of all.slice(0, 3)) { const r = await page('job', j.id); eq(r.statusCode, 404, j.id); eq(r.body.error, 'Not found', j.id); }
+        eq(detail.jobPageFor(all[0].id), null, 'closed role');
+        const undated = detail.jobPageFor(all[1].id);
+        assert(undated && !ldBlocks(undated).some(d => d['@type'] === 'JobPosting'));
       });
     }],
     ['sitemap: every published case study, and no roles (they are on the Odoo jobs page)', async () => {
