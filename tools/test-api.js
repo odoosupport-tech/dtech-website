@@ -2196,8 +2196,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       const css = fs.readFileSync(path.join(REPO, 'assets/events.min.css'), 'utf8');
       for (const c of ['.ev-card', '.ev-dialog', '.ev-state--open', '.ev-ticket', '.ev-qr']) assert(css.includes(c), c);
       const pkg = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
-      assert(pkg.scripts['build:css'].includes('assets/events.css') && pkg.scripts['build:js'].includes('assets/events.js'));
-      assert(fs.readFileSync(path.join(REPO, 'purgecss.config.js'), 'utf8').includes('assets/events.js'));
+      assert(/'events'/.test(fs.readFileSync(path.join(REPO, 'tools/build-css.js'), 'utf8')) && pkg.scripts['build:js'].includes('assets/events.js'));
     }],
     ['unit: zone conversion, ambiguous and skipped local times, fee parsing, link policy', () => {
       const { localToUtcMs, utcToLocalInput, parseFeePaise, assertWebLinksOnly, csvCell, validTimeZone } = eventsLib;

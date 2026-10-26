@@ -1,3 +1,122 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind build for the static site (npm run build:css → tools/build-css.js).
+   Rebuild after changing classes in any page or script. The pages were styled
+   with Tailwind 3; the blocks under "Tailwind 3 parity" keep the same classes
+   rendering exactly as they did, so no page markup had to change. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "./preflight-v3.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../../*.html";
+@source "../../assets/**/*.js";
+/* Words in inline scripts that are not classes (input.blur() on case-studies). */
+@source not inline("blur");
+
+@theme {
+  --color-brand-blue: #27b6da;
+  --color-brand-darkBlue: #008ccf;
+  --color-brand-navBlue: #0b2f52;
+  --color-brand-pillBlue: #1aadcc;
+  --color-brand-sky: #27b6da;
+  --color-brand-dark: #071d34;
+  --color-brand-slate: #142b41;
+
+  --font-display: "Archivo", "Plus Jakarta Sans", sans-serif;
+  --font-sans: Inter, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* ---- Tailwind 3 parity ---------------------------------------------------- */
+
+/* Tailwind 3's sRGB palette for the families the pages use (Tailwind 4 moved
+   to OKLCH, which shifts these slightly and needs Safari 15.4+). */
+@theme {
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --color-gray-200: #e5e7eb;
+  --color-gray-400: #9ca3af;
+
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
+
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  /* Tailwind 3's fixed line heights (Tailwind 4 uses ratios, which shrink or
+     grow with any font-size override in skin.css). */
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+
+  /* Tailwind 4 renamed these steps (its -md / -sm are a size larger). */
+  --drop-shadow-md: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  --blur-sm: 4px;
+}
+
+/* Tailwind 4 applies hover: only on devices with a real pointer. */
+@custom-variant hover (&:hover);
+
+/* Tailwind 4 interpolates gradients in OKLab; Tailwind 3 used sRGB. */
+@utility bg-gradient-to-r {
+  --tw-gradient-position: to right;
+  background-image: linear-gradient(var(--tw-gradient-stops));
+}
+@utility bg-gradient-to-t {
+  --tw-gradient-position: to top;
+  background-image: linear-gradient(var(--tw-gradient-stops));
+}
+
+/* Tailwind 3's outline-none hid the outline with a transparent one, which
+   forced-colours modes (Windows High Contrast) still draw as a focus ring;
+   Tailwind 4's removes it. Emitted after the generated utilities, so it wins. */
+@layer utilities {
+  .focus-visible\:outline-none:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}

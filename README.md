@@ -17,11 +17,11 @@ Commit the outputs; Vercel serves them as-is and `tools/` is excluded by `.verce
 
 | Output | When to rebuild | Command (from the repo root) |
 |---|---|---|
-| `assets/tailwind.css` | after adding or changing Tailwind classes in any page or script | `npm run build:tailwind` |
+| `assets/tailwind.css` and the `*.min.css` files | after adding or changing Tailwind classes in any page or script, or editing a stylesheet | `npm run build:css` |
 | `assets/lucide.js` | after using a new `data-lucide` icon | `npm --prefix tools/lucide install && node tools/lucide/build.mjs` |
 | `assets/og-image.png` | after editing `tools/og/og-image.html` | `node tools/og/render.mjs` (needs `puppeteer-core` and Chrome) |
 
-`npm run build:css` always regenerates Tailwind from the current HTML and JavaScript before minifying and purging the production bundle. Run `npm run verify` before publishing to catch stale responsive utilities and other UI contract regressions.
+`npm run build:css` (`tools/build-css.js`) regenerates Tailwind 4 from the current HTML and JavaScript (only the classes in use are emitted), minifies every stylesheet and joins `skin`, `color`, `polish` and `tailwind` into `assets/bundle.min.css`. The pages were written for Tailwind 3: `tools/tailwind/input.css` keeps Tailwind 3's palette, base styles and gradients, and the build unwraps Tailwind 4's cascade layers so utilities still outrank the hand-written stylesheets by specificity and order. Run `npm run verify` before publishing to catch stale responsive utilities and other UI contract regressions.
 
 ## Analytics
 
