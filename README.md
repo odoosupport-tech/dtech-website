@@ -42,7 +42,7 @@ The Vercel functions send mail over SMTP with [nodemailer](https://nodemailer.co
 - `api/contact.js`: the Contact Us form (`contact.html`) posts here, and the enquiry is emailed to sales with Reply-To set to the visitor. If the function fails or is unavailable, the form falls back to opening the visitor's email app.
 - `api/send-whitepaper.js`: case-study PDFs live in `assets/case-studies/pdf/`. When a visitor asks for one on `case-studies.html`, the PDF is emailed to them as an attachment and sales gets a lead notification.
 - `middleware.js`: the PDFs are lead-gated. Vercel serves a file under `/assets/case-studies/pdf/` only on a signed, expiring link (`api/_pdf-link.js`): the one the site uses to attach it, the download link in the visitor's email (valid 14 days), or one issued to a signed-in console user. Any other request, including old PDF addresses search engines still list, is redirected to `/case-studies`, and the PDFs carry `X-Robots-Tag: noindex`. The signing key is `PDF_LINK_SECRET`, or `ADMIN_SECRET` when that is unset; with neither, no PDF is served and PDF requests answer 503.
-- `api/apply.js`: job applications, emailed with the CV attached. No longer used by the public pages: candidates apply on the Odoo jobs page (see Careers).
+- `api/_apply.js`: job applications, emailed with the CV attached. Retired and not deployed: candidates apply on the Odoo jobs page (see Careers).
 
 Set these in Vercel → Project → Settings → Environment Variables, then redeploy:
 
@@ -61,7 +61,7 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 
 **Google Workspace / Gmail:** `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` = the full mailbox address, and `SMTP_PASS` = a 16-character [app password](https://myaccount.google.com/apppasswords) (the account needs 2-Step Verification on; Google rejects the normal password over SMTP). Gmail sends as `SMTP_USER`; a different `MAIL_FROM` address only works if it is added under Gmail → Settings → Accounts → "Send mail as". Workspace allows about 2,000 messages a day per mailbox.
 
-All three functions only accept JSON posts from the site's own origin, have a hidden bot trap field, and rate-limit by IP (the PDF function also by recipient). These limits live in memory per instance; add a CAPTCHA (e.g. Cloudflare Turnstile) or a shared store before heavy public use.
+Both functions only accept JSON posts from the site's own origin, have a hidden bot trap field, and rate-limit by IP (the PDF function also by recipient). These limits live in memory per instance; add a CAPTCHA (e.g. Cloudflare Turnstile) or a shared store before heavy public use.
 
 
 ## News page
@@ -90,7 +90,7 @@ On this site:
 
 - **`careers.html`** keeps the employer content: hero, Life at D-TECH photos, why join, hiring steps and FAQ. Its "View openings and apply" buttons (hero, roles section, closing call to action) open the Odoo jobs page in a new tab. It has no job list or application form of its own.
 - **`/careers/<id>`**, the old role pages, redirect (307) to the Odoo jobs page (`vercel.json`), and `/sitemap-details.xml` lists no roles.
-- **The website's own careers system is switched off but kept in the code:** `data/jobs.json`, the console's **Manage Careers**, `GET /api/jobs`, `POST /api/apply` and the role page in `api/detail.js` (`?type=job`). Nothing public links to them; roles edited in the console no longer appear anywhere. To bring it back, restore the job list and apply dialog in `careers.html` from git history (before this change), the `/careers/:id` rewrite to `/api/detail?type=job&id=:id`, and the roles in `sitemap()` in `api/detail.js`.
+- **The website's own careers system is switched off but kept in the code:** `data/jobs.json`, the console's **Manage Careers**, the role page in `api/detail.js` (`?type=job`), and the job list and apply handlers in `api/_jobs.js` and `api/_apply.js`. The leading `_` keeps those two from being deployed, so `/api/jobs` and `/api/apply` answer 404 and use none of the Hobby plan's 12 function slots; `npm test` still runs them. Roles edited in the console no longer appear anywhere. To bring it back, rename them to `api/jobs.js` and `api/apply.js` and restore their `vercel.json` entries (`includeFiles: data/jobs.json`, `maxDuration: 30` for apply), then restore the job list and apply dialog in `careers.html` from git history, the `/careers/:id` rewrite to `/api/detail?type=job&id=:id`, and the roles in `sitemap()` in `api/detail.js`.
 
 | Endpoint | What it does |
 |---|---|
@@ -103,7 +103,7 @@ SMTP is the only delivery channel; nothing else receives the site's form data. I
 
 | Data | Where | Written by |
 |---|---|---|
-| Client requirements, case-study leads, job applications, CVs | `requirements.json`, `leads.json`, `applicants.json`, `cvs/` in a **separate private repository** | `api/contact.js`, `api/send-whitepaper.js`, `api/apply.js` |
+| Client requirements, case-study leads, job applications, CVs | `requirements.json`, `leads.json`, `applicants.json`, `cvs/` in a **separate private repository** | `api/contact.js`, `api/send-whitepaper.js` (and the retired `api/_apply.js`) |
 | Open roles, case studies, site banners | `data/jobs.json`, `data/case-studies.json`, `data/banners.json` in this repository | the management console |
 | Case-study PDFs uploaded from the console | `assets/case-studies/pdf/custom/` in this repository (in the repository like the built-in PDFs; the website serves them only on signed links, see `middleware.js`) | the management console |
 
@@ -125,7 +125,7 @@ Setup:
 | `GITHUB_DATA_BRANCH` | no | Default `main` |
 | `HR_EMAIL` | no | Receives job applications (default `SALES_EMAIL`) |
 
-Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job, case study or banner commits to `data/`, which redeploys the site, so the public pages show the change 1–2 minutes later. The raw `data/*.json` files are not served (`/data/*` goes to the 404 page), so drafts and hidden items never reach visitors: pages read them through `/api/jobs` and `/api/content`. Built-in case studies are the exception: their cards are part of `case-studies.html`, so unpublishing one hides it on the page but its text stays in the page source.
+Without the private repository settings, submissions are still emailed; they just do not appear in the console. A submission counts as received when either the email or the stored record succeeds. Saving a job, case study or banner commits to `data/`, which redeploys the site, so the public pages show the change 1–2 minutes later. The raw `data/*.json` files are not served (`/data/*` goes to the 404 page), so drafts and hidden items never reach visitors: pages read them through `/api/content`. Built-in case studies are the exception: their cards are part of `case-studies.html`, so unpublishing one hides it on the page but its text stays in the page source.
 
 Locally (no `VERCEL` variable and no tokens), `data/` is edited in place, uploaded PDFs go to `assets/case-studies/pdf/custom/`, and submissions go to `.portal-data/`, which is git-ignored.
 

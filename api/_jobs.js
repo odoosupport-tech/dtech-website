@@ -1,4 +1,9 @@
 // GET /api/jobs
+// Retired: careers moved to the Odoo jobs page, so this is no longer deployed as a
+// function (a leading _ keeps Vercel from building it, and the route answers 404).
+// Kept, and tested, so the careers system can return: rename it back to jobs.js and
+// restore its vercel.json entry (see README, Careers).
+//
 // Returns the open roles from data/jobs.json (managed in the management
 // console, which commits changes to that file and so redeploys the site).
 //

@@ -12,15 +12,6 @@
       "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "maxDuration": 30
     },
-    "api/apply.js": {
-      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
-      "includeFiles": "data/jobs.json",
-      "maxDuration": 30
-    },
-    "api/jobs.js": {
-      "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
-      "includeFiles": "data/jobs.json"
-    },
     "api/admin/data.js": {
       "excludeFiles": "{assets/**,.vercel/**,.vercel/**/.*}",
       "includeFiles": "data/*.json",

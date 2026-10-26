@@ -1,4 +1,9 @@
 // POST /api/apply
+// Retired: careers moved to the Odoo jobs page, so this is no longer deployed as a
+// function (a leading _ keeps Vercel from building it, and the route answers 404).
+// Kept, and tested, so the careers system can return: rename it back to apply.js and
+// restore its vercel.json entry (see README, Careers).
+//
 // Emails a careers-page application to HR over SMTP with the CV attached and
 // Reply-To set to the candidate, and files it (details in applicants.json, the
 // CV as its own file under cvs/) in the private data repository so it shows up

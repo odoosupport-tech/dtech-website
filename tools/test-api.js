@@ -67,7 +67,7 @@ require(path.join(REPO, 'api/_http.js')).setDnsResolver({
 });
 
 const api = (p) => require(path.join(REPO, 'api', p));
-const jobs = api('jobs.js'), contact = api('contact.js'), apply = api('apply.js'), whitepaper = api('send-whitepaper.js');
+const jobs = api('_jobs.js'), contact = api('contact.js'), apply = api('_apply.js'), whitepaper = api('send-whitepaper.js');
 const content = api('content.js');
 const detail = api('detail.js');
 const auth = api('admin/auth.js'), data = api('admin/data.js'), update = api('admin/update.js'), consoleApp = api('admin/console.js');
@@ -142,7 +142,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   ]);
 
   // 1. Jobs
-  await area('1. Careers & jobs (api/jobs.js)', [
+  await area('1. Careers & jobs (api/_jobs.js, retired)', [
     ['jobs.json is valid JSON with 12 active roles', () => {
       const all = JSON.parse(fs.readFileSync('data/jobs.json', 'utf8'));
       eq(all.filter(j => j.isActive === true).length, 12, 'active roles');
@@ -154,6 +154,10 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       assert.deepStrictEqual(Object.keys(r.body.jobs[0]).sort(), ['department', 'id', 'location', 'positions', 'summary', 'title']);
     }],
     ['POST → 405', async () => eq((await call(jobs, req('POST'))).statusCode, 405)],
+    ['retired: /api/jobs and /api/apply are not deployed as functions', () => {
+      const fns = JSON.parse(fs.readFileSync(path.join(REPO, 'vercel.json'), 'utf8')).functions;
+      for (const f of ['api/jobs.js', 'api/apply.js']) { assert(!fs.existsSync(path.join(REPO, f)), `${f} would deploy`); assert(!fns[f], `${f} still configured`); }
+    }],
     ['careers.html: every way to apply opens the Odoo jobs page in a new tab; no form of its own', () => {
       const html = fs.readFileSync(path.join(REPO, 'careers.html'), 'utf8');
       const links = [...html.matchAll(/<a [^>]*href="https:\/\/d-tech-live-database\.odoo\.com\/jobs"[^>]*>/g)].map(m => m[0]);
@@ -290,7 +294,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
   const pdfB64 = Buffer.from('%PDF-1.4\n%test cv\n').toString('base64');
   const openJob = JSON.parse(fs.readFileSync('data/jobs.json', 'utf8')).find(j => j.isActive);
   const applicant = { jobId: openJob.id, name: 'Test Candidate', email: 'cand@example.com', phone: '+91 90000 00000', message: 'Hello' };
-  await area('3. Job application with CV (api/apply.js)', [
+  await area('3. Job application with CV (api/_apply.js, retired)', [
     ['.exe MIME rejected → 400', async () => {
       const r = await call(apply, req('POST', { ...applicant, email: 'exe@example.com', cv: { filename: 'cv.exe', type: 'application/x-msdownload', dataBase64: pdfB64 } }));
       eq(r.statusCode, 400);
@@ -1012,7 +1016,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
     assert(rule, 'no redirect hiding api source files');
     const re = new RegExp(`^${rule.source}$`);
     for (const p of ['/api/_store.js', '/api/contact.js', '/api/admin/_console-app.js', '/api/_whitepapers.json']) assert(re.test(p), `${p} would stay public`);
-    for (const p of ['/api/contact', '/api/apply', '/api/jobs', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console', '/api/detail', '/api/events']) assert(!re.test(p), `${p} endpoint would be redirected`);
+    for (const p of ['/api/contact', '/api/content', '/api/send-whitepaper', '/api/admin/data', '/api/admin/update', '/api/admin/auth', '/api/admin/console', '/api/detail', '/api/events']) assert(!re.test(p), `${p} endpoint would be redirected`);
   };
   // 6c. "Check email": settings report, failure explanations, test send, no secrets.
   const mailCheck = api('admin/mail-check.js');
@@ -1081,7 +1085,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
           if (e.isDirectory()) walk(rel); else if (rel.endsWith('.js')) entries.push(rel);
         }
       })('api');
-      assert(entries.length >= 11, 'functions found');
+      assert(entries.length >= 9, 'functions found');
       for (const entry of entries) eq((fns[entry] || {}).excludeFiles, '{assets/**,.vercel/**,.vercel/**/.*}', entry);
     }],
     ['middleware source is hidden while the PDF middleware remains deployable', () => {
@@ -1463,7 +1467,7 @@ const eq = (a, b, m) => assert.strictEqual(a, b, m);
       }
     }],
     ['public pages, assets and API handlers remain reachable through middleware', async () => {
-      for (const route of ['/', '/careers', '/case-studies/mrf', '/admin-dtech', '/portal', '/assets/bundle.min.css', '/api/jobs', '/api/contact', '/api/admin/data', '/api/detail?type=sitemap', '/.well-known/acme-challenge/example']) {
+      for (const route of ['/', '/careers', '/case-studies/mrf', '/admin-dtech', '/portal', '/assets/bundle.min.css', '/api/contact', '/api/admin/data', '/api/detail?type=sitemap', '/.well-known/acme-challenge/example']) {
         eq(await pdfGate(new Request(`https://dtech.test${route}`)), undefined, route);
       }
     }],
