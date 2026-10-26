@@ -1,6 +1,6 @@
 # D-TECH Solution Integrators — Website
 
-Static marketing site for D-TECH Solution Integrators Pvt. Ltd.: home, about, online shop, solutions, case studies, contact and legal pages.
+Static marketing site for D-TECH Solution Integrators Pvt. Ltd.: home, about, solutions, partner pages (HP, Dell, Motorola), case studies, events, gallery, careers, contact and legal pages.
 
 Plain HTML, CSS and JavaScript. Styling is a prebuilt Tailwind file (`assets/tailwind.css`) plus the layers in `assets/` (`skin.css`, `skin-dark.css`, `color.css`, `polish.css`). Icons are a Lucide subset in `assets/lucide.js`. Nothing is loaded from third-party script hosts.
 
@@ -63,24 +63,6 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 
 Both functions only accept JSON posts from the site's own origin, have a hidden bot trap field, and rate-limit by IP (the PDF function also by recipient). These limits live in memory per instance; add a CAPTCHA (e.g. Cloudflare Turnstile) or a shared store before heavy public use.
 
-
-## News page
-
-Posts live in `content/news.json`. To publish an update, add an entry at the top of `posts` and push; the page reads the file in the browser, so no rebuild is needed.
-
-```json
-{
-  "title": "Headline",
-  "date": "2026-09-16",
-  "category": "Case study",
-  "summary": "One short paragraph.",
-  "youtube": "VIDEO_ID",
-  "link": "kiosk.html",
-  "linkLabel": "See the Safety Kiosk"
-}
-```
-
-`youtube` is the id after `watch?v=` and shows the video thumbnail; use `image` instead for a local picture. `link` and `linkLabel` are optional.
 
 ## Careers
 
