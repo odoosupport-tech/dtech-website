@@ -322,7 +322,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-37rlziv2/tRaci6LZjEC2XwtKH1YapUY15KzytH4KXM=' 'sha256-6DKagkfm/owhip3/DUBjzIWZihShhslZz2fmP585fZQ=' 'sha256-AoqaXt5XskVuSd1YBQg+Up3G+KG/QoQxQgU0GagEhrQ=' 'sha256-CixTQmruBc23WeX2JiqYt3NFRACE015DxKdNb7g/Xs8=' 'sha256-GQp0A5ZoHxA9V/ITBwVNdj7gP5JfFP70fs6yVgEXaQk=' 'sha256-GgtegorJMT05SWm6ugfp/npwtPMcEh4XxfICS/6UN2U=' 'sha256-PwcZMGCoDxnQyTpwwnZRvgE1Pm/k8tfcaGUBKJRhveo=' 'sha256-UBcDMOSNTCxICM+cULY2IQ7mJoVZKIPgsk5XmQ9ZuDc=' 'sha256-bMe9ZFIyOUt1bffoBwUqMGjwrf9LHWCTz/T/lx+7STc=' 'sha256-cQ1/G+yFT0AMmYLy3/W2g4X01plQotVYSMxcm8irsrU=' 'sha256-eoB/1TfblDaXl9CscamDcyclC+YYbsZqTARDNcvkGfo=' 'sha256-eyyFY4ZUn2cNyWSdvzoigxFGQmJGrI8BJcPX5bHtNDc=' 'sha256-jiz+x7/Qqr6o7n1K4YlfhjxGAnZkWW2PVyRJiK6jI0U=' 'sha256-ooL7kKEjigwW22FDNs8LS7ujsrzzlEMDu0Z2uTo2cNc=' 'sha256-v2EjR6Ph9z3HzLSyyTgMsGFGD/kPvVPyqC0QNo7QNFI=' 'sha256-wvOOe/p3YlDeMSUeWjuAfITcCE6+O02txJBrwOiufsQ=' 'sha256-zeJSLDLIrGA+5TLhRCysDLPQWbqoLBPGMIRNJ+xfzYI='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com; connect-src 'self'; frame-src https://prezi.com https://*.prezi.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://ccut.in https://cdn.jsdelivr.net 'unsafe-hashes' 'sha256-2FryynREWa4A8IkUFXq0fPG4qzWgN55WXdFL+c8CM2U=' 'sha256-37rlziv2/tRaci6LZjEC2XwtKH1YapUY15KzytH4KXM=' 'sha256-5mGJxnDyi9bfvy9Vekh5q9AzbqOR2BWG9HhnulnHXiI=' 'sha256-6DKagkfm/owhip3/DUBjzIWZihShhslZz2fmP585fZQ=' 'sha256-AoqaXt5XskVuSd1YBQg+Up3G+KG/QoQxQgU0GagEhrQ=' 'sha256-B0LZ4aEXt9Fy2DuKRrgXQuPIkeCMwXTHBLv4sXdQopE=' 'sha256-CixTQmruBc23WeX2JiqYt3NFRACE015DxKdNb7g/Xs8=' 'sha256-DLUZzQeSsrome9rEdITI39E2yn4TRPmL+uGqTIw2Ecw=' 'sha256-GQp0A5ZoHxA9V/ITBwVNdj7gP5JfFP70fs6yVgEXaQk=' 'sha256-GgtegorJMT05SWm6ugfp/npwtPMcEh4XxfICS/6UN2U=' 'sha256-KiiI8YRfi2otNTOPQH8dxgkHYFTjqIYDD2vj24WNQq0=' 'sha256-PwcZMGCoDxnQyTpwwnZRvgE1Pm/k8tfcaGUBKJRhveo=' 'sha256-QcZDXjim5VRD9gPj4oE/qVJFSvCQzBE5ndlryupvQrA=' 'sha256-UBcDMOSNTCxICM+cULY2IQ7mJoVZKIPgsk5XmQ9ZuDc=' 'sha256-UvWvb1avbke+Iw3N2d/b+oD9xLjZxoxfuk5ToHIOSuM=' 'sha256-bMe9ZFIyOUt1bffoBwUqMGjwrf9LHWCTz/T/lx+7STc=' 'sha256-bmr1W9Iy/TqoWPyNA37vhkVs7zsa0PA++8UA5e7uoB8=' 'sha256-cQ1/G+yFT0AMmYLy3/W2g4X01plQotVYSMxcm8irsrU=' 'sha256-dzy7pVMfHiG0fWZx0FGmhi/dE8lB05+g4bWy7S98ORo=' 'sha256-eoB/1TfblDaXl9CscamDcyclC+YYbsZqTARDNcvkGfo=' 'sha256-eyyFY4ZUn2cNyWSdvzoigxFGQmJGrI8BJcPX5bHtNDc=' 'sha256-jiz+x7/Qqr6o7n1K4YlfhjxGAnZkWW2PVyRJiK6jI0U=' 'sha256-mJVvnAv7GimHTMV9zQFpbp1h+jpeu/0oy1YeCs1iRCU=' 'sha256-nO+aJtxaUhbVHaIMV5A3GeudvZmGLp2tJkIp3WXdLuI=' 'sha256-ooL7kKEjigwW22FDNs8LS7ujsrzzlEMDu0Z2uTo2cNc=' 'sha256-pMv6xpxr9zKVLTudzyYgSt+gNe9zFx4Gsl0CrzFRtRc=' 'sha256-qI3HUeq43jk8dPhRo+R13GhLw3E2fg3OI2HHnemuMHY=' 'sha256-rbBoNj/8YKf7gyF53LszgQrZFdSMIXldrs8yyooQsHc=' 'sha256-uHMgb2PCQuUey4PDQyMGp+0pSLq7xs/+rDUNTkig28k=' 'sha256-v2EjR6Ph9z3HzLSyyTgMsGFGD/kPvVPyqC0QNo7QNFI=' 'sha256-vi4Gloxb0gIp37QRr3j9OxE19ckmROPojITtC0kL5bw=' 'sha256-wvOOe/p3YlDeMSUeWjuAfITcCE6+O02txJBrwOiufsQ=' 'sha256-xhje5ecCLWx2N9oTHj7PNfrvKbMjk3TjbfgIG4gaT2c=' 'sha256-zeJSLDLIrGA+5TLhRCysDLPQWbqoLBPGMIRNJ+xfzYI='; style-src 'self' https://ccut.in 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com https://ccut.in https://api.dovesoft.io; connect-src 'self' https://ccut.in https://api.dovesoft.io wss://api.dovesoft.io; media-src 'self' data:; frame-src https://prezi.com https://*.prezi.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
@@ -338,7 +338,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+          "value": "camera=(), microphone=(self), geolocation=(), payment=(), usb=()"
         },
         {
           "key": "Strict-Transport-Security",
@@ -351,7 +351,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://syndication.inc.hp.com 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com; connect-src 'self'; frame-src https://prezi.com https://*.prezi.com https://syndication.inc.hp.com https://sites.ziftsolutions.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://syndication.inc.hp.com https://ccut.in https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://ccut.in 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com https://ccut.in https://api.dovesoft.io; connect-src 'self' https://ccut.in https://api.dovesoft.io wss://api.dovesoft.io; media-src 'self' data:; frame-src https://prezi.com https://*.prezi.com https://syndication.inc.hp.com https://sites.ziftsolutions.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
@@ -367,7 +367,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+          "value": "camera=(), microphone=(self), geolocation=(), payment=(), usb=()"
         },
         {
           "key": "Strict-Transport-Security",
@@ -380,7 +380,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-37rlziv2/tRaci6LZjEC2XwtKH1YapUY15KzytH4KXM=' 'sha256-6DKagkfm/owhip3/DUBjzIWZihShhslZz2fmP585fZQ=' 'sha256-AoqaXt5XskVuSd1YBQg+Up3G+KG/QoQxQgU0GagEhrQ=' 'sha256-CixTQmruBc23WeX2JiqYt3NFRACE015DxKdNb7g/Xs8=' 'sha256-GQp0A5ZoHxA9V/ITBwVNdj7gP5JfFP70fs6yVgEXaQk=' 'sha256-GgtegorJMT05SWm6ugfp/npwtPMcEh4XxfICS/6UN2U=' 'sha256-PwcZMGCoDxnQyTpwwnZRvgE1Pm/k8tfcaGUBKJRhveo=' 'sha256-UBcDMOSNTCxICM+cULY2IQ7mJoVZKIPgsk5XmQ9ZuDc=' 'sha256-bMe9ZFIyOUt1bffoBwUqMGjwrf9LHWCTz/T/lx+7STc=' 'sha256-cQ1/G+yFT0AMmYLy3/W2g4X01plQotVYSMxcm8irsrU=' 'sha256-eoB/1TfblDaXl9CscamDcyclC+YYbsZqTARDNcvkGfo=' 'sha256-eyyFY4ZUn2cNyWSdvzoigxFGQmJGrI8BJcPX5bHtNDc=' 'sha256-jiz+x7/Qqr6o7n1K4YlfhjxGAnZkWW2PVyRJiK6jI0U=' 'sha256-ooL7kKEjigwW22FDNs8LS7ujsrzzlEMDu0Z2uTo2cNc=' 'sha256-v2EjR6Ph9z3HzLSyyTgMsGFGD/kPvVPyqC0QNo7QNFI=' 'sha256-wvOOe/p3YlDeMSUeWjuAfITcCE6+O02txJBrwOiufsQ=' 'sha256-zeJSLDLIrGA+5TLhRCysDLPQWbqoLBPGMIRNJ+xfzYI='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com; connect-src 'self'; frame-src https://prezi.com https://*.prezi.com https://syndication.inc.hp.com https://sites.ziftsolutions.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://ccut.in https://cdn.jsdelivr.net 'unsafe-hashes' 'sha256-2FryynREWa4A8IkUFXq0fPG4qzWgN55WXdFL+c8CM2U=' 'sha256-37rlziv2/tRaci6LZjEC2XwtKH1YapUY15KzytH4KXM=' 'sha256-5mGJxnDyi9bfvy9Vekh5q9AzbqOR2BWG9HhnulnHXiI=' 'sha256-6DKagkfm/owhip3/DUBjzIWZihShhslZz2fmP585fZQ=' 'sha256-AoqaXt5XskVuSd1YBQg+Up3G+KG/QoQxQgU0GagEhrQ=' 'sha256-B0LZ4aEXt9Fy2DuKRrgXQuPIkeCMwXTHBLv4sXdQopE=' 'sha256-CixTQmruBc23WeX2JiqYt3NFRACE015DxKdNb7g/Xs8=' 'sha256-DLUZzQeSsrome9rEdITI39E2yn4TRPmL+uGqTIw2Ecw=' 'sha256-GQp0A5ZoHxA9V/ITBwVNdj7gP5JfFP70fs6yVgEXaQk=' 'sha256-GgtegorJMT05SWm6ugfp/npwtPMcEh4XxfICS/6UN2U=' 'sha256-KiiI8YRfi2otNTOPQH8dxgkHYFTjqIYDD2vj24WNQq0=' 'sha256-PwcZMGCoDxnQyTpwwnZRvgE1Pm/k8tfcaGUBKJRhveo=' 'sha256-QcZDXjim5VRD9gPj4oE/qVJFSvCQzBE5ndlryupvQrA=' 'sha256-UBcDMOSNTCxICM+cULY2IQ7mJoVZKIPgsk5XmQ9ZuDc=' 'sha256-UvWvb1avbke+Iw3N2d/b+oD9xLjZxoxfuk5ToHIOSuM=' 'sha256-bMe9ZFIyOUt1bffoBwUqMGjwrf9LHWCTz/T/lx+7STc=' 'sha256-bmr1W9Iy/TqoWPyNA37vhkVs7zsa0PA++8UA5e7uoB8=' 'sha256-cQ1/G+yFT0AMmYLy3/W2g4X01plQotVYSMxcm8irsrU=' 'sha256-dzy7pVMfHiG0fWZx0FGmhi/dE8lB05+g4bWy7S98ORo=' 'sha256-eoB/1TfblDaXl9CscamDcyclC+YYbsZqTARDNcvkGfo=' 'sha256-eyyFY4ZUn2cNyWSdvzoigxFGQmJGrI8BJcPX5bHtNDc=' 'sha256-jiz+x7/Qqr6o7n1K4YlfhjxGAnZkWW2PVyRJiK6jI0U=' 'sha256-mJVvnAv7GimHTMV9zQFpbp1h+jpeu/0oy1YeCs1iRCU=' 'sha256-nO+aJtxaUhbVHaIMV5A3GeudvZmGLp2tJkIp3WXdLuI=' 'sha256-ooL7kKEjigwW22FDNs8LS7ujsrzzlEMDu0Z2uTo2cNc=' 'sha256-pMv6xpxr9zKVLTudzyYgSt+gNe9zFx4Gsl0CrzFRtRc=' 'sha256-qI3HUeq43jk8dPhRo+R13GhLw3E2fg3OI2HHnemuMHY=' 'sha256-rbBoNj/8YKf7gyF53LszgQrZFdSMIXldrs8yyooQsHc=' 'sha256-uHMgb2PCQuUey4PDQyMGp+0pSLq7xs/+rDUNTkig28k=' 'sha256-v2EjR6Ph9z3HzLSyyTgMsGFGD/kPvVPyqC0QNo7QNFI=' 'sha256-vi4Gloxb0gIp37QRr3j9OxE19ckmROPojITtC0kL5bw=' 'sha256-wvOOe/p3YlDeMSUeWjuAfITcCE6+O02txJBrwOiufsQ=' 'sha256-xhje5ecCLWx2N9oTHj7PNfrvKbMjk3TjbfgIG4gaT2c=' 'sha256-zeJSLDLIrGA+5TLhRCysDLPQWbqoLBPGMIRNJ+xfzYI='; style-src 'self' https://ccut.in 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://i.ytimg.com https://ccut.in https://api.dovesoft.io; connect-src 'self' https://ccut.in https://api.dovesoft.io wss://api.dovesoft.io; media-src 'self' data:; frame-src https://prezi.com https://*.prezi.com https://syndication.inc.hp.com https://sites.ziftsolutions.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
@@ -396,7 +396,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+          "value": "camera=(), microphone=(self), geolocation=(), payment=(), usb=()"
         },
         {
           "key": "Strict-Transport-Security",

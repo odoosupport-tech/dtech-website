@@ -30,6 +30,29 @@ TYPE_ATTR = re.compile(r'\stype\s*=\s*["\']?([^"\'\s>]+)', re.I)
 JS_TYPES = {'', 'text/javascript', 'application/javascript', 'module'}
 # Inline event handler attributes inside tags, e.g. <button onclick="…">.
 HANDLER = re.compile(r'<[a-z][^>]*\son[a-z]+\s*=', re.I)
+# The chat widget (ccut.in/upload/surveyCommon/mainWebChatSocket.js, Dovesoft) builds
+# its markup with onclick=/oninput= attributes. 'unsafe-hashes' lets exactly these
+# run without opening script-src to 'unsafe-inline'. If the vendor changes one, that
+# control stops responding and the browser console names the blocked handler's hash.
+CHAT_WIDGET_HANDLERS = [
+    "backToHomeMenu()",
+    "chatWithBotQue('no')",
+    "chatWithBotQue('yes');",
+    "clearChat()",
+    "doveDeleteRecording()",
+    "doveHandleAction()",
+    "getTopicDetails(-1);showTopicsTwo();",
+    "nextAuthStep()",
+    "sendOtp()",
+    "sendWebMessage(document.getElementById('messageInput').value.trim())",
+    "setSendFlag()",
+    "showMessageDiv();",
+    "verifyOtp()",
+    "doveHandleInput()",
+    "searchTopics();",
+    "this.value = this.value.replace(/[^0-9]/g, '')",
+    "keyDownFunc(event);",
+]
 
 
 def pages():
@@ -47,14 +70,17 @@ def inline_scripts(html):
         yield body
 
 
+def sha256_source(text):
+    return "'sha256-" + base64.b64encode(hashlib.sha256(text.encode('utf-8')).digest()).decode('ascii') + "'"
+
+
 def script_hashes():
-    found = set()
+    found = {sha256_source(handler) for handler in CHAT_WIDGET_HANDLERS}
     for page in pages():
         with open(page, encoding='utf-8', newline='') as f:
             html = f.read().replace('\r\n', '\n')  # what the browser's parser hashes
         for body in inline_scripts(html):
-            digest = hashlib.sha256(body.encode('utf-8')).digest()
-            found.add("'sha256-" + base64.b64encode(digest).decode('ascii') + "'")
+            found.add(sha256_source(body))
     return sorted(found)
 
 
@@ -74,8 +100,8 @@ def with_hashes(policy, hashes, third_party):
     for d in directives:
         name, *values = d.split()
         if name == 'script-src':
-            keep = [v for v in values if v != "'unsafe-inline'" and not v.startswith("'sha256-")]
-            values = keep + (["'unsafe-inline'"] if third_party else hashes)
+            keep = [v for v in values if v not in ("'unsafe-inline'", "'unsafe-hashes'") and not v.startswith("'sha256-")]
+            values = keep + (["'unsafe-inline'"] if third_party else ["'unsafe-hashes'"] + hashes)
         out.append(' '.join([name] + values))
     return '; '.join(out)
 
