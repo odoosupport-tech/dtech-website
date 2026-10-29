@@ -1,5 +1,47 @@
 [
   {
+    "id": "jindal-textiles-industrial-connectivity",
+    "client": "Jindal Textiles",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/jindal-textiles-opt.webp",
+    "category": "network",
+    "industry": "Textiles Manufacturing",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Nayka, Kheda, Gujarat",
+    "period": "Order-based study; provisional order 22 Nov 2024",
+    "arch_tag": "Industrial Connectivity · Interface Selection & Validation",
+    "summary": "An order-based industrial connectivity study for Jindal Textiles at Nayka, Kheda, Gujarat, covering six interface components ordered one each under provisional order STPO-2425-401 (22 November 2024). The study maps USB, Ethernet, RS-232/RS-485 and 4G roles, with each connection route to be verified for model, driver, pinout and active or passive function before deployment. The order was placed by Expede-Tech Research & Development Private Limited; final award, installation and operating results are not established.",
+    "outcomes": [
+      "Provisional order STPO-2425-401 dated 22 November 2024 for six connectivity items, one each; buyer of record is Expede-Tech Research & Development Private Limited",
+      "Items: JioFi 4G dongle, Ethernet-to-USB converter, RS-485-to-RS-232 converter, USB-to-RS232/485 converter, USB-to-serial DB9 adapter and RJ45 male to RS232 DB9 female",
+      "Separate interface paths for USB serial, RS-232-to-RS-485 and network/4G; the six items are not one mandatory series chain",
+      "Six-gate validation plan from interface identification and host preparation through wiring checks, bench/application test and controlled handover",
+      "Order-based study: model, driver, pinout and active/passive function require verification; delivery and operating results are not established"
+    ],
+    "metrics": [
+      [
+        "Order",
+        "STPO-2425-401"
+      ],
+      [
+        "Items",
+        "6 (one each)"
+      ],
+      [
+        "Order date",
+        "22 Nov 2024"
+      ],
+      [
+        "Scope",
+        "USB · Ethernet · Serial · 4G"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/jindal-textiles-industrial-connectivity.pdf"
+  },
+  {
     "id": "ntpc-jhanor-it-fms-amc",
     "client": "NTPC Limited",
     "wordmark": null,
