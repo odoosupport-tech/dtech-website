@@ -1,5 +1,47 @@
 [
   {
+    "id": "civica-ups-sales-amc",
+    "client": "Civica Resource Private Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/civica-opt.webp",
+    "category": "services",
+    "industry": "Software & IT Services",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Notus Pride, Sarabhai Campus, Vadodara, Gujarat",
+    "period": "5+ years of UPS sales and AMC; AMC order Aug 2024",
+    "arch_tag": "High-Capacity UPS Sales · Lifecycle AMC",
+    "summary": "More than five years of UPS sales and AMC support for Civica Resource's corporate IT environment in Vadodara. The documented engagement is a UPS AMC under purchase order CIVICA/24-25/Aug-24/16 (26 August 2024), with D-TECH covering requirement review, OEM coordination, preventive maintenance and corrective support for the critical power chain.",
+    "outcomes": [
+      "UPS AMC under purchase order CIVICA/24-25/Aug-24/16 dated 26 August 2024, against quotation S14805",
+      "Sales-to-service model: discover loads, design and select, plan delivery, commission, hand over and maintain",
+      "Preventive care across the power chain: operating readings, UPS assembly, battery health and agreed functional tests",
+      "Priority-led support (critical, high, planned) with recorded acknowledgement, attendance, restoration and closure",
+      "Every call logged, triaged, resolved with approved action and verified before customer-confirmed closure"
+    ],
+    "metrics": [
+      [
+        "Relationship",
+        "5+ years"
+      ],
+      [
+        "Scope",
+        "UPS sales + AMC"
+      ],
+      [
+        "AMC order",
+        "Aug 2024"
+      ],
+      [
+        "Site",
+        "Vadodara"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/civica-ups-sales-amc.pdf"
+  },
+  {
     "id": "hindustan-copper-gcp-cctv-it-amc-fms",
     "client": "Hindustan Copper Limited",
     "wordmark": null,
