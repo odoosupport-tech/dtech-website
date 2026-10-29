@@ -1,5 +1,47 @@
 [
   {
+    "id": "ntpc-jhanor-it-fms-amc",
+    "client": "NTPC Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/ntpc-opt.webp",
+    "category": "services",
+    "industry": "Power Generation (Govt. of India Enterprise)",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Jhanor Gandhar Gas Power Project, Bharuch, Gujarat",
+    "period": "2 years of IT FMS; PO May 2023",
+    "arch_tag": "IT Facility Management · Comprehensive AMC",
+    "summary": "Two years of IT facility management for NTPC's Jhanor Gandhar Gas Power Project. The documented award, service PO 4600074816 (25 May 2023) under CS-1021044 Maintenance Contract of IT Services, covers a comprehensive AMC of PCs, printers and scanners together with facility management and software-service support.",
+    "outcomes": [
+      "Service PO 4600074816 dated 25 May 2023 (CS-1021044, Maintenance Contract of IT Services at NTPC Jhanor), service period 1 June to 30 November 2023",
+      "Comprehensive AMC of PCs, laser, colour, network and multifunction printers, and flatbed scanners",
+      "Facility management and software-service support, with escalation to D-TECH specialists, NTPC IT, the EIC or the OEM",
+      "Complaint-to-closure flow: log, triage, diagnose, restore or escalate, verify with the user, and close with acceptance",
+      "Incident register, documented repair decisions and preventive follow-up, with monthly progressive billing against records"
+    ],
+    "metrics": [
+      [
+        "Relationship",
+        "2 years"
+      ],
+      [
+        "Scope",
+        "FMS + comprehensive AMC"
+      ],
+      [
+        "Assets",
+        "PCs, printers, scanners"
+      ],
+      [
+        "PO",
+        "May 2023"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/ntpc-jhanor-it-fms-amc.pdf"
+  },
+  {
     "id": "civica-ups-sales-amc",
     "client": "Civica Resource Private Limited",
     "wordmark": null,
