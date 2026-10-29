@@ -1,5 +1,47 @@
 [
   {
+    "id": "hindustan-copper-gcp-cctv-it-amc-fms",
+    "client": "Hindustan Copper Limited",
+    "wordmark": null,
+    "logo": "assets/case-studies/logos/custom/hindustan-copper-opt.webp",
+    "category": "services",
+    "industry": "Mining & Metals (Govt. of India Enterprise)",
+    "challenge": "",
+    "solution": "",
+    "published": true,
+    "custom": true,
+    "location": "Gujarat Copper Project, GIDC Jhagadia, Bharuch, Gujarat",
+    "period": "4 years of AMC / FMS, continuing in 2026",
+    "arch_tag": "CCTV & IT Infrastructure AMC · Resident Engineer FMS",
+    "summary": "Four years of AMC and FMS support for Hindustan Copper Limited's Gujarat Copper Project at Jhagadia, continuing in 2026. The current engagement, awarded through GeM under LOI HCL/GCP/600 (31 May 2026), covers a comprehensive AMC of CCTV and IT infrastructure with a resident skilled engineer on site for twelve months from 1 June 2026.",
+    "outcomes": [
+      "Current award: LOI HCL/GCP/600 dated 31 May 2026 against GeM bid GEM/2026/B/7445468, with service commencing 1 June 2026",
+      "Comprehensive AMC of CCTV and IT infrastructure with a resident skilled engineer across twelve monthly service periods",
+      "One support route: users raise issues with the resident engineer, who escalates to D-TECH specialists, customer IT or the OEM",
+      "Complaint-to-closure workflow: register, assess, diagnose, resolve or escalate, verify, and close with customer confirmation",
+      "Service records: incident and action register, maintenance and exception record, and periodic service reviews"
+    ],
+    "metrics": [
+      [
+        "Relationship",
+        "4 years"
+      ],
+      [
+        "Current term",
+        "12 months"
+      ],
+      [
+        "Resident engineer",
+        "1"
+      ],
+      [
+        "Scope",
+        "CCTV + IT AMC"
+      ]
+    ],
+    "pdf_file": "assets/case-studies/pdf/custom/hindustan-copper-gcp-cctv-it-amc-fms.pdf"
+  },
+  {
     "id": "toyo-ink-dahej-network",
     "client": "Toyo Ink India Pvt. Ltd.",
     "wordmark": null,
